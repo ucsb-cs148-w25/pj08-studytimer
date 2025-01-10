@@ -1,0 +1,1 @@
+My name is Andrew Vosgueritchian, I believe the study timer will be useful to myself and other students who struggle with time management. I have experience in web development and would also be interested in learning how to create our project into a mobile app.
