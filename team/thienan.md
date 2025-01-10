@@ -1,0 +1,1 @@
+Hello, my name is Thienan Vu and I am a 3rd year Computer Science major. An idea I have for our app is to make the study breaks have something stimulating so that users look forward to breaks.
