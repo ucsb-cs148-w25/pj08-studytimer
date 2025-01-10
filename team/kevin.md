@@ -1,0 +1,1 @@
+My name is Kevin Lee, I orignally came up with the study timer idea because I tend to study last minute and don't take breaks. This idea will use paramters like importance, deadline and others. 
