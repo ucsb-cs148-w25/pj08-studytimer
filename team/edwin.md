@@ -1,0 +1,3 @@
+Hello! My name is Edwin Medrano Villela, I am a third year CS undergrad at UCSB and excited to see what will come out of this course!
+
+A study timer should be relatively simple and accomplishable, so I want to expand on a few other ideas that I have come up with. The first, is some sort of smart planner (similar to an idea that I had submitted into the Idea Form we had at the beginning of the course) for assignments and stuff. It might be some sort of central hub, where you click a task or assignment that the user may have, and from there, you can start the timer. There are other features that my teamates have in mind, so I will leave that to them to explain!
