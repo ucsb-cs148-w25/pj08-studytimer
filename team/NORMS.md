@@ -8,7 +8,7 @@
 - Lawrence Wang
 
 
-#Ideal Team Norms
+# Ideal Team Norms
 
 - Attend and pay attention in standup meetings
 - Communicate issues as they arise to teammates
