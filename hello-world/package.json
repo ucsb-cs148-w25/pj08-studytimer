@@ -1,7 +1,6 @@
 {
   "name": "hello-world",
   "version": "0.1.0",
-  "homepage": "https://ucsb-cs148-w25.github.io/pj08-studytimer/hello-world",
   "private": true,
   "dependencies": {
     "cra-template": "1.2.0",
@@ -11,8 +10,6 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
