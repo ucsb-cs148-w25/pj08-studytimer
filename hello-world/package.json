@@ -1,7 +1,7 @@
 {
   "name": "hello-world",
   "version": "0.1.0",
-  "homepage": "https://kjlee2504.github.io/ucsb-cs148-w25/pj08-studytimer",
+  "homepage": "https://ucsb-cs148-w25.github.io/pj08-studytimer/hello-world",
   "private": true,
   "dependencies": {
     "cra-template": "1.2.0",
