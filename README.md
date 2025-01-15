@@ -2,7 +2,7 @@
 
 ## Features
 
-This is a skeleton of the study timer project showcasing a basic implementation using React."
+This is a skeleton of the study timer project showcasing a basic implementation using React.
 
 - It displays "Hello World" in the header
 - It has a header and footer in it
