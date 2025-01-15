@@ -28,6 +28,6 @@ Before running or deploying this app, ensure you have the following software ins
 
 ## Deployment
 
-This app was deployed with Netlify (found it online and it's free!)
+This app was deployed with Netlify
 
-deployed at: https://playful-wisp-b913a9.netlify.app/
+Website URL: https://playful-wisp-b913a9.netlify.app/
