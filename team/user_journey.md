@@ -1,4 +1,4 @@
-#User Journey
+# User Journey
 
 - As a student, I can input my class schedule, assignments, and deadlines so that the app creates a study plan that fits around my busy day.
 - As a teacher, I can recommend the app to my students so that they can manage their assignments and improve their time management skills.
