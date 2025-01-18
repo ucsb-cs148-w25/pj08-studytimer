@@ -1,0 +1,39 @@
+.App {
+  text-align: center;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Full height of the viewport */
+}
+
+.App-header {
+  flex: 1;
+  background-color: #282c34;
+  color: white;
+  padding: 10px;
+  font-size: 24px; /* Reduced font size */
+}
+
+.App-body {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px; /* Reduced font size */
+  background-color: #282c34;
+  color: white;
+}
+
+.App-clock {
+  flex: 2;
+  padding: 20px;
+  font-size: 36px;
+  background-color: #d3d3d3; /* Light gray background */
+  color: #888; /* Light font color */
+  font-style: italic;
+}
+
+.App-footer {
+  background-color: #f1f1f1;
+  color: #555;
+  padding: 10px;
+  font-size: 14px;
+}
