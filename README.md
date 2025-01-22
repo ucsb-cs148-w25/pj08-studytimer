@@ -3,6 +3,8 @@
 ## Project Description:
 Our project is a study timer web application with adaptive break suggestions based on deadlines and personal schedule.
 
+Deployed at: https://pj-timewise.netlify.app/
+
 ## Team Members:
 - Kevin Lee (kjlee2504)
 - Jennifer Lopez (jenniferlopez17)
