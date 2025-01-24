@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 const App = () => {
   // Timer state variables
-  const [time, setTime] = useState(1500); // 25 minutes in seconds
+  const [time, setTime] = useState(1500); // Default timer in seconds (25 minutes)
+  const [totalTime, setTotalTime] = useState(1500); // User-defined total timer duration
   const [breakTime, setBreakTime] = useState(300); // Default break time: 5 minutes
   const [isRunning, setIsRunning] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
+  const [halfwayReached, setHalfwayReached] = useState(false);
 
   // Styles
   const styles = {
@@ -39,6 +41,19 @@ const App = () => {
       borderRadius: '5px',
       border: '1px solid #ccc',
     },
+    sidebar: {
+      position: 'absolute',
+      right: '20px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      backgroundColor: '#444',
+      padding: '20px',
+      borderRadius: '10px',
+    },
+    slider: {
+      width: '100%',
+      margin: '20px 0',
+    },
   };
 
   // Timer logic
@@ -50,15 +65,28 @@ const App = () => {
       }, 1000);
     }
 
-    if (time === 0) {
+    if (time === Math.floor(totalTime / 2) && !halfwayReached) {
       setIsRunning(false);
-      setOnBreak(!onBreak);
-      setTime(onBreak ? 1500 : breakTime);
-      alert(onBreak ? 'Work session over! Time for a break.' : 'Break over! Back to work.');
+      setOnBreak(true);
+      setHalfwayReached(true);
+      setTime(breakTime);
+      alert('Halfway point reached! Time for a break.');
+    }
+
+    if (time === 0) {
+      if (onBreak) {
+        setOnBreak(false);
+        setTime(totalTime / 2);
+      } else {
+        setIsRunning(false);
+        setHalfwayReached(false);
+        setTime(totalTime);
+        alert('Session complete!');
+      }
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, time, onBreak, breakTime]);
+  }, [isRunning, time, onBreak, halfwayReached, totalTime, breakTime]);
 
   // Helper function to format time
   const formatTime = (seconds) => {
@@ -85,7 +113,8 @@ const App = () => {
           style={{ ...styles.button, backgroundColor: '#ff6666' }}
           onClick={() => {
             setIsRunning(false);
-            setTime(onBreak ? breakTime : 1500);
+            setTime(totalTime);
+            setHalfwayReached(false);
           }}
         >
           Reset
@@ -102,6 +131,26 @@ const App = () => {
             onChange={(e) => setBreakTime(e.target.value * 60)}
             min="1"
           />
+        </label>
+      </div>
+
+      <div style={styles.sidebar}>
+        <label>
+          Timer Duration (minutes):
+          <input
+            type="range"
+            style={styles.slider}
+            min="5"
+            max="60"
+            value={totalTime / 60}
+            onChange={(e) => {
+              const newTime = e.target.value * 60;
+              setTotalTime(newTime);
+              setTime(newTime);
+              setHalfwayReached(false);
+            }}
+          />
+          <p>{totalTime / 60} minutes</p>
         </label>
       </div>
     </div>
