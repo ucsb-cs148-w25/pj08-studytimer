@@ -4,7 +4,7 @@ const App = () => {
   // Timer state variables
   const [time, setTime] = useState(1500); // Default timer in seconds (25 minutes)
   const [totalTime, setTotalTime] = useState(1500); // User-defined total timer duration
-  const [breakTime, setBreakTime] = useState(300); // Default break time: 5 minutes
+  const [breakTime, setBreakTime] = useState(null); // Default break time: null
   const [isRunning, setIsRunning] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
   const [halfwayReached, setHalfwayReached] = useState(false);
@@ -66,11 +66,13 @@ const App = () => {
     }
 
     if (time === Math.floor(totalTime / 2) && !halfwayReached) {
-      setIsRunning(false);
-      setOnBreak(true);
-      setHalfwayReached(true);
-      setTime(breakTime);
-      alert('Halfway point reached! Time for a break.');
+      if (breakTime) {
+        setIsRunning(false);
+        setOnBreak(true);
+        setHalfwayReached(true);
+        setTime(breakTime);
+        alert('Halfway point reached! Time for a break.');
+      }
     }
 
     if (time === 0) {
@@ -127,9 +129,12 @@ const App = () => {
           <input
             type="number"
             style={styles.input}
-            value={breakTime / 60}
-            onChange={(e) => setBreakTime(e.target.value * 60)}
-            min="1"
+            value={breakTime !== null ? breakTime / 60 : ''}
+            onChange={(e) => {
+              const value = e.target.value;
+              setBreakTime(value ? value * 60 : null);
+            }}
+            placeholder="No break"
           />
         </label>
       </div>
