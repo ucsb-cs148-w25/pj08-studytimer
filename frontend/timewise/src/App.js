@@ -1,14 +1,16 @@
 import React from 'react';
+import Navbar from './components/Navbar';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
+      <Navbar/><header className="App-header">
         <p>
           <h1>Welcome to timewise</h1>
           this is our initial deployment!
         </p>
       </header>
+      
     </div>
   );
 }
