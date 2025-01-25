@@ -14,6 +14,7 @@ function Navbar() {
         <ul id="navbar">
           <li><Link to="/">Home</Link></li>
           <li><Link to="/calendar">Calendar</Link></li>
+          <li><Link to="/task_manager">To-Do List</Link></li>
           <li><Link to="/profile">Profile</Link></li>
           <li><Link to="/settings">Settings</Link></li>
           <li><Link to="/about">About</Link></li>
