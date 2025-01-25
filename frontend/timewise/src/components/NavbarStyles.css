@@ -19,7 +19,7 @@ a svg {
 }
 
 #webapp-title {
-    margin-left: 15px;
+    margin-left: 10px;
     font-size: 1.7rem;
     font-weight: 700;
     color: #fff;
@@ -27,6 +27,18 @@ a svg {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+/* #webapp-title span {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+} */
+
+#logo {
+    width: 40px;
+    margin: auto;
+}
 
 #webapp-title:hover {
     color: #9be6fa;
