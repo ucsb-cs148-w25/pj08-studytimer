@@ -1,15 +1,17 @@
-# timewise
-*Wisely manage your time*
+# Project Name: timewise
+_Wisely manage your time!_
 
 ## Project Description:
-We are making a study timer web application with adaptive break suggestions based on tasks, deadlines, and personal schedules.
-- **App Type:** Web App
-- **Tech Stack:** React, Tailwind, Firebase, Google Calendar API, Google OAuth
-- **Details:** timewise is a web app that allows users to input their tasks, focus, and schedule to generate a smart work plan that minimizes burnout and maximizes work efficiency. Students can use timewise to create effective study plans for their coursework or organize group study sessions. Beyond studying, users from all professions can improve their productivity and time management by syncing the app with their Google Calendar schedule. The app will plan time for tasks around their schedule based on difficulty and the user's energy level. During a study session, timewise will prompt users to take breaks based on their workload to improve focus.
+Our project, _timewise_, is a web app that hopes to help users manage their time wisely and effectively, with a timer! Our app allows users to input their tasks, focus, and schedule(s) to generate an personalized work plan that maximizes work efficiency. Additionally, based on the user's current motivation and difficulty of tasks, adaptive break suggestiosn will pop up to minimize burnout within our users. 
 
-Deployed at: https://pj-timewise.netlify.app/
+Feel free to try out our app here! --> https://pj-timewise.netlify.app/
 
-## Team Members:
+## Tech Stack
+- Frontend: React and Tailwind CSS
+- Backend: Firebase 
+- APIs: Google Calendar API thru. Google OAuth
+
+## Team Members [Name, GitHub-IDs]:
 - Kevin Lee (kjlee2504)
 - Jennifer Lopez (jenniferlopez17)
 - Cindy Zhao (cinstar)
@@ -18,11 +20,16 @@ Deployed at: https://pj-timewise.netlify.app/
 - Thienan Vu (thienanvuu)
 - Lawrence Wang (lawrencewang30)
 
-## Tech Stack
-React
+## Project Focus and Goals
+_timewise_ is designed to improve productivity by optimizing work and study sessions. With a simple and distraction-free interface, _timewise_ incorporates techniques like the Pomodoro method to help users maintain focus while preventing fatigue. Features include:
 
-## Project Focus  
-The Study Timer is a web application designed to enhance productivity by helping users manage their study or work sessions effectively. It incorporates techniques like the Pomodoro method, enabling users to set focused work intervals with regular breaks to sustain attention and prevent fatigue. The application offers a simplistic distraction-free interface with features such as adjustable timer durations, calendar-synced task tracking, motivational notifications, and etc. As a web-based tool, it is accessible across devices, making it easy for students, professionals, or a casual person to stay organized and productive no matter where they are.
+- Adjustable timer durations tailored to user preferences
+- Calendar-synced task tracking for streamlined scheduling
+- Adaptive work plans based on task difficulty and energy levels
+- Smart break suggestions to enhance focus and prevent burnout
+- Motivational notifications to keep users on track
+
+We hope that _timewise_ is ideal for students, professionals, and anyone else aiming to improve their time management!
 
 ## User Roles
 1. Guest Users (No Account)
@@ -31,3 +38,6 @@ The Study Timer is a web application designed to enhance productivity by helping
 2. Registered Users (via Google Sign-In)
    - Full access to all prevalent features upon account creation
    - Provide personalized, persistent experiences for regular users
+
+## Installation
+_Coming soon w/ lab03 and our MVP!_
