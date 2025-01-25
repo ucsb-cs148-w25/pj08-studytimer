@@ -99,6 +99,10 @@ const App = () => {
   };
 
   return (
+    <>
+    <div style={{ width: '100%' }}>
+      <Navbar />
+    </div>
     <div style={styles.app}>
       <h1>Timewise</h1>
       <p>Your companion for focused productivity and mindful breaks.</p>
@@ -160,6 +164,7 @@ const App = () => {
         </label>
       </div>
     </div>
+    </>
   );
 };
 

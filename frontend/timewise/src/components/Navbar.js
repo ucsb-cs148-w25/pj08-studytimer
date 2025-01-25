@@ -11,8 +11,9 @@ function Navbar() {
                 <div>
                     <ul id="navbar">
                         <li><a href="index.html">Home</a></li>
-                        <li><a href="index.html">Profile</a></li>
                         <li><a href="index.html">Calendar</a></li>
+                        <li><a href="index.html">Profile</a></li>
+                        <li><a href="index.html">Settings</a></li>
                         <li><a href="index.html">About</a></li>
                     </ul>
                 </div>
