@@ -8,7 +8,7 @@ function Navbar() {
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.9 595.3">
           {/* Your existing SVG paths */}
         </svg>
-        <img id="logo" src="favicon.png" alt="timewise logo"/>
+        <img id="logo" src="favicon.svg" alt="timewise logo"/>
         <span id="webapp-title">timewise</span>
       </Link>
       <div>
