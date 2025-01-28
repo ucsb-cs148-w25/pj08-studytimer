@@ -58,18 +58,24 @@ a svg {
 /*for mobile*/
 @media (max-width: 768px) {
     #navbar {
-        display: none; 
+        display: none; /* Hide the navbar by default */
         flex-direction: column;
         position: absolute;
         top: 100%;
         left: 0;
-        width: 100%;
+        width: 100vw; /* Ensure it takes up the full viewport width */
         background: #000000;
-        padding: 20px;
+        padding: 20px 10px;
+        box-sizing: border-box; /* Ensure padding doesn’t cause overflow */
     }
 
     #navbar.active {
-        display: flex; /* Show the navbar when the hamburger is clicked */
+        display: flex;
+    }
+
+    /* Prevent body from scrolling when the menu is open */
+    body.menu-open {
+        overflow: hidden;
     }
 
     #navbar li {
