@@ -4,13 +4,15 @@ nav {
     justify-content: space-between;
     background: #000000;
     padding: 0px 60px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 a {
     display: flex;
     align-items: center;
     text-decoration: none;
-
 }
 
 a svg {
@@ -27,47 +29,21 @@ a svg {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* #webapp-title span {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-} */
-
 #logo {
     width: 40px;
     margin: auto;
 }
 
-#webapp-title:hover {
-    color: #9be6fa;
-}
-
-#webapp-title:hover::after {
-    content: "";
-    width: 30%;
-    height: 2px;
-    background: #9be6fa;
-    position: absolute;
-    bottom: -4px;
-    left: 20px;
-}
-
 #navbar {
     display: flex;
     align-items: center;
-    justify-content: center;
-}
-
-#navbar li {
+    gap: 20px;
     list-style: none;
-    padding: 0 20px;
-    position: relative;
-    font-family: Arial, Helvetica, sans-serif;
+    padding: 0;
+    margin: 0;
 }
 
-#navbar li a{
+#navbar li a {
     text-decoration: none;
     font-size: 1.3rem;
     font-weight: 600;
@@ -75,16 +51,46 @@ a svg {
     transition: 0.3s ease-in-out;
 }
 
-#navbar li a:hover{
+#navbar li a:hover {
     color: #9be6fa;
 }
 
-#navbar li a:hover::after {
-    content: "";
-    width: 30%;
-    height: 2px;
-    background: #9be6fa;
-    position: absolute;
-    bottom: -4px;
-    left: 20px;
+/*for mobile*/
+@media (max-width: 768px) {
+    #navbar {
+        display: none; 
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #000000;
+        padding: 20px;
+    }
+
+    #navbar.active {
+        display: flex; /* Show the navbar when the hamburger is clicked */
+    }
+
+    #navbar li {
+        text-align: center;
+        padding: 10px 0;
+    }
+
+    /* Hamburger menu visible only on mobile */
+    .menu-toggle {
+        display: block;
+        font-size: 2rem;
+        color: #fff;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+/* Hide hamburger menu on larger screens */
+@media (min-width: 769px) {
+    .menu-toggle {
+        display: none;
+    }
 }
