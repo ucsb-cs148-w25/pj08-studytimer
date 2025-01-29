@@ -29,6 +29,8 @@ const App = () => {
       color: 'white',
       fontFamily: 'Arial, sans-serif',
       textAlign: 'center',
+      position: 'relative',
+      overflow: 'hidden',
     },
     timer: {
       fontSize: '4rem',
@@ -62,6 +64,28 @@ const App = () => {
       width: '100%',
       margin: '20px 0',
     },
+    // Icy overlay effect
+    icyOverlay: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(173, 216, 230, 0.5)', // Light icy blue with transparency
+      backdropFilter: 'blur(8px)', // Frosted glass effect
+      display: onBreak ? 'block' : 'none',
+      zIndex: 10, // Ensure it's on top
+    },
+    icyText: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      fontSize: '3rem',
+      fontWeight: 'bold',
+      color: '#ffffff',
+      textShadow: '2px 2px 10px rgba(0, 0, 255, 0.8)', // Icy glow effect
+    },
   };
 
   // ----------------------
@@ -77,11 +101,10 @@ const App = () => {
 
     if (time === Math.floor(totalTime / 2) && !halfwayReached) {
       if (breakTime) {
-        setIsRunning(false);
+        setIsRunning(true);
         setOnBreak(true);
         setHalfwayReached(true);
         setTime(breakTime);
-        alert('Halfway point reached! Time for a break.');
       }
     }
 
@@ -125,7 +148,12 @@ const App = () => {
           path="/"
           element={
             <div style={styles.app}>
-              <h1>Timewise</h1>
+              {/* Icy Overlay when on break */}
+              <div style={styles.icyOverlay}>
+                <div style={styles.icyText}>Take a Break ❄️</div>
+              </div>
+
+              <h1>timewise</h1>
               <p>Your companion for focused productivity and mindful breaks.</p>
 
               <div style={styles.timer}>{formatTime(time)}</div>
@@ -175,7 +203,7 @@ const App = () => {
                   <input
                     type="range"
                     style={styles.slider}
-                    min="5"
+                    min="1"
                     max="60"
                     value={totalTime / 60}
                     onChange={(e) => {
