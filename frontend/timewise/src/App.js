@@ -157,8 +157,12 @@ const App = () => {
                     style={styles.input}
                     value={breakTime !== null ? breakTime / 60 : ''}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      setBreakTime(value ? value * 60 : null);
+                      const value = parseInt(e.target.value, 10);
+                      if (!isNaN(value) && value >= 0) {
+                        setBreakTime(value * 60);
+                      } else if (e.target.value === '') {
+                        setBreakTime(null);
+                      }
                     }}
                     placeholder="No break"
                   />
