@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
+import TaskManager from './components/TaskManager';
 
 const App = () => {
   // ----------------------
@@ -189,6 +190,7 @@ const App = () => {
 
         {/* PROFILE route — displays your Profile component */}
         <Route path="/profile" element={<Profile />} />
+        <Route path="/task_manager" element={<TaskManager />} />
       </Routes>
     </Router>
   );
