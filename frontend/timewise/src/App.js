@@ -4,6 +4,11 @@ import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import TaskManager from './components/TaskManager';
 
+  // ----------------------
+  // Sounds
+  // ----------------------
+const freezeSound = new Audio('/sounds/freeze.mp3');
+
 const App = () => {
   // ----------------------
   // Timer state variables
@@ -105,6 +110,7 @@ const App = () => {
         setOnBreak(true);
         setHalfwayReached(true);
         setTime(breakTime);
+        freezeSound.play();
       }
     }
 
@@ -112,6 +118,7 @@ const App = () => {
       if (onBreak) {
         setOnBreak(false);
         setTime(totalTime / 2);
+        freezeSound.play();
       } else {
         setIsRunning(false);
         setHalfwayReached(false);
