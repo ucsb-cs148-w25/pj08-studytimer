@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import TaskManager from './components/TaskManager';
+import SettingsModal from './components/SettingsModal';
 
   // ----------------------
   // Sounds
@@ -19,6 +20,11 @@ const App = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
   const [halfwayReached, setHalfwayReached] = useState(false);
+
+  // ----------------------
+  // Modal state
+  // ----------------------
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // ----------------------
   // Styles
@@ -144,7 +150,6 @@ const App = () => {
   // ----------------------
   return (
     <Router>
-      {/* Navbar is always visible */}
       <div style={{ width: '100%' }}>
         <Navbar />
       </div>
@@ -182,47 +187,23 @@ const App = () => {
                 >
                   Reset
                 </button>
+                <button
+                  style={{ ...styles.button, backgroundColor: '#ffcc00' }}
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Settings ⚙️
+                </button>
               </div>
 
-              <div>
-                <label>
-                  Break Time (minutes):
-                  <input
-                    type="number"
-                    style={styles.input}
-                    value={breakTime !== null ? breakTime / 60 : ''}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value, 10);
-                      if (!isNaN(value) && value >= 0) {
-                        setBreakTime(value * 60);
-                      } else if (e.target.value === '') {
-                        setBreakTime(null);
-                      }
-                    }}
-                    placeholder="No break"
-                  />
-                </label>
-              </div>
-
-              <div style={styles.sidebar}>
-                <label>
-                  Timer Duration (minutes):
-                  <input
-                    type="range"
-                    style={styles.slider}
-                    min="1"
-                    max="60"
-                    value={totalTime / 60}
-                    onChange={(e) => {
-                      const newTime = e.target.value * 60;
-                      setTotalTime(newTime);
-                      setTime(newTime);
-                      setHalfwayReached(false);
-                    }}
-                  />
-                  <p>{totalTime / 60} minutes</p>
-                </label>
-              </div>
+              {/* Settings Modal */}
+              <SettingsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                totalTime={totalTime}
+                setTotalTime={setTotalTime}
+                breakTime={breakTime}
+                setBreakTime={setBreakTime}
+              />
             </div>
           }
         />
