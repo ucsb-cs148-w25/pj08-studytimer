@@ -8,21 +8,26 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
   const handleInputChange = (e) => {
     let value = e.target.value.replace(/[^0-9]/g, ''); // Allow only digits
     const currentDigits = formattedTime.replace(/:/g, ''); // Remove colons for raw digits
-
+  
     if (value.length < currentDigits.length) {
-      // Handle backspace/delete
       const newInput = '0' + currentDigits.slice(0, -1); // Shift digits right and add a leading zero
       const timeInSeconds = parseTime(newInput);
-      setTotalTime(timeInSeconds);
       setFormattedTime(formatTime(timeInSeconds));
     } else if (value.length > currentDigits.length) {
-      // Handle adding new digits
       const newInput = currentDigits.slice(1) + value.slice(-1); // Shift digits left and add the new digit
       const timeInSeconds = parseTime(newInput);
-      setTotalTime(timeInSeconds);
       setFormattedTime(formatTime(timeInSeconds));
     }
   };
+  
+  // Validate and set a minimum total time when the user finishes editing
+  const handleInputBlur = () => {
+    const timeInSeconds = parseTime(formattedTime.replace(/:/g, '')); // Convert formatted time to seconds
+    const validTime = Math.max(timeInSeconds, 1); // Ensure at least 1 second
+    setTotalTime(validTime);
+    setFormattedTime(formatTime(validTime));
+  };
+  
 
   const handleAddTime = (seconds) => {
     const newTime = totalTime + seconds;
@@ -61,6 +66,7 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
             style={styles.timerInput}
             value={formattedTime}
             onChange={handleInputChange}
+            onBlur={handleInputBlur} // Validate on blur
           />
         </div>
 
