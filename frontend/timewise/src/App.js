@@ -5,9 +5,9 @@ import Profile from './components/Profile';
 import TaskManager from './components/TaskManager';
 import SettingsModal from './components/SettingsModal';
 
-  // ----------------------
-  // Sounds
-  // ----------------------
+// ----------------------
+// Sounds
+// ----------------------
 const freezeSound = new Audio('/sounds/freeze.mp3');
 
 const App = () => {
@@ -55,27 +55,6 @@ const App = () => {
       borderRadius: '5px',
       cursor: 'pointer',
     },
-    input: {
-      margin: '10px',
-      padding: '10px',
-      fontSize: '1rem',
-      borderRadius: '5px',
-      border: '1px solid #ccc',
-    },
-    sidebar: {
-      position: 'absolute',
-      right: '20px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      backgroundColor: '#444',
-      padding: '20px',
-      borderRadius: '10px',
-    },
-    slider: {
-      width: '100%',
-      margin: '20px 0',
-    },
-    // Icy overlay effect
     icyOverlay: {
       position: 'absolute',
       top: 0,
@@ -129,12 +108,22 @@ const App = () => {
         setIsRunning(false);
         setHalfwayReached(false);
         setTime(totalTime);
-        alert('Session complete!');
       }
     }
 
     return () => clearInterval(timer);
   }, [isRunning, time, onBreak, halfwayReached, totalTime, breakTime]);
+
+  // ----------------------
+  // Handle settings change
+  // ----------------------
+  const handleSettingsChange = (newTotalTime, newBreakTime) => {
+    setIsRunning(false); // Stop the timer
+    setTime(newTotalTime); // Update the time immediately
+    setTotalTime(newTotalTime); // Update total time
+    setBreakTime(newBreakTime); // Update break time
+    setHalfwayReached(false); // Reset halfway reached flag
+  };
 
   // ----------------------
   // Helper function
@@ -200,9 +189,9 @@ const App = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 totalTime={totalTime}
-                setTotalTime={setTotalTime}
+                setTotalTime={(newTime) => handleSettingsChange(newTime, breakTime)}
                 breakTime={breakTime}
-                setBreakTime={setBreakTime}
+                setBreakTime={(newBreakTime) => handleSettingsChange(totalTime, newBreakTime)}
               />
             </div>
           }

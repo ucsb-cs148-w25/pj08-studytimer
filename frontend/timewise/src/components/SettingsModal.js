@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime }) => {
+const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, setBreakTime }) => {
   const [formattedTime, setFormattedTime] = useState(formatTime(totalTime)); // Initialize with the formatted current time
 
   if (!isOpen) return null; // Do not render if modal is closed
@@ -32,6 +32,13 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime }) => {
     }
   };
 
+  const handleBreakTimeChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value >= 0) {
+      setBreakTime(value * 60); // Convert minutes to seconds
+    }
+  };
+
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
@@ -58,6 +65,19 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime }) => {
           <button style={styles.incrementButton} onClick={() => handleAddTime(300)}>
             +5:00
           </button>
+        </div>
+
+        {/* Break Time Input */}
+        <div>
+          <label style={styles.breakLabel}>
+            Break Time (minutes):
+            <input
+              type="number"
+              style={styles.breakInput}
+              value={breakTime !== null ? breakTime / 60 : ''} // Convert seconds to minutes
+              onChange={handleBreakTimeChange}
+            />
+          </label>
         </div>
 
         {/* Save & Close Button */}
@@ -140,6 +160,19 @@ const styles = {
     backgroundColor: '#f0f0f0',
     border: '1px solid #ccc',
     cursor: 'pointer',
+  },
+  breakLabel: {
+    display: 'block',
+    margin: '10px 0',
+    fontSize: '1rem',
+  },
+  breakInput: {
+    width: '80%',
+    padding: '8px',
+    fontSize: '1rem',
+    borderRadius: '5px',
+    border: '1px solid #ccc',
+    textAlign: 'center',
   },
   button: {
     padding: '10px 20px',
