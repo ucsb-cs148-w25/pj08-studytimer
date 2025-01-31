@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
+import CalendarPage from './components/CalendarPage';
 import TaskManager from './components/TaskManager';
-
   // ----------------------
   // Sounds
   // ----------------------
@@ -229,6 +229,8 @@ const App = () => {
 
         {/* PROFILE route — displays your Profile component */}
         <Route path="/profile" element={<Profile />} />
+        {/* CALENDAR route — displays your Calendar component */}
+        <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/task_manager" element={<TaskManager />} />
       </Routes>
     </Router>
