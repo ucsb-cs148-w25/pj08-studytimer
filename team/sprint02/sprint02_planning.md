@@ -28,3 +28,13 @@ As a student, I can sync my calendar or to-do apps so that the study timer integ
 As a student, I can turn on a distraction free mode which locks the screen, so that I can effectively focus on my goals for the study session.
 As a group, we can explore group study spots, so that we efficiently find a place to study together.
 As a student, I am recommended diverse study spot options, so that I can find the perfect place to concentrate for my needs.
+
+*Updates:*
+Date: 01/27/25
+
+New ideas for project:
+- Calendar - "upcoming" sidebar
+- Metrics
+- Customizations
+- Add friends
+- Study spot recommendations
