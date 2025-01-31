@@ -6,12 +6,15 @@ const API_URL =
     ? "http://127.0.0.1:5000"
     : "https://pj08-studytimer.onrender.com");
 
-export const fetchData = async () => {
+// Function to fetch user data
+export const fetchUser = async () => {
   try {
-    const response = await axios.get(`${API_URL}/api/data`);
+    const response = await axios.get(`${API_URL}/get-user`, {
+      withCredentials: true, // Ensures cookies are sent with the request
+    });
     return response.data;
   } catch (error) {
-    console.error("Error fetching data:", error);
-    return null;
+    console.error("Error fetching user data:", error.response?.data || error.message);
+    return { user: null, error: "Failed to fetch user data" };
   }
 };

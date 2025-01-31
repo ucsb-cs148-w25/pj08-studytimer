@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import CalendarPage from './components/CalendarPage';
 import TaskManager from './components/TaskManager';
-import { fetchData } from './api'; 
+import { fetchUser } from "./api";
 
 // ----------------------
 // Sounds
@@ -27,19 +27,21 @@ const App = () => {
   // Fetch API data when the component mounts
   // ----------------------
   useEffect(() => {
-
-    fetchData()
-      .then((result) => {
+    const getUserData = async () => {
+      try {
+        const result = await fetchUser();  
         if (result) {
           console.log("✅ Data received in App:", result);
-          setApiData(result); 
+          setApiData(result);
         } else {
           console.log("❌ No data received or API call failed.");
         }
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("❌ Fetch error:", error);
-      });
+      }
+    };
+
+    getUserData();
   }, []);
 
   // ----------------------
