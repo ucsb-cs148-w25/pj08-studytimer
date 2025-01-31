@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
+import CalendarPage from './components/CalendarPage';
 
 const App = () => {
   // ----------------------
@@ -189,6 +190,9 @@ const App = () => {
 
         {/* PROFILE route — displays your Profile component */}
         <Route path="/profile" element={<Profile />} />
+
+        {/* CALENDAR route — displays your Calendar component */}
+        <Route path="/calendar" element={<CalendarPage />} />
       </Routes>
     </Router>
   );
