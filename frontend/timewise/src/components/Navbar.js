@@ -1,36 +1,36 @@
 import { Link } from 'react-router-dom';
-import "./NavbarStyles.css";
 import { useState } from 'react';
+import { Squash as Hamburger } from 'hamburger-react';
+import "./NavbarStyles.css";
 
 function Navbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
 
   return (
     <nav>
-      <div>
+      <div className="nav-left">
         <Link to="/" className="logo-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.9 595.3">
-            {/* Your existing SVG paths */}
-          </svg>
-          <img id="logo" src="favicon.svg" alt="timewise logo" />
+          <img id="logo" src="favicon.svg" alt="timewise logo"/>
           <span id="webapp-title">timewise</span>
         </Link>
+
+        <ul id="navbar" className={`desktop-navbar ${isMenuOpen ? "active" : ""}`}>
+          <li><Link to="/calendar">Calendar</Link></li>
+          <li><Link to="/task_manager">To-Do</Link></li>
+          <li><Link to="/settings">Settings</Link></li>
+        </ul>
       </div>
-      {/* Hamburger menu - hidden on larger screens */}
-      <button
-        className="menu-toggle"
-        onClick={() => setMenuOpen(!isMenuOpen)}
-      >
-        ☰
-      </button>
-      <ul id="navbar" className={isMenuOpen ? "active" : ""}>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/calendar">Calendar</Link></li>
-        <li><Link to="/task_manager">To-Do List</Link></li>
-        <li><Link to="/profile">Profile</Link></li>
-        <li><Link to="/settings">Settings</Link></li>
-        <li><Link to="/about">About</Link></li>
-      </ul>
+
+      <div className="nav-right">
+        <Link to="/profile" className="user-profile">
+          <span className="user-name">Hello! NAME</span>
+        </Link>
+        <Link to="/about" className="about-link">About</Link>
+
+        <div className="hamburger-menu">
+          <Hamburger toggled={isMenuOpen} toggle={setMenuOpen} />
+        </div>
+      </div>
     </nav>
   );
 }
