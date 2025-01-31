@@ -1,16 +1,13 @@
-import DoughnutChart from "./DoughnutChart";
 import React, { useEffect, useState } from "react";
 import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import DoughnutChart from "./DoughnutChart";
 // -----------
 // TODO:
 // 1. store data locally (information saved until localhost connection ends)
 // 2. drag and drop to allow users to customly order tasks if does not want to filter
 // 3. Undo button?
 // -----------
-
 function TaskManager() {
   const [tasks, setTasks] = useState(() => {
     const savedTasks = localStorage.getItem("tasks");
@@ -224,10 +221,9 @@ function TaskManager() {
     </SortableContext>
   );
 
-return (
+  return (
     <div style={styles.container}>
       <h1 style={styles.header}>My Tasks</h1>
-      <DoughnutChart tasks={tasks} />
 
       {/* Form to add or edit a task */}
       <form onSubmit={editTaskTitle !== null ? (e) => { e.preventDefault(); saveEdit(); } : handleAddTask} style={styles.form}>
