@@ -1,5 +1,6 @@
 flask
 flask-cors
+flask_session
 gunicorn
 authlib
 python-dotenv
