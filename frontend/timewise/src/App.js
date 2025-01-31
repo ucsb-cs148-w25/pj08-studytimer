@@ -4,9 +4,12 @@ import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import CalendarPage from './components/CalendarPage';
 import TaskManager from './components/TaskManager';
-  // ----------------------
-  // Sounds
-  // ----------------------
+import SettingsModal from './components/SettingsModal';
+
+// ----------------------
+// Sounds
+// ----------------------
+
 const freezeSound = new Audio('/sounds/freeze.mp3');
 
 const App = () => {
@@ -19,6 +22,11 @@ const App = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
   const [halfwayReached, setHalfwayReached] = useState(false);
+
+  // ----------------------
+  // Modal state
+  // ----------------------
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // ----------------------
   // Styles
@@ -49,27 +57,6 @@ const App = () => {
       borderRadius: '5px',
       cursor: 'pointer',
     },
-    input: {
-      margin: '10px',
-      padding: '10px',
-      fontSize: '1rem',
-      borderRadius: '5px',
-      border: '1px solid #ccc',
-    },
-    sidebar: {
-      position: 'absolute',
-      right: '20px',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      backgroundColor: '#444',
-      padding: '20px',
-      borderRadius: '10px',
-    },
-    slider: {
-      width: '100%',
-      margin: '20px 0',
-    },
-    // Icy overlay effect
     icyOverlay: {
       position: 'absolute',
       top: 0,
@@ -123,12 +110,22 @@ const App = () => {
         setIsRunning(false);
         setHalfwayReached(false);
         setTime(totalTime);
-        alert('Session complete!');
       }
     }
 
     return () => clearInterval(timer);
   }, [isRunning, time, onBreak, halfwayReached, totalTime, breakTime]);
+
+  // ----------------------
+  // Handle settings change
+  // ----------------------
+  const handleSettingsChange = (newTotalTime, newBreakTime) => {
+    setIsRunning(false); // Stop the timer
+    setTime(newTotalTime); // Update the time immediately
+    setTotalTime(newTotalTime); // Update total time
+    setBreakTime(newBreakTime); // Update break time
+    setHalfwayReached(false); // Reset halfway reached flag
+  };
 
   // ----------------------
   // Helper function
@@ -144,7 +141,6 @@ const App = () => {
   // ----------------------
   return (
     <Router>
-      {/* Navbar is always visible */}
       <div style={{ width: '100%' }}>
         <Navbar />
       </div>
@@ -182,47 +178,23 @@ const App = () => {
                 >
                   Reset
                 </button>
+                <button
+                  style={{ ...styles.button, backgroundColor: '#ffcc00' }}
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Settings ⚙️
+                </button>
               </div>
 
-              <div>
-                <label>
-                  Break Time (minutes):
-                  <input
-                    type="number"
-                    style={styles.input}
-                    value={breakTime !== null ? breakTime / 60 : ''}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value, 10);
-                      if (!isNaN(value) && value >= 0) {
-                        setBreakTime(value * 60);
-                      } else if (e.target.value === '') {
-                        setBreakTime(null);
-                      }
-                    }}
-                    placeholder="No break"
-                  />
-                </label>
-              </div>
-
-              <div style={styles.sidebar}>
-                <label>
-                  Timer Duration (minutes):
-                  <input
-                    type="range"
-                    style={styles.slider}
-                    min="1"
-                    max="60"
-                    value={totalTime / 60}
-                    onChange={(e) => {
-                      const newTime = e.target.value * 60;
-                      setTotalTime(newTime);
-                      setTime(newTime);
-                      setHalfwayReached(false);
-                    }}
-                  />
-                  <p>{totalTime / 60} minutes</p>
-                </label>
-              </div>
+              {/* Settings Modal */}
+              <SettingsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                totalTime={totalTime}
+                setTotalTime={(newTime) => handleSettingsChange(newTime, breakTime)}
+                breakTime={breakTime}
+                setBreakTime={(newBreakTime) => handleSettingsChange(totalTime, newBreakTime)}
+              />
             </div>
           }
         />
