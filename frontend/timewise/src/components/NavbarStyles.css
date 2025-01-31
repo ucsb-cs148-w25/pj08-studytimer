@@ -3,7 +3,7 @@ nav {
     align-items: center;
     justify-content: space-between;
     background: #000000ed;
-    padding: 14px 45px;
+    padding: 14px 40px;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -66,6 +66,25 @@ a:hover {
     gap: 16px;
 }
 
+.sign-in {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #9bc9fa;
+    color: #000000ed;
+    border: none;
+    padding: 8px 15px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+    text-decoration: none;
+}
+
+.sign-in:hover {
+    background-color: #9bc9fa;
+}
+
 .user-name {
     display: flex;
     align-items: center;
@@ -82,7 +101,7 @@ a:hover {
 }
 
 /* faint color for "About" */
-.about-link {
+.about {
     text-decoration: none;
     font-size: 1.3rem;
     font-weight: 400;
@@ -90,46 +109,54 @@ a:hover {
     transition: color 0.3s ease-in-out;
 }
 
-.about-link:hover {
-    color: rgba(255, 255, 255, 0.9);
+.about:hover {
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* FOR MOBILE ONLY */
 @media (max-width: 768px) {
     #navbar {
-        display: none; /* Hide the navbar by default */
+        display: none; 
         flex-direction: column;
         position: absolute;
         top: 100%;
         left: 0;
-        width: 100vw; /* Ensure it takes up the full viewport width */
-        background: #000000ec;
-        padding: 10px 10px;
-        box-sizing: border-box; /* Ensure padding doesn’t cause overflow */
+        width: 100vw; 
+        background: #0000006b;
+        padding: 15px 0px;
+        box-sizing: border-box;
+        z-index: 1000;
     }
 
-    #navbar.active {
+    #navbar.mobile {
         display: flex;
     }
 
     /* Prevent body from scrolling when the menu is open */
-    body.menu-open {
-        overflow: hidden;
-    }
-
     #navbar li {
         text-align: center;
         padding: 10px 0;
     }
 
+    /* Hide nav-right elements except for the hamburger menu */
+    .nav-right > *:not(.hamburger-menu) {
+        display: none;
+    }
+
     /* Hamburger menu visible only on mobile */
     .hamburger-menu {
-        display: block;
-        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: #fff;
-        background: none;
-        border: none;
+        width: 39px;  /* Adjust width */
+        height: 39px; /* Adjust height */
         cursor: pointer;
+    }
+    
+    .hamburger-menu svg {
+        width: 100%; /* Make the icon take full width */
+        height: 100%;
     }
 }
 
