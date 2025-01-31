@@ -33,9 +33,19 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
   };
 
   const handleBreakTimeChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-    if (!isNaN(value) && value >= 0) {
-      setBreakTime(value * 60); // Convert minutes to seconds
+    const value = e.target.value.trim();
+
+    // If the input is empty, set breakTime to null (No Break)
+    if (value === '') {
+      setBreakTime(null);
+      return;
+    }
+
+    const parsedValue = parseInt(value, 10);
+
+    // Prevent negative numbers
+    if (!isNaN(parsedValue) && parsedValue >= 0) {
+      setBreakTime(parsedValue * 60); // Convert minutes to seconds
     }
   };
 
@@ -76,6 +86,7 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
               style={styles.breakInput}
               value={breakTime !== null ? breakTime / 60 : ''} // Convert seconds to minutes
               onChange={handleBreakTimeChange}
+              min="0" // Prevent negative input through the browser UI
             />
           </label>
         </div>
