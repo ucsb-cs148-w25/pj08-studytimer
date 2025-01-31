@@ -2,7 +2,7 @@ flask
 flask-cors
 gunicorn
 authlib
-dotenv
+python-dotenv
 ace_tools==0.0
 anyio==4.6.2.post1
 anytree==2.12.1
