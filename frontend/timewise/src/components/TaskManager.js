@@ -147,18 +147,25 @@ function TaskManager() {
   // Save edited task
   const saveEdit = () => {
     if (taskTitle.trim() && deadline.trim()) {
-      const updatedTasks = [...tasks];
-      updatedTasks[editTaskTitle] = {
-        ...updatedTasks[editTaskTitle],
-        title: taskTitle,
-        deadline,
-        priority,
-      };
-      setTasks(updatedTasks);
-      setTaskTitle("");
-      setDeadline("");
-      setPriority("Low");
-      setEditTaskTitle(null); // Exit edit mode
+      // find index of task to edit
+      const taskIndex = tasks.findIndex((task) => task.title === editTaskTitle);
+
+      if (taskIndex !== -1) {
+        const updatedTasks = [...tasks];
+        updatedTasks[taskIndex] = {
+          ...updatedTasks[taskIndex],
+          title: taskTitle,
+          deadline,
+          priority,
+        };
+
+        // update state
+        setTasks(updatedTasks);
+        setTaskTitle("");
+        setDeadline("");
+        setPriority("Low");
+        setEditTaskTitle(null); // Exit edit mode 
+      }
     } else {
       alert("Please enter a valid task title and deadline!");
     }
