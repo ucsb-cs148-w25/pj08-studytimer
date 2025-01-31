@@ -1,0 +1,15 @@
+.calendar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f0f4fa;
+    max-width: 100vw;
+    margin: auto;
+}
+
+.calendar-iframe {
+    width: 100%;
+    height: 500px;
+    border-radius: 20px;
+}
+  

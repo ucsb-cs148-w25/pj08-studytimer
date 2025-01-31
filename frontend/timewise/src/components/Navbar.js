@@ -1,36 +1,50 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Squash as Hamburger } from 'hamburger-react';
 import "./NavbarStyles.css";
-import { useState } from 'react';
 
 function Navbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken"); 
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   return (
     <nav>
-      <div>
+      <div className="nav-left">
         <Link to="/" className="logo-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.9 595.3">
-            {/* Your existing SVG paths */}
-          </svg>
-          <img id="logo" src="favicon.svg" alt="timewise logo" />
+          <img id="logo" src="favicon.svg" alt="timewise logo"/>
           <span id="webapp-title">timewise</span>
         </Link>
+
+        <ul id="navbar" className={`desktop-navbar ${isMenuOpen ? "mobile" : ""}`}>
+          <li><Link to="/calendar">Calendar</Link></li>
+          <li><Link to="/task_manager">To-Do</Link></li>
+          <li><Link to="/settings">Settings</Link></li>
+        </ul>
       </div>
-      {/* Hamburger menu - hidden on larger screens */}
-      <button
-        className="menu-toggle"
-        onClick={() => setMenuOpen(!isMenuOpen)}
-      >
-        ☰
-      </button>
-      <ul id="navbar" className={isMenuOpen ? "active" : ""}>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/calendar">Calendar</Link></li>
-        <li><Link to="/task_manager">To-Do List</Link></li>
-        <li><Link to="/profile">Profile</Link></li>
-        <li><Link to="/settings">Settings</Link></li>
-        <li><Link to="/about">About</Link></li>
-      </ul>
+
+      <div className="nav-right">
+        {isLoggedIn ? (
+          <Link to="/profile" className={`user-profile ${isMenuOpen ? "mobile" : ""}`}>
+            <span className="user-name">Hello! NAME</span>
+          </Link>
+        ) : (
+          <a href="/login/oauth2/code/google" className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
+            Sign In!
+          </a>
+        )}
+        <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>
+
+        <div className="hamburger-menu">
+          <Hamburger toggled={isMenuOpen} toggle={setMenuOpen} size={28} />
+        </div>
+      </div>
     </nav>
   );
 }

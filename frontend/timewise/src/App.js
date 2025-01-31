@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
+import CalendarPage from './components/CalendarPage';
 import TaskManager from './components/TaskManager';
 import { fetchData } from './api'; 
 
@@ -251,6 +252,8 @@ const App = () => {
         />
 
         <Route path="/profile" element={<Profile />} />
+        {/* CALENDAR route — displays your Calendar component */}
+        <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/task_manager" element={<TaskManager />} />
       </Routes>
     </Router>
