@@ -4,6 +4,8 @@ import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import CalendarPage from './components/CalendarPage';
 import TaskManager from './components/TaskManager';
+import About from './components/About';
+import Settings from './components/Settings';
 import SettingsModal from './components/SettingsModal';
 
 // ----------------------
@@ -204,6 +206,8 @@ const App = () => {
         {/* CALENDAR route — displays your Calendar component */}
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/task_manager" element={<TaskManager />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   );
