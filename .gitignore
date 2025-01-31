@@ -142,7 +142,8 @@ dist
 .pnp.*
 
 # Flask
-.flask_session
+flask_session/
 
 # Python
-.__pycache__
+__pycache__/
+*.pyc
