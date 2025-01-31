@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import DoughnutChart from "./DoughnutChart";
 
 function TaskManager() {
   const [tasks, setTasks] = useState([]); // Store all tasks
@@ -153,9 +154,10 @@ function TaskManager() {
   </table>
 );
 
-  return (
+return (
     <div style={styles.container}>
       <h1 style={styles.header}>My Tasks</h1>
+      <DoughnutChart tasks={tasks} />
 
       {/* Form to add or edit a task */}
       <form onSubmit={editIndex !== null ? (e) => { e.preventDefault(); saveEdit(); } : handleAddTask} style={styles.form}>
