@@ -1,25 +1,24 @@
 import os
+import secrets
 from flask import Flask, redirect, url_for, session, jsonify, request
 from flask_cors import CORS
 from authlib.integrations.flask_client import OAuth
-from flask_session import Session
 from dotenv import load_dotenv
-
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True, origins=["https://https://pj-timewise.netlify.app/"])
 
 # Secure Session Config
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-secret-key')
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_FILE_DIR'] = './flask_session'
-app.config['SESSION_PERMANENT'] = False
-app.config['SESSION_USE_SIGNER'] = True
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = "Lax"
-app.config['SESSION_COOKIE_SECURE'] = False  # Set to True if using HTTPS
-Session(app)
+app.config.update(
+    SECRET_KEY=os.getenv('SECRET_KEY', 'fallback-secret-key'),
+    SESSION_TYPE='securecookie',
+    SESSION_PERMANENT=False,
+    SESSION_USE_SIGNER=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=True, 
+)
 
 # OAuth Config
 oauth = OAuth(app)
@@ -37,16 +36,25 @@ def home():
 
 @app.route('/login')
 def login():
-    redirect_uri = url_for('callback', _external=True)
-    return google.authorize_redirect(redirect_uri)
+    session['oauth_nonce'] = secrets.token_urlsafe(16)
+    session['oauth_state'] = secrets.token_hex(16)
+    redirect_uri = url_for('callback', _external=True, _scheme='https')
+    return google.authorize_redirect(redirect_uri, nonce=session['oauth_nonce'], state=session['oauth_state'])
 
 @app.route('/login/callback')
 def callback():
     try:
+        if session.pop('oauth_state', None) != request.args.get('state'):
+            return jsonify({"error": "CSRF Warning! State does not match."}), 400
+
         token = google.authorize_access_token()
-        user_info = google.parse_id_token(token)
-        session['user'] = user_info
-        return jsonify({"message": "Login successful", "user": user_info})
+        nonce = session.pop('oauth_nonce', None)
+        if not nonce:
+            return jsonify({"error": "Invalid login attempt: nonce missing"}), 400
+
+        session['user'] = google.parse_id_token(token, nonce=nonce)
+        return jsonify({"message": "Login successful", "user": session['user']})
+
     except Exception as e:
         print("OAuth Error:", str(e))
         return jsonify({"error": "OAuth login failed", "details": str(e)}), 500
@@ -54,7 +62,7 @@ def callback():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect('/')
+    return jsonify({"message": "Logged out successfully"})
 
 if __name__ == '__main__':
     app.run(debug=True)

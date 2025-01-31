@@ -1,8 +1,8 @@
 flask
-flask-session
 flask-cors
 gunicorn
 authlib
+dotenv
 ace_tools==0.0
 anyio==4.6.2.post1
 anytree==2.12.1
