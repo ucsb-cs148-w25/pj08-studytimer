@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Use localhost in development, Render in production
 const API_URL =
   process.env.REACT_APP_API_URL ||
   (window.location.hostname === "localhost"

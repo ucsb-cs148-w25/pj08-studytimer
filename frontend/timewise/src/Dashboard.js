@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { fetchData } from "./api"; // Import API function
+import { fetchData } from "./api";
 
 function Dashboard() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetchData().then((result) => {
-      if (result) setData(result);
-    });
+    fetchData()
+      .then((result) => {
+        if (result) {
+          setData(result);
+        }
+      })
+      .catch((error) => {
+        console.error("Fetch error:", error);
+      });
   }, []);
 
   return (

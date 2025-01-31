@@ -3,10 +3,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Profile from './components/Profile';
 import TaskManager from './components/TaskManager';
+import { fetchData } from './api'; 
 
-  // ----------------------
-  // Sounds
-  // ----------------------
+// ----------------------
+// Sounds
+// ----------------------
 const freezeSound = new Audio('/sounds/freeze.mp3');
 
 const App = () => {
@@ -19,6 +20,26 @@ const App = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
   const [halfwayReached, setHalfwayReached] = useState(false);
+  const [apiData, setApiData] = useState(null); 
+
+  // ----------------------
+  // Fetch API data when the component mounts
+  // ----------------------
+  useEffect(() => {
+
+    fetchData()
+      .then((result) => {
+        if (result) {
+          console.log("✅ Data received in App:", result);
+          setApiData(result); 
+        } else {
+          console.log("❌ No data received or API call failed.");
+        }
+      })
+      .catch((error) => {
+        console.error("❌ Fetch error:", error);
+      });
+  }, []);
 
   // ----------------------
   // Styles
@@ -203,7 +224,6 @@ const App = () => {
                   />
                 </label>
               </div>
-
               <div style={styles.sidebar}>
                 <label>
                   Timer Duration (minutes):
@@ -223,11 +243,13 @@ const App = () => {
                   <p>{totalTime / 60} minutes</p>
                 </label>
               </div>
+
+              {/* Display API Data */}
+              {apiData ? <p>Data from Flask: {JSON.stringify(apiData)}</p> : <p>Loading API Data...</p>}
             </div>
           }
         />
 
-        {/* PROFILE route — displays your Profile component */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/task_manager" element={<TaskManager />} />
       </Routes>
