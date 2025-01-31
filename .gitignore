@@ -140,3 +140,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Flask
+.flask_session
+
+# Python
+.__pycache__
