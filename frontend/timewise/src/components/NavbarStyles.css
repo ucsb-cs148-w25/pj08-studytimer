@@ -2,36 +2,40 @@ nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #000000;
-    padding: 0px 60px;
+    background: #000000ed;
+    padding: 14px 40px;
     position: sticky;
     top: 0;
     z-index: 10;
 }
 
 a {
-    display: flex;
-    align-items: center;
     text-decoration: none;
 }
 
-a svg {
-    width: 60px;
-    height: auto; 
+a:hover {
+    text-decoration: none;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Adjusts spacing between logo and navbar links */
+}
+
+#logo {
+    width: 38px;
+    margin: -3px 0;
 }
 
 #webapp-title {
-    margin-left: 10px;
+    margin-left: 8px;
     font-size: 1.7rem;
     font-weight: 700;
     color: #fff;
     transition: 0.3s ease-in-out;
     font-family: Arial, Helvetica, sans-serif;
-}
-
-#logo {
-    width: 40px;
-    margin: auto;
+    text-decoration: none;
 }
 
 #navbar {
@@ -39,64 +43,126 @@ a svg {
     align-items: center;
     gap: 20px;
     list-style: none;
-    padding: 0;
-    margin: 0;
+    padding: 1px;
+    margin: 2px;
 }
 
 #navbar li a {
     text-decoration: none;
     font-size: 1.3rem;
-    font-weight: 600;
+    font-weight: 400;
     color: #fff;
     transition: 0.3s ease-in-out;
 }
 
 #navbar li a:hover {
-    color: #9be6fa;
+    color: #9bc9fa; 
 }
 
-/*for mobile*/
+/* EVERTHING ON THE RIGHT SIDE OF NAVBAR */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.sign-in {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #9bc9fa;
+    color: #000000ed;
+    border: none;
+    padding: 8px 15px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+    text-decoration: none;
+}
+
+.sign-in:hover {
+    background-color: #9bc9fa;
+}
+
+.user-name {
+    display: flex;
+    align-items: center;
+    padding: 7px;
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 400;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+}
+
+.user-name:hover {
+    color: #9bc9fa;
+}
+
+/* faint color for "About" */
+.about {
+    text-decoration: none;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.345);
+    transition: color 0.3s ease-in-out;
+}
+
+.about:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* FOR MOBILE ONLY */
 @media (max-width: 768px) {
     #navbar {
-        display: none; /* Hide the navbar by default */
+        display: none; 
         flex-direction: column;
         position: absolute;
         top: 100%;
         left: 0;
-        width: 100vw; /* Ensure it takes up the full viewport width */
-        background: #000000;
-        padding: 20px 10px;
-        box-sizing: border-box; /* Ensure padding doesn’t cause overflow */
+        width: 100vw; 
+        background: #0000006b;
+        padding: 15px 0px;
+        box-sizing: border-box;
+        z-index: 1000;
     }
 
-    #navbar.active {
+    #navbar.mobile {
         display: flex;
     }
 
     /* Prevent body from scrolling when the menu is open */
-    body.menu-open {
-        overflow: hidden;
-    }
-
     #navbar li {
         text-align: center;
         padding: 10px 0;
     }
 
+    /* Hide nav-right elements except for the hamburger menu */
+    .nav-right > *:not(.hamburger-menu) {
+        display: none;
+    }
+
     /* Hamburger menu visible only on mobile */
-    .menu-toggle {
-        display: block;
-        font-size: 2rem;
+    .hamburger-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: #fff;
-        background: none;
-        border: none;
+        width: 39px;  /* Adjust width */
+        height: 39px; /* Adjust height */
         cursor: pointer;
+    }
+    
+    .hamburger-menu svg {
+        width: 100%; /* Make the icon take full width */
+        height: 100%;
     }
 }
 
 /* Hide hamburger menu on larger screens */
 @media (min-width: 769px) {
-    .menu-toggle {
+    .hamburger-menu {
         display: none;
     }
 }
