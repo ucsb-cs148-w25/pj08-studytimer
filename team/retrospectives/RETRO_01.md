@@ -69,7 +69,6 @@ Team member: Thienan
 
 
 ## Experiment/Change
-FIXME by 1/31
-* A brief description of what constitutes your change/experiment
-* A brief assessment of how its results (did it improve things? move the needle at all?)
-* A decision going forward: keep the change, revert to previous procedure, make a new change?
+During our experiement, we definitely increased our asynchronous communication outside of class on our Discord channel. While not all team members used it consistently to share resources, those who did found it useful in resolving issues faster. Additionally, the Slack help channels were pretty helpful in learning more about how to solve merge conflicts, rebasing branches, etc. Overall, our 'change' allowed us to address troubleshooting issues before class/in-person meetings. 
+
+Going forward, we will continue using Slack/Discord for updates and troubleshooting. We will all try to be more active on the channels in order for unresolved issues to be addressed before our next meeting.
