@@ -1,0 +1,56 @@
+:root { /* This is dusk! */
+    --primary-background: #121212;
+    --secondary-background: #191919f8;
+    --accent-background: #9bc9fa;
+    /* Below is for any text present on the site */
+    --text: #ffffffff;
+    --title-text: #88b0db;
+    --description-text: rgba(255, 255, 255, 0.6);
+    --faint-text: rgba(255, 255, 255, 0.345); 
+    /* Below is for any text that changes color on hover */
+    --hover-change: #9bc9fa; 
+    --hover-faint-change: rgba(255, 255, 255, 0.8);
+    /* prevent overscroll from looking weird */
+    --scroll-background: #000000e6;
+
+    /* navbar related */
+    --accent-rgb: 155, 201, 250;
+
+    /* homepage related */
+    --inner-button-text: #121212;
+    --reset-button: #ff6666;
+    --settings-button: #ffcf11;
+
+    /* clock settings related */
+    --screen-overlay-rgb: 0, 0, 0;
+    --modal-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    --incremental-background: rgba(117, 117, 117, 0.866);
+}
+
+[data-theme="midnight"] {
+    --primary-background: #00000000;
+    --secondary-background: #00000000;
+    --accent-background: #9bc9fa;
+    --text: #ffffffff;
+    --faint-text: rgba(255, 255, 255, 0.345); 
+    --hover-text-change: #9bc9fa; 
+    --hover-faint-text-change: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme="sky"] {
+    --primary-background: #000000bb;
+    --secondary-background: #191919f1;
+    --accent-background: #9bc9fa;
+    --text: #ffffffff;
+    --faint-text: rgba(255, 255, 255, 0.345); 
+    --hover-text-change: #9bc9fa; 
+    --hover-faint-text-change: rgba(255, 255, 255, 0.8);
+}
+
+body {
+    background-color: var(--scroll-background);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    transition: all 0.3s ease-in-out;
+}

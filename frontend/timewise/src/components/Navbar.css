@@ -2,7 +2,7 @@ nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #000000ed;
+    background: var(--primary-background); /* Navbar color was previously #0000006b and #000000ed */
     padding: 14px 40px;
     position: sticky;
     top: 0;
@@ -32,7 +32,7 @@ a:hover {
     margin-left: 8px;
     font-size: 1.7rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text);
     transition: 0.3s ease-in-out;
     font-family: Arial, Helvetica, sans-serif;
     text-decoration: none;
@@ -51,12 +51,12 @@ a:hover {
     text-decoration: none;
     font-size: 1.3rem;
     font-weight: 400;
-    color: #fff;
+    color: var(--text);
     transition: 0.3s ease-in-out;
 }
 
 #navbar li a:hover {
-    color: #9bc9fa; 
+    color: var(--hover-change); 
 }
 
 /* EVERTHING ON THE RIGHT SIDE OF NAVBAR */
@@ -67,14 +67,14 @@ a:hover {
 }
 
 @keyframes pulseBorder {
-    0% {box-shadow: 0 0 5px rgba(155, 201, 250, 0.6);}
-    50% {box-shadow: 0 0 12px rgba(155, 201, 250, 0.8);}
-    100% {box-shadow: 0 0 5px rgba(155, 201, 250, 0.6);}
+    0% {box-shadow: 0 0 5px rgba(var(--accent-rgb), 0.6);}
+    50% {box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.8);}
+    100% {box-shadow: 0 0 5px rgba(var(--accent-rgb), 0.6);}
 }
 
 .sign-in {
-    background-color: #9bc9fa; 
-    color: #000000ed;
+    background-color: var(--accent-background); 
+    color: var(--primary-background);
     border: none;
     padding: 8px 15px;
     font-size: 1.2rem;
@@ -86,14 +86,14 @@ a:hover {
 }
 
 .sign-in:hover {
-    background-color: #9bc9fa;
+    background-color: var(--hover-change);
 }
 
 .user-name {
     display: flex;
     align-items: center;
     padding: 7px;
-    color: #fff;
+    color: var(--text);
     font-size: 1.3rem;
     font-weight: 400;
     text-decoration: none;
@@ -101,7 +101,7 @@ a:hover {
 }
 
 .user-name:hover {
-    color: #9bc9fa;
+    color: var(--hover-change);
 }
 
 /* faint color for "About" */
@@ -109,12 +109,12 @@ a:hover {
     text-decoration: none;
     font-size: 1.3rem;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.345);
+    color: var(--faint-text);
     transition: color 0.3s ease-in-out;
 }
 
 .about:hover {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--hover-faint-change);
 }
 
 /* FOR MOBILE ONLY */
@@ -126,7 +126,7 @@ a:hover {
         top: 100%;
         left: 0;
         width: 100vw; 
-        background: #0000006b;
+        background: var(--primary-background); /* Navbar color was previously #0000006b */
         padding: 15px 0px;
         box-sizing: border-box;
         z-index: 1000;
@@ -152,7 +152,7 @@ a:hover {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
+        color: var(--text);
         width: 39px;  /* Adjust width */
         height: 39px; /* Adjust height */
         cursor: pointer;
