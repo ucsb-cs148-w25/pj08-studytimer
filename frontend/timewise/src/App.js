@@ -5,6 +5,9 @@ import Profile from './components/Profile';
 import CalendarPage from './components/CalendarPage';
 import TaskManager from './components/TaskManager';
 import SettingsModal from './components/SettingsModal';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+
 
 // ----------------------
 // Sounds
@@ -38,24 +41,34 @@ const App = () => {
       alignItems: 'center',
       justifyContent: 'center',
       minHeight: '100vh',
-      backgroundColor: '#282c34',
+      backgroundColor: '#1e1e2f',
       color: 'white',
       fontFamily: 'Arial, sans-serif',
       textAlign: 'center',
       position: 'relative',
       overflow: 'hidden',
     },
-    timer: {
-      fontSize: '4rem',
-      margin: '20px',
-    },
     button: {
-      padding: '10px 20px',
-      margin: '10px',
-      fontSize: '1rem',
+      padding: '15px 30px', // Increased padding for larger buttons
+      margin: '15px',
+      fontSize: '1.2rem', // Larger font size
       border: 'none',
-      borderRadius: '5px',
+      borderRadius: '10px', // Rounded buttons for better aesthetics
       cursor: 'pointer',
+      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.2)', // Subtle shadow for depth
+      transition: 'all 0.3s ease-in-out',
+    },
+    startButton: {
+      backgroundColor: '#61dafb',
+      color: '#1e1e2f',
+    },
+    resetButton: {
+      backgroundColor: '#ff6666',
+      color: 'white',
+    },
+    settingsButton: {
+      backgroundColor: '#ffcc00',
+      color: '#1e1e2f',
     },
     icyOverlay: {
       position: 'absolute',
@@ -78,6 +91,12 @@ const App = () => {
       color: '#ffffff',
       textShadow: '2px 2px 10px rgba(0, 0, 255, 0.8)', // Icy glow effect
     },
+    circleContainer: {
+      width: '400px', // Increased diameter
+      height: '400px',
+      margin: '40px auto',
+    },
+    
   };
 
   // ----------------------
@@ -151,25 +170,42 @@ const App = () => {
           path="/"
           element={
             <div style={styles.app}>
+              
+
               {/* Icy Overlay when on break */}
               <div style={styles.icyOverlay}>
                 <div style={styles.icyText}>Take a Break ❄️</div>
               </div>
 
-              <h1>timewise</h1>
-              <p>Your companion for focused productivity and mindful breaks.</p>
+              {/* Timer Circle */}
+              <div style={styles.circleContainer}>
+                <CircularProgressbar
+                  value={(time / totalTime) * 100} // Progress as a percentage
+                  text={formatTime(time)} // Time displayed in the center
+                  styles={buildStyles({
+                    textColor: '#fff', // Center text color
+                    pathColor: '#4caf50', // Green progress bar color
+                    trailColor: '#444', // Background circle color
+                    textSize: '28px', // Larger font size for the text
+                    strokeLinecap: 'round', // Rounded edges for the progress bar
+                  })}
+                />
+              </div>
 
-              <div style={styles.timer}>{formatTime(time)}</div>
-
+              {/* Buttons */}
               <div>
                 <button
-                  style={{ ...styles.button, backgroundColor: '#61dafb' }}
+                  style={{ ...styles.button, ...styles.startButton }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = '#42a1f5')}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = '#61dafb')}
                   onClick={() => setIsRunning(!isRunning)}
                 >
                   {isRunning ? 'Pause' : 'Start'}
                 </button>
                 <button
-                  style={{ ...styles.button, backgroundColor: '#ff6666' }}
+                  style={{ ...styles.button, ...styles.resetButton }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = '#ff4c4c')}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = '#ff6666')}
                   onClick={() => {
                     setIsRunning(false);
                     setTime(totalTime);
@@ -179,7 +215,9 @@ const App = () => {
                   Reset
                 </button>
                 <button
-                  style={{ ...styles.button, backgroundColor: '#ffcc00' }}
+                  style={{ ...styles.button, ...styles.settingsButton }}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = '#f3b000')}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = '#ffcc00')}
                   onClick={() => setIsModalOpen(true)}
                 >
                   Settings ⚙️
