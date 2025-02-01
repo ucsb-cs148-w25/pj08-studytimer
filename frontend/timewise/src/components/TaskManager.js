@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 // -----------
 // TODO:
 // 1. store data locally (information saved until localhost connection ends)
@@ -147,18 +151,25 @@ function TaskManager() {
   // Save edited task
   const saveEdit = () => {
     if (taskTitle.trim() && deadline.trim()) {
-      const updatedTasks = [...tasks];
-      updatedTasks[editTaskTitle] = {
-        ...updatedTasks[editTaskTitle],
-        title: taskTitle,
-        deadline,
-        priority,
-      };
-      setTasks(updatedTasks);
-      setTaskTitle("");
-      setDeadline("");
-      setPriority("Low");
-      setEditTaskTitle(null); // Exit edit mode
+      // find index of task to edit
+      const taskIndex = tasks.findIndex((task) => task.title === editTaskTitle);
+
+      if (taskIndex !== -1) {
+        const updatedTasks = [...tasks];
+        updatedTasks[taskIndex] = {
+          ...updatedTasks[taskIndex],
+          title: taskTitle,
+          deadline,
+          priority,
+        };
+
+        // update state
+        setTasks(updatedTasks);
+        setTaskTitle("");
+        setDeadline("");
+        setPriority("Low");
+        setEditTaskTitle(null); // Exit edit mode 
+      }
     } else {
       alert("Please enter a valid task title and deadline!");
     }
@@ -192,6 +203,37 @@ function TaskManager() {
     });
     setTasks(sortedTasks);
   };
+// Metrics chart for task statistics
+  const taskStats = {
+    labels: ["In Progress", "Done"],
+    datasets: [
+      {
+        data: [
+          tasks.filter((task) => task.status === "In Progress").length,
+          tasks.filter((task) => task.status === "Done").length,
+        ],
+        backgroundColor: ["#87CEEB", "#CD5C5C"], // Yellow for In Progress, Green for Done
+        hoverBackgroundColor: ["#ADD8E6", "#F08080"],
+      },
+    ],
+  };
+
+// display percentage of tasks inprogress/done
+  const chartOptions = {
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            const dataset = tooltipItem.dataset.data;
+            const total = dataset.reduce((sum, value) => sum + value, 0);
+            const value = dataset[tooltipItem.dataIndex];
+            const percentage = ((value / total) * 100).toFixed(0);
+            return `${tooltipItem.label}: ${percentage}% (${value} tasks)`;
+          },
+        },
+      },
+    },
+  };
 
   const renderTaskTable = (tasksToShow) => (
     <SortableContext items={tasksToShow.map(task => task.title)}>
@@ -224,6 +266,9 @@ function TaskManager() {
   return (
     <div style={styles.container}>
       <h1 style={styles.header}>My Tasks</h1>
+      
+      {/* Render Metrics Chart */} 
+      <div style={{ width: "300px", marginBottom: "50px" }}><Doughnut data={taskStats} options={chartOptions}/></div>
 
       {/* Form to add or edit a task */}
       <form onSubmit={editTaskTitle !== null ? (e) => { e.preventDefault(); saveEdit(); } : handleAddTask} style={styles.form}>
