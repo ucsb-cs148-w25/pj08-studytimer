@@ -28,23 +28,67 @@
 }
 
 [data-theme="midnight"] {
-    --primary-background: #00000000;
-    --secondary-background: #00000000;
-    --accent-background: #9bc9fa;
-    --text: #ffffffff;
-    --faint-text: rgba(255, 255, 255, 0.345); 
-    --hover-text-change: #9bc9fa; 
-    --hover-faint-text-change: rgba(255, 255, 255, 0.8);
+    --primary-background: #0a0a0a;
+    --secondary-background: #121212;
+    --accent-background: #1e1e1e;
+    
+    /* Text */
+    --text: #d1d1d1;
+    --title-text: #5988b0;  /* Cool dark blue */
+    --description-text: rgba(200, 200, 200, 0.7);
+    --faint-text: rgba(180, 180, 180, 0.3);
+
+    /* Hover Effects */
+    --hover-change: #4078c0;
+    --hover-faint-change: rgba(255, 255, 255, 0.6);
+
+    /* Scroll */
+    --scroll-background: #050505;
+
+    /* Navbar */
+    --accent-rgb: 100, 150, 200;
+
+    /* Buttons */
+    --inner-button-text: #0a0a0a;
+    --reset-button: #c03b3b;
+    --settings-button: #e6b800;
+
+    /* Clock Settings */
+    --screen-overlay-rgb: 10, 10, 10;
+    --modal-shadow: 0px 4px 8px rgba(10, 10, 10, 0.8);
+    --incremental-background: rgba(80, 80, 80, 0.8);
 }
 
 [data-theme="sky"] {
-    --primary-background: #000000bb;
-    --secondary-background: #191919f1;
-    --accent-background: #9bc9fa;
-    --text: #ffffffff;
-    --faint-text: rgba(255, 255, 255, 0.345); 
-    --hover-text-change: #9bc9fa; 
-    --hover-faint-text-change: rgba(255, 255, 255, 0.8);
+    --primary-background: #dbeeff; /* Light sky blue */
+    --secondary-background: #b3e0ff;
+    --accent-background: #79c2ff;
+
+    /* Text */
+    --text: #62a9d7;
+    --title-text: #005c99; /* Deep ocean blue */
+    --description-text: rgba(10, 50, 80, 0.7);
+    --faint-text: rgba(12, 44, 69, 0.331);
+
+    /* Hover Effects */
+    --hover-change: #5aa9ff;
+    --hover-faint-change: rgba(10, 50, 80, 0.6);
+
+    /* Scroll */
+    --scroll-background: #c2e6ff;
+
+    /* Navbar */
+    --accent-rgb: 0, 120, 255;
+
+    /* Buttons */
+    --inner-button-text: #f0f9ff;
+    --reset-button: #ff5c5c;
+    --settings-button: #ffcc00;
+
+    /* Clock Settings */
+    --screen-overlay-rgb: 200, 230, 255;
+    --modal-shadow: 0px 4px 8px rgba(100, 180, 255, 0.5);
+    --incremental-background: rgba(141, 173, 227, 0.364);
 }
 
 body {
