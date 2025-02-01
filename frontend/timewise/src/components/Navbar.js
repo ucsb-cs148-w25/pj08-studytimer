@@ -1,14 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Squash as Hamburger } from 'hamburger-react';
-import { fetchUser } from "../api";
+import { BACKEND_URL, fetchUser } from '../api';
 import "./NavbarStyles.css";
-
-const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL ||
-  (window.location.hostname === "localhost"
-    ? "http://127.0.0.1:5000"  
-    : "https://pj08-studytimer.onrender.com");
 
 function Navbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
@@ -19,20 +13,19 @@ function Navbar() {
     const getUser = async () => {
       try {
         const result = await fetchUser();
-        console.log("Fetched user:", result); // Debugging
-        if (result?.user) {
+        console.log('Fetched user:', result);   // Should log { user: null } or { user: {...} }
+        if (result.user) {
           setUser(result.user);
         } else {
           setUser(null);
         }
       } catch (error) {
-        console.error("Failed to fetch user:", error);
+        console.error('Failed to fetch user:', error);
       }
     };
   
     getUser();
     const interval = setInterval(getUser, 5000);
-    
     return () => clearInterval(interval);
   }, [location]);
 
@@ -63,7 +56,9 @@ function Navbar() {
       <div className="nav-right">
         {user ? (
           <div className={`user-profile ${isMenuOpen ? "mobile" : ""}`}>
-            <span className="user-name">Hello, {user.given_name}!</span>
+            <span className="user-name">
+              Hello, {user.given_name || user.name || "User"}!
+            </span>
             <button className="logout-btn" onClick={handleLogout}>Logout</button>
           </div>
         ) : (
