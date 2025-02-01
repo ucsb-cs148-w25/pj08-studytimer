@@ -66,11 +66,14 @@ a:hover {
     gap: 16px;
 }
 
+@keyframes pulseBorder {
+    0% {box-shadow: 0 0 5px rgba(155, 201, 250, 0.6);}
+    50% {box-shadow: 0 0 12px rgba(155, 201, 250, 0.8);}
+    100% {box-shadow: 0 0 5px rgba(155, 201, 250, 0.6);}
+}
+
 .sign-in {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #9bc9fa;
+    background-color: #9bc9fa; 
     color: #000000ed;
     border: none;
     padding: 8px 15px;
@@ -79,6 +82,7 @@ a:hover {
     cursor: pointer;
     transition: background 0.3s ease-in-out;
     text-decoration: none;
+    animation: pulseBorder 2.5s infinite ease-in-out;
 }
 
 .sign-in:hover {
