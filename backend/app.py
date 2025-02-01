@@ -13,7 +13,9 @@ app = Flask(__name__)
 CORS(
     app,
     supports_credentials=True,
-    origins=["http://localhost:3000", "https://pj-timewise.netlify.app"],
+    origins=["http://localhost:3000", "https://pj-timewise.netlify.app"],  
+    methods=["GET", "POST", "OPTIONS", "DELETE", "PUT"], 
+    allow_headers=["Content-Type", "Authorization"], 
 )
 IS_PRODUCTION = os.getenv("FLASK_ENV") == "production"
 
@@ -21,7 +23,7 @@ IS_PRODUCTION = os.getenv("FLASK_ENV") == "production"
 app.config.update(
     SECRET_KEY=os.getenv("SECRET_KEY", "fallback-secret-key"),
     SESSION_TYPE="filesystem",
-    SESSION_PERMANENT=False,
+    SESSION_PERMANENT=True,
     SESSION_USE_SIGNER=True,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="None",
@@ -38,7 +40,6 @@ google = oauth.register(
     server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
     client_kwargs={"scope": "openid email profile"},
 )
-
 
 @app.route("/")
 def home():
@@ -71,16 +72,31 @@ def callback():
         if not nonce:
             return jsonify({"error": "Invalid login attempt: nonce missing"}), 400
 
-        session["user"] = google.parse_id_token(token, nonce=nonce)
+        user_info = google.parse_id_token(token, nonce=nonce)
 
-        # Redirect to frontend with login success
-        frontend_url = (
-            "http://localhost:3000"
-            if not IS_PRODUCTION
-            else "https://pj-timewise.netlify.app"
+        # ✅ Store only the necessary user details
+        session["user"] = {
+            "first_name": user_info.get("given_name", ""),
+            "last_name": user_info.get("family_name", ""),
+            "email": user_info.get("email", ""),
+        }
+
+        session.modified = True  # ✅ Ensure session is saved
+
+        # ✅ Redirect to frontend
+        response = redirect("http://localhost:3000" if not IS_PRODUCTION else "https://pj-timewise.netlify.app")
+
+        # ✅ Force Flask to correctly set the session cookie
+        response.set_cookie(
+            "session",
+            request.cookies.get("session"),  # ✅ Retrieve the existing session cookie
+            httponly=True,
+            secure=IS_PRODUCTION,  # Secure only in production
+            samesite="None",  # ✅ Required for cross-origin authentication
+            domain="",  # ✅ Let Flask dynamically determine the correct domain
         )
-        return redirect(f"{frontend_url}/settings")
-        # return jsonify(session["user"]), 200
+
+        return response
 
     except Exception as e:
         print("OAuth Error:", str(e))
@@ -88,7 +104,12 @@ def callback():
 
 @app.route("/get-user")
 def get_user():
-    return jsonify({"some": "data"})
+    print("Session Data:", session)  # Debugging
+    print("Request Cookies:", request.cookies)  # Debug cookies from request
+    user = session.get("user")
+    if user:
+        return jsonify(user)
+    return jsonify({"error": "User not logged in"}), 401
 
 @app.route("/logout")
 def logout():

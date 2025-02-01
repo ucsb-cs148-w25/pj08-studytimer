@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Squash as Hamburger } from 'hamburger-react';
-import { BACKEND_URL, fetchUser } from '../api';
+import { BACKEND_URL, fetchUser, login, logout } from '../api';
 import "./NavbarStyles.css";
 
 function Navbar() {
@@ -13,28 +13,29 @@ function Navbar() {
     const getUser = async () => {
       try {
         const result = await fetchUser();
-        console.log('Fetched user:', result);   // Should log { user: null } or { user: {...} }
-        if (result.user) {
-          setUser(result.user);
+        console.log("Fetched user:", result); // Should log { error: "User not logged in" } or user data
+        if (!result.error) {
+          setUser(result);
         } else {
           setUser(null);
         }
       } catch (error) {
-        console.error('Failed to fetch user:', error);
+        console.error("Failed to fetch user:", error);
+        setUser(null);
       }
     };
-  
+
     getUser();
     const interval = setInterval(getUser, 5000);
     return () => clearInterval(interval);
   }, [location]);
 
   const handleLogin = () => {
-    window.location.href = `${BACKEND_URL}/login`; // Redirect to Flask OAuth login
+    login(); // Redirects to Flask OAuth login
   };
 
   const handleLogout = async () => {
-    await fetch(`${BACKEND_URL}/logout`, { credentials: "include" });
+    await logout(); // Logs out and clears session cookies
     setUser(null);
   };
 
