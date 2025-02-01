@@ -6,7 +6,6 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@fseehawer/react-circular-slider": "^2.7.0",
     "chart.js": "^4.4.7",
     "cra-template": "1.2.0",
     "hamburger-react": "^2.5.2",
