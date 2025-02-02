@@ -1,18 +1,44 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Squash as Hamburger } from 'hamburger-react';
+import { auth, provider, signInWithPopup, signOut } from "../firebase";
 import "./NavbarStyles.css";
 
 function Navbar() {
+  const [user, setUser] = useState(null);
   const [isMenuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  //const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken"); 
-    if (token) {
-      setIsLoggedIn(true);
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUser(storedUser);
     }
   }, []);
+
+  const handleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const loggedInUser = {
+        name: result.user.displayName,
+        email: result.user.email,
+        photo: result.user.photoURL
+      };
+      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      setUser(loggedInUser);
+    } catch (error) {
+      console.error("Login failed", error);
+    }
+  };
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        localStorage.removeItem("user");
+        setUser(null);
+      })
+      .catch((error) => console.error("Logout failed", error));
+  };
 
   return (
     <nav>
@@ -30,15 +56,16 @@ function Navbar() {
       </div>
 
       <div className="nav-right">
-        {isLoggedIn ? (
-          <Link to="/profile" className={`user-profile ${isMenuOpen ? "mobile" : ""}`}>
-            <span className="user-name">Hello! NAME</span>
-          </Link>
-        ) : (
-          <a href="/login/oauth2/code/google" className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
-            Sign In!
-          </a>
-        )}
+        {user ? (
+            <div className="user-info">
+              <span className="user-name">Hello, {user.name.split(" ")[0]}!</span>
+              <button onClick={handleLogout} className="logout-btn">Sign Out</button>
+            </div>
+          ) : (
+            <button onClick={handleLogin} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
+              Sign In
+            </button>
+          )}
         <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>
 
         <div className="hamburger-menu">
