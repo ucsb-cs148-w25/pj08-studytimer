@@ -62,7 +62,7 @@
     padding: 10px 20px;
     font-size: 1rem;
     border-radius: 7px;
-    background-color: var(--incremental-background);
+    background-color: var(--faint-background);
     border: none;
     cursor: pointer;
     transition: background 0.3s ease-in-out;
@@ -75,7 +75,7 @@
 .break-label {
     display: block;
     margin: 12px 0;
-    font-size: 1.25rem;
+    font-size: 1.21rem;
 }
 
 .break-input {

@@ -2,6 +2,8 @@
     --primary-background: #121212;
     --secondary-background: #191919f8;
     --accent-background: #9bc9fa;
+    --secondary-accent-background: rgb(45, 45, 45);
+    --faint-background: rgba(135, 135, 135, 0.88);
     /* Below is for any text present on the site */
     --text: #ffffffff;
     --title-text: #88b0db;
@@ -24,13 +26,16 @@
     /* clock settings related */
     --screen-overlay-rgb: 0, 0, 0;
     --modal-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-    --incremental-background: rgba(117, 117, 117, 0.866);
+
+    /* calendar related */
 }
 
 [data-theme="midnight"] {
     --primary-background: #0a0a0a;
     --secondary-background: #121212;
     --accent-background: #1e1e1e;
+    --secondary-accent-background: rgb(45, 45, 45);
+    --faint-background: rgba(135, 135, 135, 0.88);
     
     /* Text */
     --text: #d1d1d1;
@@ -61,8 +66,10 @@
 
 [data-theme="sky"] {
     --primary-background: #dbeeff; /* Light sky blue */
-    --secondary-background: #b3e0ff;
+    --secondary-background: #c2e6ff;
     --accent-background: #79c2ff;
+    --secondary-accent-background: #b5e2ff;
+    --faint-background: rgba(135, 135, 135, 0.88);
 
     /* Text */
     --text: #62a9d7;
@@ -75,7 +82,7 @@
     --hover-faint-change: rgba(10, 50, 80, 0.6);
 
     /* Scroll */
-    --scroll-background: #c2e6ff;
+    --scroll-background: #c2e6ff; 
 
     /* Navbar */
     --accent-rgb: 0, 120, 255;
@@ -89,6 +96,8 @@
     --screen-overlay-rgb: 200, 230, 255;
     --modal-shadow: 0px 4px 8px rgba(100, 180, 255, 0.5);
     --incremental-background: rgba(141, 173, 227, 0.364);
+
+    /* calendar related */
 }
 
 body {
