@@ -177,3 +177,6 @@ build/
 .vscode/
 
 .gitattributes
+
+# Ignore Firebase service account credentials
+backend/src/main/resources/serviceAccountKey.json
