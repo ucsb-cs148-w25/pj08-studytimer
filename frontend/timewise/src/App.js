@@ -62,6 +62,29 @@ const App = () => {
       boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.2)', // Subtle shadow for depth
       transition: 'all 0.3s ease-in-out',
     },
+    buttonsContainer: {
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '10px', // Adds space between buttons
+      margin: '15px 0', // Adds spacing from the timer and other buttons
+    },    
+    incrementButton: {
+      padding: '12px 24px', // More padding for better appearance
+      fontSize: '1rem',
+      fontWeight: 'bold',
+      borderRadius: '8px', // Rounded edges for a modern look
+      backgroundColor: '#3b82f6', // Nice blue color
+      color: 'white',
+      border: 'none',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease-in-out',
+      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.15)',
+    },
+    // Hover Effect
+    incrementButtonHover: {
+      backgroundColor: '#2563eb', // Darker blue on hover
+      transform: 'scale(1.05)', // Slight scaling effect
+    },
     startButton: {
       backgroundColor: '#61dafb',
       color: '#1e1e2f',
@@ -153,6 +176,14 @@ const App = () => {
     return `${minutes} minute${minutes !== 1 ? 's' : ''} ${secs} second${secs !== 1 ? 's' : ''}`;
   };
 
+  const handleAddTime = (seconds) => {
+    const newTime = time + seconds;
+    if (newTime >= 0) {
+      setTime(newTime);
+    }
+  };
+  
+
   // ----------------------
   // Return with Routes
   // ----------------------
@@ -178,6 +209,34 @@ const App = () => {
               {/* Timer */}
               <div style={styles.timerText}>{formatTime(time)}</div>
 
+              {/* Increment Buttons */}
+              <div style={styles.buttonsContainer}>
+                <button
+                  style={styles.incrementButton}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = styles.incrementButtonHover.backgroundColor)}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = styles.incrementButton.backgroundColor)}
+                  onClick={() => handleAddTime(30)}
+                >
+                  +0:30
+                </button>
+                <button
+                  style={styles.incrementButton}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = styles.incrementButtonHover.backgroundColor)}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = styles.incrementButton.backgroundColor)}
+                  onClick={() => handleAddTime(60)}
+                >
+                  +1:00
+                </button>
+                <button
+                  style={styles.incrementButton}
+                  onMouseOver={(e) => (e.target.style.backgroundColor = styles.incrementButtonHover.backgroundColor)}
+                  onMouseOut={(e) => (e.target.style.backgroundColor = styles.incrementButton.backgroundColor)}
+                  onClick={() => handleAddTime(300)}
+                >
+                  +5:00
+                </button>
+              </div>
+
               {/* Buttons */}
               <div>
                 <button
@@ -194,7 +253,8 @@ const App = () => {
                   onMouseOut={(e) => (e.target.style.backgroundColor = '#ff6666')}
                   onClick={() => {
                     setIsRunning(false);
-                    setTime(totalTime);
+                    setTime(1500); // Always reset to 25 minutes (1500 seconds)
+                    setTotalTime(1500); // Ensure totalTime is also reset to 25 minutes
                     setHalfwayReached(false);
                   }}
                 >
@@ -209,6 +269,7 @@ const App = () => {
                   Settings ⚙️
                 </button>
               </div>
+
 
               {/* Settings Modal */}
               <SettingsModal
