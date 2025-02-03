@@ -5,8 +5,6 @@ import Profile from './components/Profile';
 import CalendarPage from './components/CalendarPage';
 import TaskManager from './components/TaskManager';
 import SettingsModal from './components/SettingsModal';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
 
 
 // ----------------------
@@ -25,10 +23,6 @@ const App = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
   const [halfwayReached, setHalfwayReached] = useState(false);
-
-  // ----------------------
-  // Modal state
-  // ----------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // ----------------------
@@ -47,6 +41,11 @@ const App = () => {
       textAlign: 'center',
       position: 'relative',
       overflow: 'hidden',
+    },
+    timerText: {
+      fontSize: '3rem',
+      fontWeight: 'bold',
+      margin: '20px 0',
     },
     button: {
       padding: '15px 30px', // Increased padding for larger buttons
@@ -90,11 +89,6 @@ const App = () => {
       fontWeight: 'bold',
       color: '#ffffff',
       textShadow: '2px 2px 10px rgba(0, 0, 255, 0.8)', // Icy glow effect
-    },
-    circleContainer: {
-      width: '400px', // Increased diameter
-      height: '400px',
-      margin: '40px auto',
     },
     
   };
@@ -152,10 +146,10 @@ const App = () => {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes} minute${minutes !== 1 ? 's' : ''} ${secs} second${secs !== 1 ? 's' : ''}`;
   };
 
-  // ----------------------
+   // ----------------------
   // Return with Routes
   // ----------------------
   return (
@@ -177,20 +171,8 @@ const App = () => {
                 <div style={styles.icyText}>Take a Break ❄️</div>
               </div>
 
-              {/* Timer Circle */}
-              <div style={styles.circleContainer}>
-                <CircularProgressbar
-                  value={(time / totalTime) * 100} // Progress as a percentage
-                  text={formatTime(time)} // Time displayed in the center
-                  styles={buildStyles({
-                    textColor: '#fff', // Center text color
-                    pathColor: '#4caf50', // Green progress bar color
-                    trailColor: '#444', // Background circle color
-                    textSize: '28px', // Larger font size for the text
-                    strokeLinecap: 'round', // Rounded edges for the progress bar
-                  })}
-                />
-              </div>
+              {/* Timer */}
+              <div style={styles.timerText}>{formatTime(time)}</div>
 
               {/* Buttons */}
               <div>
