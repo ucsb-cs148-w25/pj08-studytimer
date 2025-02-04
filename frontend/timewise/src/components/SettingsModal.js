@@ -27,15 +27,6 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
     setTotalTime(validTime);
     setFormattedTime(formatTime(validTime));
   };
-  
-
-  const handleAddTime = (seconds) => {
-    const newTime = totalTime + seconds;
-    if (newTime >= 0) {
-      setTotalTime(newTime);
-      setFormattedTime(formatTime(newTime));
-    }
-  };
 
   const handleBreakTimeChange = (e) => {
     const value = e.target.value.trim();
@@ -68,19 +59,6 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
             onChange={handleInputChange}
             onBlur={handleInputBlur} // Validate on blur
           />
-        </div>
-
-        {/* Increment Buttons */}
-        <div style={styles.buttonsContainer}>
-          <button style={styles.incrementButton} onClick={() => handleAddTime(30)}>
-            +0:30
-          </button>
-          <button style={styles.incrementButton} onClick={() => handleAddTime(60)}>
-            +1:00
-          </button>
-          <button style={styles.incrementButton} onClick={() => handleAddTime(300)}>
-            +5:00
-          </button>
         </div>
 
         {/* Break Time Input */}
