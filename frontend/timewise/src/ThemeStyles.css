@@ -20,7 +20,7 @@
 
     /* homepage related */
     --inner-button-text: #121212;
-    --reset-button: #ff6666;
+    --reset-button: #fd4444f7;
     --settings-button: #ffcf11;
 
     /* clock settings related */
@@ -28,6 +28,14 @@
     --modal-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
 
     /* calendar related */
+
+
+    /* task manager (to-do) related */
+    --in-progress-button: #ffcf11;
+    --done-button: #48a05c;
+    --edit-button: #9bc9fa;
+    --delete-button: #fd4444f7;
+    --cancel-button: var(--faint-background);
 }
 
 [data-theme="midnight"] {

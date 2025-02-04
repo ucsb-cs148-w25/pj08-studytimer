@@ -1,32 +1,33 @@
-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--primary-background); /* Navbar color was previously #0000006b and #000000ed */
-    padding: 14px 40px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
+    nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--primary-background); /* Navbar color was previously #0000006b and #000000ed */
+        padding: 14px 40px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        flex-wrap: nowrap;
+    }
 
-a {
-    text-decoration: none;
-}
+    a {
+        text-decoration: none;
+    }
 
-a:hover {
-    text-decoration: none;
-}
+    a:hover {
+        text-decoration: none;
+    }
 
-.nav-left {
-    display: flex;
-    align-items: center;
-    gap: 20px; /* Adjusts spacing between logo and navbar links */
-}
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 20px; /* Adjusts spacing between logo and navbar links */
+    }
 
-#logo {
-    width: 38px;
-    margin: -3px 0;
-}
+    #logo {
+        width: 38px;
+        margin: -3px 0;
+    }
 
 #webapp-title {
     margin-left: 8px;
@@ -38,14 +39,14 @@ a:hover {
     text-decoration: none;
 }
 
-#navbar {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    list-style: none;
-    padding: 1px;
-    margin: 2px;
-}
+    #navbar {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        list-style: none;
+        padding: 1px;
+        margin: 2px;
+    }
 
 #navbar li a {
     text-decoration: none;
@@ -85,9 +86,35 @@ a:hover {
     animation: pulseBorder 2.5s infinite ease-in-out;
 }
 
-.sign-in:hover {
-    background-color: var(--hover-change);
-}
+    .sign-in:hover {
+        background-color: var(--hover-change);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Adjust spacing between name and logout button */
+    }
+
+    /* Ensure logout button is aligned properly */
+    .logout-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--hover-change);
+        color: #000000ed;
+        border: none;
+        padding: 8px 15px;
+        font-size: 1.2rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease-in-out;
+        text-decoration: none;
+    }
+
+    .logout-btn:hover {
+        background-color: #c1dfff;
+    }
 
 .user-name {
     display: flex;
@@ -132,20 +159,20 @@ a:hover {
         z-index: 1000;
     }
 
-    #navbar.mobile {
-        display: flex;
-    }
+        #navbar.mobile {
+            display: flex;
+        }
 
-    /* Prevent body from scrolling when the menu is open */
-    #navbar li {
-        text-align: center;
-        padding: 10px 0;
-    }
+        /* Prevent body from scrolling when the menu is open */
+        #navbar li {
+            text-align: center;
+            padding: 10px 0;
+        }
 
-    /* Hide nav-right elements except for the hamburger menu */
-    .nav-right > *:not(.hamburger-menu) {
-        display: none;
-    }
+        /* Hide nav-right elements except for the hamburger menu */
+        .nav-right > *:not(.hamburger-menu) {
+            display: none;
+        }
 
     /* Hamburger menu visible only on mobile */
     .hamburger-menu {
@@ -164,9 +191,9 @@ a:hover {
     }
 }
 
-/* Hide hamburger menu on larger screens */
-@media (min-width: 769px) {
-    .hamburger-menu {
-        display: none;
+    /* Hide hamburger menu on larger screens */
+    @media (min-width: 769px) {
+        .hamburger-menu {
+            display: none;
+        }
     }
-}

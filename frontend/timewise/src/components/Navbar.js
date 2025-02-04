@@ -1,16 +1,17 @@
-import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Squash as Hamburger } from 'hamburger-react';
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Squash as Hamburger } from "hamburger-react";
+import { loginWithGoogle, logoutUser } from "../auth"; 
 import "./Navbar.css";
 
 function Navbar() {
+  const [user, setUser] = useState(null);
   const [isMenuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken"); 
-    if (token) {
-      setIsLoggedIn(true);
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUser(storedUser);
     }
   }, []);
 
@@ -18,7 +19,7 @@ function Navbar() {
     <nav>
       <div className="nav-left">
         <Link to="/" className="logo-link">
-          <img id="logo" src="favicon.svg" alt="timewise logo"/>
+          <img id="logo" src="favicon.svg" alt="timewise logo" />
           <span id="webapp-title">timewise</span>
         </Link>
 
@@ -30,14 +31,17 @@ function Navbar() {
       </div>
 
       <div className="nav-right">
-        {isLoggedIn ? (
-          <Link to="/profile" className={`user-profile ${isMenuOpen ? "mobile" : ""}`}>
-            <span className="user-name">Hello! NAME</span>
-          </Link>
+        {user ? (
+          <div className="user-info">
+            <span className="user-name">Hello, {user.name.split(" ")[0]}!</span>
+            <button onClick={() => logoutUser(setUser)} className="logout-btn">
+              Sign Out
+            </button>
+          </div>
         ) : (
-          <a href="/login/oauth2/code/google" className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
-            Sign In!
-          </a>
+          <button onClick={() => loginWithGoogle(setUser)} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
+            Sign In
+          </button>
         )}
         <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>
 
