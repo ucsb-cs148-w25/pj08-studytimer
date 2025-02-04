@@ -1,0 +1,6 @@
+.chartContainer {
+    width: 250px;
+    margin-bottom: 20px;
+    margin-top: -135px;
+    color: var(--reset-button);
+}  
