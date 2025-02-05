@@ -1,24 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import "./Settings.css";
+import "../index.css";  // Ensures the theme is applied
 
-function Profile() {
-  const profileStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'left',
-    justifyContent: 'left',
-    minHeight: '100vh',   
-    backgroundColor: '#282c34',
-    color: 'white',
-    fontSize: '2rem',   
-    fontFamily: 'Arial, sans-serif',
-    textAlign: 'center',
-  };
+const SettingsPage = () => {
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   return (
-    <div style={profileStyle}>
-      <h1>Settings</h1>
+    <div className="settings">
+      <h2>Choose Theme</h2>
+      <div className="theme-options">
+        <button className="theme-btn" onClick={() => setTheme("dusk")}>
+          Dusk
+        </button>
+        <button className="theme-btn" onClick={() => setTheme("midnight")}>
+          Midnight
+        </button>
+        <button className="theme-btn" onClick={() => setTheme("sky")}>
+          Sky
+        </button>
+      </div>
     </div>
   );
-}
+};
 
-export default Profile;
+export default SettingsPage;

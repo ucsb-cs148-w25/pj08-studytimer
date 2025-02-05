@@ -8,7 +8,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 function MetricsChart({ tasks }) {
   // Prepare chart data
   const taskStats = {
-    labels: ["In Progress", "Done"],
+    labels: ["In Progress", "Completed"],
     datasets: [
       {
         data: [
