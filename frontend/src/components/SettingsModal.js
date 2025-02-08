@@ -30,6 +30,7 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
 
   const handleBreakTimeChange = (e) => {
     const value = e.target.value.trim();
+
     if (value === '') {
       setBreakTime(null);
       return;

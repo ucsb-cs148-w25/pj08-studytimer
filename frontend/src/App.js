@@ -30,7 +30,6 @@ const App = () => {
   // ----------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ----------------------
   // Timer logic
   // ----------------------
   useEffect(() => {
@@ -92,7 +91,6 @@ const App = () => {
       setTime(newTime);
     }
   };
-
 
   // ----------------------
   // Return with Routes
