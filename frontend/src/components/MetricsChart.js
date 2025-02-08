@@ -8,22 +8,35 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 function MetricsChart({ tasks }) {
   // Prepare chart data
   const taskStats = {
-    labels: ["In Progress", "Done"],
+    labels: ["In Progress", "Completed"],
     datasets: [
       {
         data: [
           tasks.filter((task) => task.status === "In Progress").length,
           tasks.filter((task) => task.status === "Done").length
         ],
-        backgroundColor: ["#87CEEB", "#CD5C5C"],
-        hoverBackgroundColor: ["#ADD8E6", "#F08080"]
+        backgroundColor: [
+          getComputedStyle(document.documentElement).getPropertyValue('--in-progress-color').trim(),
+          getComputedStyle(document.documentElement).getPropertyValue('--completed-color').trim()
+        ],
+        hoverBackgroundColor: [
+          getComputedStyle(document.documentElement).getPropertyValue('--in-progress-hover').trim(),
+          getComputedStyle(document.documentElement).getPropertyValue('--completed-hover').trim()
+        ]
       }
     ]
   };
 
   // Display percentage of tasks in progress/done
   const chartOptions = {
+    cutout: "0%",
     plugins: {
+      legend: {
+        position: "bottom",  // Move legend below the chart
+        labels: {
+          color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+        }
+      },
       tooltip: {
         callbacks: {
           label: function (tooltipItem) {

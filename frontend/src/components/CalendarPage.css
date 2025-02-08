@@ -3,7 +3,8 @@
     display: flex;
     flex-direction: column; 
     height: 100vh;
-    background-color: #f0f4fa;
+    background-color: var(--secondary-background);
+    margin-top: -125px;
 }
 
 .main-content {
@@ -14,17 +15,17 @@
 
 .sidebar {
     width: 400px;
-    background: white;
-    color: black;
+    background: var(--secondary-accent-background);
+    color: var(--text); /* DON'T KNOW WHAT IT DOES */
     padding: 20px;
+    height: 100%;
 }
 
 .calendar-container {
-    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
     width: 100%;
-    margin: auto;
+    height: 100%;
 }

@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  DndContext,
-  closestCenter,
-  useSensor,
-  useSensors,
-  PointerSensor
-} from "@dnd-kit/core";
+import { DndContext, closestCenter, useSensor, useSensors, PointerSensor} from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import "./TaskManager.css"; // Import the CSS file
 import MetricsChart from "./MetricsChart"; // The separated chart component
+import "./TaskManager.css"; // Import the CSS file
 
 function TaskManager() {
   // State
@@ -264,11 +258,11 @@ function TaskManager() {
 
   return (
     <div className="container">
-      <h1 className="header">My Tasks</h1>
       {/* Chart component */}
       <MetricsChart tasks={tasks} />
 
       {/* Form to add or edit a task */}
+      <span className="newEntryQuestion">Have a New Task? </span>
       <form
         className="form"
         onSubmit={
@@ -277,7 +271,7 @@ function TaskManager() {
       >
         <input
           type="text"
-          placeholder="Task Title"
+          placeholder="Title of Task (ie. H05)"
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
           className="input"
@@ -326,12 +320,12 @@ function TaskManager() {
         {tasks.filter((task) => task.status === "In Progress").length > 0 ? (
           renderTaskTable(tasks.filter((task) => task.status === "In Progress"))
         ) : (
-          <p className="noTasks">No tasks in progress.</p>
+          <p className="noTasks">No tasks in progress!</p>
         )}
       </DndContext>
 
       {/* Done Section */}
-      <h2 className="sectionHeader">Done</h2>
+      <h2 className="sectionHeader">Completed Tasks</h2>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -340,7 +334,7 @@ function TaskManager() {
         {tasks.filter((task) => task.status === "Done").length > 0 ? (
           renderTaskTable(tasks.filter((task) => task.status === "Done"))
         ) : (
-          <p className="noTasks">No completed tasks.</p>
+          <p className="noTasks">No completed tasks...</p>
         )}
       </DndContext>
     </div>
