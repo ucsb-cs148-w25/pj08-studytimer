@@ -14,11 +14,11 @@ const SettingsPage = () => {
     <div className="settings">
       <h2>Choose Theme</h2>
       <div className="theme-options">
-        <button className="theme-btn" onClick={() => setTheme("dusk")}>
-          Dusk
+        <button className="theme-btn" onClick={() => setTheme("dark")}>
+          Dark
         </button>
-        <button className="theme-btn" onClick={() => setTheme("midnight")}>
-          Midnight
+        <button className="theme-btn" onClick={() => setTheme("light")}>
+          Light
         </button>
         <button className="theme-btn" onClick={() => setTheme("sky")}>
           Sky

@@ -86,8 +86,7 @@
   transform: scale(1.1); /* Slightly enlarge on hover */
 }
 
-/* Buttons */
-.primary-button {
+.primary-button, .reset-button {
   padding: 10px 20px;
   font-size: 1.1rem;
   border: none;
@@ -95,26 +94,12 @@
   cursor: pointer;
   background-color: var(--accent-background);
   color: var(--inner-button-text);
-  transition: background 0.3s ease-in-out;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-.primary-button:hover {
-  background-color: var(--hover-change);
-}
-
-.reset-button {
-  padding: 10px 20px;
-  font-size: 1.1rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: var(--accent-background);
-  color: var(--inner-button-text);
-  transition: background 0.3s ease-in-out;
-}
-
-.reset-button:hover {
-  background-color: var(--reset-button);
+.primary-button:hover, .reset-button:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);  /* Add soft shadow */
+  transform: translateY(-3px);  /* Lift the button slightly */
 }
 
 .settings-button {

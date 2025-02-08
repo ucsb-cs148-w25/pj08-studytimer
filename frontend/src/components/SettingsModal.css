@@ -19,7 +19,19 @@
     text-align: center;
     width: 280px;
     box-shadow: var(--modal-shadow);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform: scale(0.95);
+    animation: modalFadeIn 0.2s ease-out forwards;  /* Trigger animation */
+}
+
+@keyframes modalFadeIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .settings-modal h2 {

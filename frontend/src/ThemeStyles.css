@@ -20,15 +20,16 @@
 
     /* homepage related */
     --inner-button-text: #121212;
-    --reset-button: #fd4444f7;
-    --settings-button: #ffcf11;
 
     /* clock settings related */
     --screen-overlay-rgb: 0, 0, 0;
     --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
 
-    /* calendar related */
-
+    /* wheel related */
+    --in-progress-area: #ffd428;
+    --done-area: #62b074;
+    --hover-in-progress: #ffcf11;
+    --hover-done: #48a05c;
 
     /* task manager (to-do) related */
     --in-progress-button: #ffcf11;
@@ -38,38 +39,50 @@
     --cancel-button: var(--faint-background);
 }
 
-[data-theme="midnight"] {
-    --primary-background: #0a0a0a;
-    --secondary-background: #121212;
-    --accent-background: #1e1e1e;
-    --secondary-accent-background: rgb(45, 45, 45);
-    --faint-background: rgba(135, 135, 135, 0.88);
-    
+[data-theme="light"] {
+    /* Backgrounds */
+    --primary-background: #f5f5f5;  /* Light gray background */
+    --secondary-background: #ffffff;  /* White for content areas */
+    --accent-background: #9bc9fa;
+    --secondary-accent-background: #e0e0e0;  /* Light gray for contrast areas */
+    --faint-background: rgba(0, 0, 0, 0.1);  /* Subtle faint background for borders */
+
     /* Text */
-    --text: #d1d1d1;
-    --title-text: #5988b0;  /* Cool dark blue */
-    --description-text: rgba(200, 200, 200, 0.7);
-    --faint-text: rgba(180, 180, 180, 0.3);
+    --text: #121212;  /* Dark text for readability */
+    --title-text: #1a73e8;  /* Bright blue for titles */
+    --description-text: rgba(0, 0, 0, 0.6);  /* Dark gray for descriptions */
+    --faint-text: rgba(0, 0, 0, 0.35);  /* Faint gray for subtle text */
 
     /* Hover Effects */
-    --hover-change: #4078c0;
-    --hover-faint-change: rgba(255, 255, 255, 0.6);
+    --hover-change: #1a73e8;  /* Darker blue on hover */
+    --hover-faint-change: rgba(0, 0, 0, 0.8);  /* Darker for subtle text on hover */
 
-    /* Scroll */
-    --scroll-background: #050505;
+    /* Prevent overscroll background */
+    --scroll-background: #f0f0f0;  /* Slightly off-white for scroll areas */
 
     /* Navbar */
-    --accent-rgb: 100, 150, 200;
+    --accent-background: #1a73e8;  /* Google blue for accents */
+    --accent-rgb: 26, 115, 232;  /* RGB for dynamic usage */
 
-    /* Buttons */
-    --inner-button-text: #0a0a0a;
-    --reset-button: #c03b3b;
-    --settings-button: #e6b800;
+    /* Homepage */
+    --inner-button-text: #ffffff;  /* White text on accent-colored buttons */
 
     /* Clock Settings */
-    --screen-overlay-rgb: 10, 10, 10;
-    --modal-shadow: 0px 4px 8px rgba(10, 10, 10, 0.8);
-    --incremental-background: rgba(80, 80, 80, 0.8);
+    --screen-overlay-rgb: 255, 255, 255;  /* Light overlay background */
+    --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);  /* Softer shadow for light mode */
+
+    /* Wheel (Chart) Colors */
+    --in-progress-area: #ffcc00;  /* Warm yellow for in-progress tasks */
+    --done-area: #4caf50;  /* Green for completed tasks */
+    --hover-in-progress: #e6b800;  /* Slightly darker yellow on hover */
+    --hover-done: #388e3c;  /* Darker green on hover */
+
+    /* Task Manager (To-Do) Colors */
+    --in-progress-button: #ffcc00;  /* Yellow button for in-progress */
+    --done-button: #4caf50;  /* Green button for done tasks */
+    --edit-button: #1a73e8;  /* Blue for edit actions */
+    --delete-button: #d32f2f;  /* Red for delete actions */
+    --cancel-button: rgba(0, 0, 0, 0.1);  /* Light gray cancel button */
 }
 
 [data-theme="sky"] {
