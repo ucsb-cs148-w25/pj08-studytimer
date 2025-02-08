@@ -98,7 +98,6 @@
 }
 
 .primary-button:hover, .reset-button:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);  /* Add soft shadow */
   transform: translateY(-3px);  /* Lift the button slightly */
 }
 

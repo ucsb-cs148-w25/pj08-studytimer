@@ -40,85 +40,75 @@
 }
 
 [data-theme="light"] {
-    /* Backgrounds */
-    --primary-background: #f5f5f5;  /* Light gray background */
-    --secondary-background: #ffffff;  /* White for content areas */
-    --accent-background: #9bc9fa;
-    --secondary-accent-background: #e0e0e0;  /* Light gray for contrast areas */
-    --faint-background: rgba(0, 0, 0, 0.1);  /* Subtle faint background for borders */
+    --primary-background: #ffffff;  
+    --secondary-background: #f6f6f6f0;
+    --accent-background: #81b8f2;
+    --secondary-accent-background: #dddddd;  
+    --faint-background: rgba(0, 0, 0, 0.3);
 
-    /* Text */
-    --text: #121212;  /* Dark text for readability */
-    --title-text: #1a73e8;  /* Bright blue for titles */
-    --description-text: rgba(0, 0, 0, 0.6);  /* Dark gray for descriptions */
-    --faint-text: rgba(0, 0, 0, 0.35);  /* Faint gray for subtle text */
+    --text: #121212df;
+    --title-text: #3d83ceef;
+    --description-text: rgba(0, 0, 0, 0.6);
+    --faint-text: rgba(0, 0, 0, 0.4);  
 
-    /* Hover Effects */
-    --hover-change: #1a73e8;  /* Darker blue on hover */
-    --hover-faint-change: rgba(0, 0, 0, 0.8);  /* Darker for subtle text on hover */
+    --hover-change: #609ad8;
+    --hover-faint-change: rgba(0, 0, 0, 0.8);
 
-    /* Prevent overscroll background */
-    --scroll-background: #f0f0f0;  /* Slightly off-white for scroll areas */
+    --scroll-background: #f6f6f6f0;
 
-    /* Navbar */
-    --accent-background: #1a73e8;  /* Google blue for accents */
-    --accent-rgb: 26, 115, 232;  /* RGB for dynamic usage */
+    --accent-rgb: 30, 100, 200; 
 
-    /* Homepage */
-    --inner-button-text: #ffffff;  /* White text on accent-colored buttons */
+    --inner-button-text: #f6f6f6f0;  
 
-    /* Clock Settings */
-    --screen-overlay-rgb: 255, 255, 255;  /* Light overlay background */
-    --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);  /* Softer shadow for light mode */
+    --screen-overlay-rgb: 255, 255, 255;  
+    --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2); 
 
-    /* Wheel (Chart) Colors */
-    --in-progress-area: #ffcc00;  /* Warm yellow for in-progress tasks */
-    --done-area: #4caf50;  /* Green for completed tasks */
-    --hover-in-progress: #e6b800;  /* Slightly darker yellow on hover */
-    --hover-done: #388e3c;  /* Darker green on hover */
+    --in-progress-area: #f9b050;  
+    --done-area: #57b85a;  
+    --hover-in-progress: #f3a239;  
+    --hover-done: #388e3c; 
 
-    /* Task Manager (To-Do) Colors */
-    --in-progress-button: #ffcc00;  /* Yellow button for in-progress */
-    --done-button: #4caf50;  /* Green button for done tasks */
-    --edit-button: #1a73e8;  /* Blue for edit actions */
-    --delete-button: #d32f2f;  /* Red for delete actions */
-    --cancel-button: rgba(0, 0, 0, 0.1);  /* Light gray cancel button */
+    --in-progress-button: #f9b050;
+    --done-button: #57b85a;  
+    --edit-button: #81b8f2;  
+    --delete-button: #dc3636; 
+    --cancel-button: rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="sky"] {
-    --primary-background: #dbeeff; /* Light sky blue */
-    --secondary-background: #c2e6ff;
-    --accent-background: #79c2ff;
-    --secondary-accent-background: #b5e2ff;
-    --faint-background: rgba(135, 135, 135, 0.88);
+[data-theme="forest"] {
+    --primary-background: #f2f9f1;  
+    --secondary-background: #e8f3e4;
+    --accent-background: #88c999;  
+    --secondary-accent-background: #d3e8d1;
+    --faint-background: rgba(34, 85, 55, 0.2);
 
-    /* Text */
-    --text: #62a9d7;
-    --title-text: #005c99; /* Deep ocean blue */
-    --description-text: rgba(10, 50, 80, 0.7);
-    --faint-text: rgba(12, 44, 69, 0.331);
+    --text: #2d4d3a;  
+    --title-text: #3b7a57;
+    --description-text: rgba(34, 85, 55, 0.7);
+    --faint-text: rgba(34, 85, 55, 0.4);  
 
-    /* Hover Effects */
-    --hover-change: #5aa9ff;
-    --hover-faint-change: rgba(10, 50, 80, 0.6);
+    --hover-change: #6fa77f;  
+    --hover-faint-change: rgba(34, 85, 55, 0.85);
 
-    /* Scroll */
-    --scroll-background: #c2e6ff; 
+    --scroll-background: #eef7ed;  
 
-    /* Navbar */
-    --accent-rgb: 0, 120, 255;
+    --accent-rgb: 104, 175, 120;  
 
-    /* Buttons */
-    --inner-button-text: #f0f9ff;
-    --reset-button: #ff5c5c;
-    --settings-button: #ffcc00;
+    --inner-button-text: #ffffff;
 
-    /* Clock Settings */
-    --screen-overlay-rgb: 200, 230, 255;
-    --modal-shadow: 0px 4px 8px rgba(100, 180, 255, 0.5);
-    --incremental-background: rgba(141, 173, 227, 0.364);
+    --screen-overlay-rgb: 255, 255, 255;
+    --modal-shadow: 0px 8px 24px rgba(34, 85, 55, 0.2);
 
-    /* calendar related */
+    --in-progress-area: #ffbb33;  
+    --done-area: #4caf50;  
+    --hover-in-progress: #e6a500;
+    --hover-done: #388e3c;
+
+    --in-progress-button: #ffbb33;
+    --done-button: #4caf50;  
+    --edit-button: #88c999;  
+    --delete-button: #d9534f;  
+    --cancel-button: rgba(34, 85, 55, 0.2);  
 }
 
 body {

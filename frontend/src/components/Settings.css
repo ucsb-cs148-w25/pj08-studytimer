@@ -15,7 +15,7 @@
 /* Ensure header text follows theme */
 .settings h2 {
     font-size: 2rem;
-    margin-bottom: 20px;
+    margin-bottom: 7px;
     color: var(--text);
 }
 
@@ -31,7 +31,7 @@
 /* Ensure theme buttons match global styles */
 .theme-btn {
     padding: 12px 20px;
-    font-size: 1rem;
+    font-size: 1.1rem;
     border: 2px solid var(--accent-background);
     background-color: var(--primary-background);
     color: var(--text);

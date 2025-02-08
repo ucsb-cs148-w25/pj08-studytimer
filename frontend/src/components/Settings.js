@@ -20,9 +20,12 @@ const SettingsPage = () => {
         <button className="theme-btn" onClick={() => setTheme("light")}>
           Light
         </button>
-        <button className="theme-btn" onClick={() => setTheme("sky")}>
-          Sky
+        <button className="theme-btn" onClick={() => setTheme("forest")}>
+          Pistachio
         </button>
+        {/* <button className="theme-btn" onClick={() => setTheme("playdoh")}>
+          Play-Doh
+        </button> */}
       </div>
     </div>
   );
