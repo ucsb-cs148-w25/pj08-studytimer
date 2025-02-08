@@ -83,9 +83,20 @@ const App = () => {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes} minute${minutes !== 1 ? 's' : ''} ${secs} second${secs !== 1 ? 's' : ''}`;
   };
 
+  const handleAddTime = (seconds) => {
+    const newTime = time + seconds;
+    if (newTime >= 0) {
+      setTime(newTime);
+    }
+  };
+
+
+  // ----------------------
+  // Return with Routes
+  // ----------------------
   return (
     <Router>
       <div className="app-container">
@@ -99,6 +110,29 @@ const App = () => {
                   <div className="icy-text">Take a Break ❄️</div>
                 </div>
                 <div className="timer-display">{formatTime(time)}</div>
+
+                {/* New Buttons to Add Time */}
+                <div className="time-adjust-buttons">
+                  <button
+                    className="adjust-button"
+                    onClick={() => handleAddTime(60)}
+                  >
+                    +1 min
+                  </button>
+                  <button
+                    className="adjust-button"
+                    onClick={() => handleAddTime(180)}
+                  >
+                    +3 min
+                  </button>
+                  <button
+                    className="adjust-button"
+                    onClick={() => handleAddTime(300)}
+                  >
+                    +5 mins
+                  </button>
+                </div>
+
                 <div className="timer-controls">
                   <button
                     className="primary-button"
@@ -120,7 +154,7 @@ const App = () => {
                     className="settings-button"
                     onClick={() => setIsModalOpen(true)}
                   >
-                    Settings
+                    <img src="/settingsGear.svg" alt="Settings" className='settings-icon'/>
                   </button>
                 </div>
 

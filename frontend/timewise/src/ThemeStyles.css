@@ -25,7 +25,7 @@
 
     /* clock settings related */
     --screen-overlay-rgb: 0, 0, 0;
-    --modal-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
 
     /* calendar related */
 

@@ -28,14 +28,6 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
     setFormattedTime(formatTime(validTime));
   };
 
-  const handleAddTime = (seconds) => {
-    const newTime = totalTime + seconds;
-    if (newTime >= 0) {
-      setTotalTime(newTime);
-      setFormattedTime(formatTime(newTime));
-    }
-  };
-
   const handleBreakTimeChange = (e) => {
     const value = e.target.value.trim();
     if (value === '') {
@@ -50,11 +42,11 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
   };
 
   return (
-    <div className="settings-overlay">
-      <div className="settings-modal">
+    <div className="settings-overlay" onClick={onClose}>  {/* Close when clicking outside */}
+      <div className="settings-modal" onClick={(e) => e.stopPropagation()}>  {/* Prevent closing when clicking inside */}
         <h2>Settings</h2>
         <span className="timer-label">Timer Duration</span>
-
+  
         <div className="timer-input-container">
           <input
             type="text"
@@ -64,16 +56,10 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
             onBlur={handleInputBlur}
           />
         </div>
-
-        <div className="buttons-container">
-          <button className="increment-button" onClick={() => handleAddTime(30)}>+ 0:30</button>
-          <button className="increment-button" onClick={() => handleAddTime(60)}>+ 1:00</button>
-          <button className="increment-button" onClick={() => handleAddTime(300)}>+ 5:00</button>
-        </div>
-
-        <span className="break-label">Break Duration (minutes)</span>
-
+  
+        {/* Break Time Input */}
         <div>
+          <span className="break-label">Break Duration</span>  {/* Added heading */}
           <label className="break-input-container">
             <input
               type="number"
@@ -84,13 +70,13 @@ const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, se
             />
           </label>
         </div>
-
-        <div>
+  
+        {/* <div>
           <button className="save-button" onClick={onClose}>Save & Close</button>
-        </div>
+        </div> */}
       </div>
     </div>
-  );
+  );  
 };
 
 // Helper Functions
