@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Squash as Hamburger } from "hamburger-react";
-import { loginWithGoogle, logoutUser } from "../auth"; 
+import { loginWithGoogle, logoutUser } from "../../auth.js"; 
 import "./Navbar.css";
 
 function Navbar() {

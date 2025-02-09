@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { loginWithGoogle } from "../auth";
+import { loginWithGoogle } from "../../auth.js";
 
 const Login = ({ setUser }) => {
   useEffect(() => {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Profile from './components/Profile';
-import CalendarPage from './components/CalendarPage';
-import TaskManager from './components/TaskManager';
-import About from './components/About';
-import Settings from './components/Settings';
-import SettingsModal from './components/SettingsModal';
+import Navbar from './components/NavBar/Navbar';
+import Profile from './components/Profile/Profile';
+import CalendarPage from './components/Calendar/CalendarPage';
+import TaskManager from './components/ToDo/TaskManager';
+import About from './components/About/About';
+import Settings from './components/AppSettings/Settings';
+import SettingsModal from './components/Home/SettingsModal';
 import './App.css'; // Import external styles
 
 // ----------------------
