@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./Settings.css";
-import "../index.css";  // Ensures the theme is applied
 
 const SettingsPage = () => {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");

@@ -1,6 +1,5 @@
 import React from "react";
 import "./Profile.css";
-import "../index.css";
 
 function Profile() {
   return (
