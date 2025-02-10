@@ -13,7 +13,7 @@ Team: Edwin [x], Jennifer [x], Andrew [x], Cindy [x], Lawrence [x], Thienan [], 
     - Currency, Avatar, Shop (Club Penguin style)
     - Growing plants
 - Timer shows up on the other tabs / as a pop-up
-- Break suggestion on front page
+- Break suggestion on front pagec
 - Change timer settings by clicking on timer (instead of settings button)
 - Calendar
     - Sync
