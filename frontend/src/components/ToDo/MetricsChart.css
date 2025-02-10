@@ -1,0 +1,15 @@
+.chartContainer {
+    width: 250px;
+    margin-bottom: -5px;
+    margin-top: -150px;
+    color: var(--text-color);  /* Ensure text like legend labels uses theme */
+}
+
+/* CSS Variables for Theming */
+:root {
+    --in-progress-color: var(--in-progress-area);
+    --completed-color: var(--done-area);
+    --in-progress-hover: var(--hover-in-progress);
+    --completed-hover: var(--hover-done);
+    --text-color: var(--faint-background);
+}

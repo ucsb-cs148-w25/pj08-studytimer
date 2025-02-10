@@ -1,0 +1,9 @@
+.sidebar h2 {
+    color: var(--faint-text);
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+.sidebar {
+    margin-top: 50px;
+}

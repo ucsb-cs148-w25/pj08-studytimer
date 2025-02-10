@@ -1,0 +1,31 @@
+/* src/components/CalendarPage.css */
+.calendar-page {
+    display: flex;
+    flex-direction: column; 
+    height: 100vh;
+    background-color: var(--secondary-background);
+    margin-top: -125px;
+}
+
+.main-content {
+    display: flex;
+    margin-top: -50px;
+    flex: 1;
+}
+
+.sidebar {
+    width: 400px;
+    background: var(--secondary-accent-background);
+    color: var(--text); /* DON'T KNOW WHAT IT DOES */
+    padding: 20px;
+    height: 100%;
+}
+
+.calendar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+    height: 100%;
+}

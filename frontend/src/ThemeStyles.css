@@ -1,0 +1,120 @@
+:root { /* This is dusk! */
+    --primary-background: #121212;
+    --secondary-background: #191919f8;
+    --accent-background: #9bc9fa;
+    --secondary-accent-background: rgb(45, 45, 45);
+    --faint-background: rgba(135, 135, 135, 0.88);
+    /* Below is for any text present on the site */
+    --text: #ffffffff;
+    --title-text: #88b0db;
+    --description-text: rgba(255, 255, 255, 0.6);
+    --faint-text: rgba(255, 255, 255, 0.345); 
+    /* Below is for any text that changes color on hover */
+    --hover-change: #9bc9fa; 
+    --hover-faint-change: rgba(255, 255, 255, 0.8);
+    /* prevent overscroll from looking weird */
+    --scroll-background: #000000e6;
+
+    /* navbar related */
+    --accent-rgb: 155, 201, 250;
+
+    /* homepage related */
+    --inner-button-text: #121212;
+
+    /* clock settings related */
+    --screen-overlay-rgb: 0, 0, 0;
+    --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
+
+    /* wheel related */
+    --in-progress-area: #ffd428;
+    --done-area: #62b074;
+    --hover-in-progress: #ffcf11;
+    --hover-done: #48a05c;
+
+    /* task manager (to-do) related */
+    --in-progress-button: #ffcf11;
+    --done-button: #48a05c;
+    --edit-button: #9bc9fa;
+    --delete-button: #fd4444f7;
+    --cancel-button: var(--faint-background);
+}
+
+[data-theme="light"] {
+    --primary-background: #ffffff;  
+    --secondary-background: #f6f6f6f0;
+    --accent-background: #81b8f2;
+    --secondary-accent-background: #dddddd;  
+    --faint-background: rgba(0, 0, 0, 0.3);
+
+    --text: #121212df;
+    --title-text: #3d83ceef;
+    --description-text: rgba(0, 0, 0, 0.6);
+    --faint-text: rgba(0, 0, 0, 0.4);  
+
+    --hover-change: #609ad8;
+    --hover-faint-change: rgba(0, 0, 0, 0.8);
+
+    --scroll-background: #f6f6f6f0;
+
+    --accent-rgb: 30, 100, 200; 
+
+    --inner-button-text: #f6f6f6f0;  
+
+    --screen-overlay-rgb: 255, 255, 255;  
+    --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2); 
+
+    --in-progress-area: #f9b050;  
+    --done-area: #57b85a;  
+    --hover-in-progress: #f3a239;  
+    --hover-done: #388e3c; 
+
+    --in-progress-button: #f9b050;
+    --done-button: #57b85a;  
+    --edit-button: #81b8f2;  
+    --delete-button: #dc3636; 
+    --cancel-button: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="forest"] {
+    --primary-background: #f2f9f1;  
+    --secondary-background: #e8f3e4;
+    --accent-background: #88c999;  
+    --secondary-accent-background: #d3e8d1;
+    --faint-background: rgba(34, 85, 55, 0.2);
+
+    --text: #2d4d3a;  
+    --title-text: #3b7a57;
+    --description-text: rgba(34, 85, 55, 0.7);
+    --faint-text: rgba(34, 85, 55, 0.4);  
+
+    --hover-change: #6fa77f;  
+    --hover-faint-change: rgba(34, 85, 55, 0.85);
+
+    --scroll-background: #eef7ed;  
+
+    --accent-rgb: 104, 175, 120;  
+
+    --inner-button-text: #ffffff;
+
+    --screen-overlay-rgb: 255, 255, 255;
+    --modal-shadow: 0px 8px 24px rgba(34, 85, 55, 0.2);
+
+    --in-progress-area: #ffbb33;  
+    --done-area: #4caf50;  
+    --hover-in-progress: #e6a500;
+    --hover-done: #388e3c;
+
+    --in-progress-button: #ffbb33;
+    --done-button: #4caf50;  
+    --edit-button: #88c999;  
+    --delete-button: #d9534f;  
+    --cancel-button: rgba(34, 85, 55, 0.2);  
+}
+
+body {
+    background-color: var(--scroll-background);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    transition: all 0.3s ease-in-out;
+}

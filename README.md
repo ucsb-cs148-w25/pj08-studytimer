@@ -73,7 +73,7 @@ cd <repository-name>
 npm install @dnd-kit/utilities chart.js react-chartjs-2 hamburger-react
 ```
 
-3. If wanting to run the app locally, which will pop up on `localhost:3030`, run the following first:
+3. If wanting to run the app locally, which will pop up on `localhost:3000`, run the following first:
 ```
 cd frontend/timewise/
 npm install
