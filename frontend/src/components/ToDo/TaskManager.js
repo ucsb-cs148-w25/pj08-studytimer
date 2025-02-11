@@ -3,14 +3,15 @@ import { DndContext, closestCenter, useSensor, useSensors, PointerSensor} from "
 import { SortableContext, arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import MetricsChart from "./MetricsChart"; // The separated chart component
-import "./TaskManager.css"; // Import the CSS file
+import "./TaskManager.css"; 
+
+import { db, auth } from "../../firebase";
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 function TaskManager() {
   // State
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    return savedTasks ? JSON.parse(savedTasks) : [];
-  }); // Store all tasks
+  const [tasks, setTasks] = useState(([])); // Store all tasks
   const [taskTitle, setTaskTitle] = useState(""); // Input for task title
   const [deadline, setDeadline] = useState(""); // Input for task deadline
   const [priority, setPriority] = useState("Low"); // Input for priority
@@ -18,10 +19,32 @@ function TaskManager() {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" }); // Sort state
   const [editTaskTitle, setEditTaskTitle] = useState(null); // store title instead of index
 
-  // Local storage effect
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user);  // Debugging output
+      if (user) {
+        fetchTasks(user.uid);
+      } else {
+        console.log("No user logged in");
+        setTasks([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch tasks from Firestore
+  const fetchTasks = async (uid) => {
+    console.log("Fetching tasks for UID:", uid);  // Debugging output
+    try {
+      const querySnapshot = await getDocs(collection(db, `users/${uid}/tasks`));
+      const tasksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log("Tasks fetched:", tasksData);  // Debugging output
+      setTasks(tasksData);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
 
   // DnD kit
   const sensors = useSensors(useSensor(PointerSensor));
@@ -110,74 +133,127 @@ function TaskManager() {
   };
 
   // Add a new task
-  const handleAddTask = (e) => {
+  const handleAddTask = async (e) => {
     e.preventDefault();
     if (taskTitle.trim() && deadline.trim()) {
       const newTask = { title: taskTitle, deadline, priority, status };
-      setTasks((prev) => [...prev, newTask]);
-      setTaskTitle("");
-      setDeadline("");
-      setPriority("Low");
+      const user = auth.currentUser;
+  
+      if (!user) {
+        alert("You must be logged in to add tasks.");
+        return;
+      }
+  
+      try {
+        const docRef = await addDoc(collection(db, `users/${user.uid}/tasks`), newTask);
+        setTasks((prev) => [...prev, { id: docRef.id, ...newTask }]);
+        setTaskTitle("");
+        setDeadline("");
+        setPriority("Low");
+      } catch (error) {
+        console.error("Error adding task:", error);
+      }
     } else {
       alert("Please enter a valid task title and deadline!");
     }
   };
 
   // Move a task to Done
-  const markAsDone = (title) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.title === title ? { ...task, status: "Done" } : task
-      )
-    );
+  const markAsDone = async (title) => {
+    const user = auth.currentUser;
+    const taskToUpdate = tasks.find(task => task.title === title);
+    
+    if (taskToUpdate) {
+      try {
+        await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), { status: "Done" });
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.title === title ? { ...task, status: "Done" } : task
+          )
+        );
+      } catch (error) {
+        console.error("Error updating task status:", error);
+      }
+    }
   };
-
-  // Move a task to In Progress
-  const markAsInProgress = (title) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.title === title ? { ...task, status: "In Progress" } : task
-      )
-    );
-  };
+  
+  const markAsInProgress = async (title) => {
+    const user = auth.currentUser;
+    const taskToUpdate = tasks.find(task => task.title === title);
+  
+    if (taskToUpdate) {
+      try {
+        await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), { status: "In Progress" });
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.title === title ? { ...task, status: "In Progress" } : task
+          )
+        );
+      } catch (error) {
+        console.error("Error updating task status:", error);
+      }
+    }
+  };  
 
   // Delete a task
-  const deleteTask = (title) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.title !== title));
-  };
+  const deleteTask = async (title) => {
+    const user = auth.currentUser;
+    const taskToDelete = tasks.find(task => task.title === title);
+  
+    if (taskToDelete) {
+      try {
+        await deleteDoc(doc(db, `users/${user.uid}/tasks`, taskToDelete.id));
+        setTasks((prevTasks) => prevTasks.filter((task) => task.title !== title));
+      } catch (error) {
+        console.error("Error deleting task:", error);
+      }
+    }
+  };  
 
   // Editing
   const startEditing = (title) => {
-    const taskToEdit = tasks.find((t) => t.title === title);
+    const user = auth.currentUser;
+    const taskToEdit = tasks.find((task) => task.title === title);    
     setTaskTitle(taskToEdit.title);
     setDeadline(taskToEdit.deadline);
     setPriority(taskToEdit.priority);
     setEditTaskTitle(title);
   };
 
-  const saveEdit = (e) => {
+  const saveEdit = async (e) => {
     e.preventDefault();
     if (taskTitle.trim() && deadline.trim()) {
-      const updatedTasks = [...tasks];
-      const taskIndex = updatedTasks.findIndex((t) => t.title === editTaskTitle);
-      if (taskIndex !== -1) {
-        updatedTasks[taskIndex] = {
-          ...updatedTasks[taskIndex],
-          title: taskTitle,
-          deadline,
-          priority
-        };
-        setTasks(updatedTasks);
-        // Clear form
-        setTaskTitle("");
-        setDeadline("");
-        setPriority("Low");
-        setEditTaskTitle(null);
+      const user = auth.currentUser;
+      const taskToEdit = tasks.find((t) => t.title === editTaskTitle);
+  
+      if (taskToEdit) {
+        try {
+          await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToEdit.id), {
+            title: taskTitle,
+            deadline,
+            priority,
+          });
+  
+          const updatedTasks = tasks.map((task) =>
+            task.id === taskToEdit.id
+              ? { ...task, title: taskTitle, deadline, priority }
+              : task
+          );
+  
+          setTasks(updatedTasks);
+          setTaskTitle("");
+          setDeadline("");
+          setPriority("Low");
+          setEditTaskTitle(null);
+        } catch (error) {
+          console.error("Error editing task:", error);
+        }
       }
     } else {
       alert("Please enter a valid task title and deadline!");
     }
   };
+  
 
   // Priority custom sorting
   const priorityOrder = {
