@@ -1,0 +1,14 @@
+.kanban-board {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background-color: #f4f4f4;
+    min-height: 100vh;
+  }
+  
+  .columns {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    justify-content: space-around;
+  }

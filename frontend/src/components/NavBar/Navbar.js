@@ -26,6 +26,7 @@ function Navbar() {
         <ul id="navbar" className={`desktop-navbar ${isMenuOpen ? "mobile" : ""}`}>
           <li><Link to="/calendar">Calendar</Link></li>
           <li><Link to="/task_manager">To-Do</Link></li>
+          <li><Link to="/kanban">Kanban</Link></li>
           <li><Link to="/settings">Settings</Link></li>
         </ul>
       </div>

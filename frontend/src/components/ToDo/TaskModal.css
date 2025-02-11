@@ -1,0 +1,91 @@
+.task-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.modal-form textarea {
+    min-height: 80px;
+}
+
+.milestones input {
+    width: calc(100% - 40px);
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.milestones button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.labels .label-btn {
+    padding: 5px 10px;
+    border: 1px solid #007bff;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px 5px 0 0;
+}
+
+.labels .label-btn.selected {
+    background: #007bff;
+    color: white;
+}
+
+.file-upload input {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.modal-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 15px;
+}
+
+.modal-content button.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    color: #555;
+    cursor: pointer;
+}
