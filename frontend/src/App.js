@@ -9,203 +9,234 @@ import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
 import './App.css'; // Import external styles
 
-// ----------------------
-// Sounds
-// ----------------------
+// Example sound effect
 const freezeSound = new Audio('/sounds/freeze.mp3');
 
 const App = () => {
-  // ----------------------
-  // Timer states
-  // ----------------------
-  const [time, setTime] = useState(1500);       // Current countdown (in seconds)
-  const [totalTime, setTotalTime] = useState(1500); // Total study duration (in seconds)
-  const [breakTime, setBreakTime] = useState(null); // Single break duration (in seconds) or null
-  const [numBreaks, setNumBreaks] = useState(0);    // Number of breaks user wants
+  // ------------------------------------------------------------------
+  // State: The total study time (in seconds) & break time (in seconds)
+  // ------------------------------------------------------------------
+  const [totalTime, setTotalTime] = useState(1800); // e.g. 30 minutes
+  const [breakTime, setBreakTime] = useState(300);  // e.g. 5 minutes
+  const [numBreaks, setNumBreaks] = useState(3);
 
-  const [isRunning, setIsRunning] = useState(false);    // Is the timer ticking?
-  const [onBreak, setOnBreak] = useState(false);         // Are we currently on break?
-  const [currentSegment, setCurrentSegment] = useState(1); // Which segment we're on (1..numBreaks+1)
-  const [breaksUsed, setBreaksUsed] = useState(0);       // How many breaks have been used so far
-  const [sessionComplete, setSessionComplete] = useState(false); // Did we finish all segments?
+  // ------------------------------------------------------------------
+  // State: The main study timer and the break timer
+  // ------------------------------------------------------------------
+  const [studyTimeLeft, setStudyTimeLeft] = useState(totalTime);
+  const [breakTimeLeft, setBreakTimeLeft] = useState(0);
 
-  // ----------------------
+  // Are we currently studying or on break?
+  const [onBreak, setOnBreak] = useState(false);
+
+  // Overall session control
+  const [isRunning, setIsRunning] = useState(false);
+  const [sessionComplete, setSessionComplete] = useState(false);
+
+  // Keep track of how many breaks have started
+  const [breakIndex, setBreakIndex] = useState(0);
+
+  // ------------------------------------------------------------------
   // Modal state
-  // ----------------------
+  // ------------------------------------------------------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ----------------------
-  // Calculate length of each study segment
-  // (Divide totalTime by numBreaks + 1)
-  // ----------------------
-  const segmentTime = useCallback(() => {
-    const segments = numBreaks > 0 ? numBreaks + 1 : 1;
-    return Math.floor(totalTime / segments);
-  }, [numBreaks, totalTime]);
+  // ------------------------------------------------------------------
+  // Break thresholds: The time-left values at which a break occurs
+  // For numBreaks = 3 and totalTime = 1800s, intervals of 600s:
+  // => breaks happen when studyTimeLeft hits 1200, then 600, then 0.
+  // We'll generate them in descending order for convenience.
+  // ------------------------------------------------------------------
+  const breakPoints = useCallback(() => {
+    if (numBreaks <= 0) return [];
+    const interval = totalTime / numBreaks; // e.g., 1800 / 3 = 600
+    const points = [];
+    for (let i = 1; i <= numBreaks; i++) {
+      points.push(Math.floor(totalTime - i * interval)); 
+      // e.g. i=1 => 1200, i=2 => 600, i=3 => 0
+    }
+    return points;
+  }, [totalTime, numBreaks]);
 
-  // ----------------------
-  // Finish the session
-  // ----------------------
+  // ------------------------------------------------------------------
+  // Called when we finish the session or time hits 0 after final break
+  // ------------------------------------------------------------------
   const finishSession = useCallback(() => {
     setIsRunning(false);
     setSessionComplete(true);
-    setTime(0);
+    setStudyTimeLeft(0);
     alert('Session complete!');
   }, []);
 
-  // ----------------------
-  // End of a STUDY segment
-  // ----------------------
-  const endSegment = useCallback(() => {
-    // If we still have breaks left, go on break
-    if (breaksUsed < numBreaks && breakTime) {
-      setOnBreak(true);
-      setTime(breakTime);
-      freezeSound.play();
-      // remain isRunning = true
-    } else {
-      // No break left => move to next segment
-      setCurrentSegment((prev) => {
-        const nextSeg = prev + 1;
-        // If we exceed the total # of segments => session complete
-        if (nextSeg > numBreaks + 1) {
-          finishSession();
-          return prev;
-        } else {
-          setTime(segmentTime());
-          return nextSeg;
-        }
-      });
+  // ------------------------------------------------------------------
+  // Start a break: Pause the main study timer, set breakTimeLeft
+  // ------------------------------------------------------------------
+  const startBreak = useCallback(() => {
+    if (!breakTime) {
+      // If there's no breakTime set, just continue or finish
+      return;
     }
-  }, [breaksUsed, numBreaks, breakTime, finishSession, segmentTime]);
+    setOnBreak(true);
+    setBreakTimeLeft(breakTime);
+    freezeSound.play();
+  }, [breakTime]);
 
-  // ----------------------
-  // End of a BREAK
-  // ----------------------
+  // ------------------------------------------------------------------
+  // End the break (either time ran out or user clicked skip)
+  // ------------------------------------------------------------------
   const endBreak = useCallback(() => {
     setOnBreak(false);
-    setBreaksUsed((prev) => prev + 1);
+    setBreakTimeLeft(0);
 
-    setCurrentSegment((prev) => {
-      const nextSeg = prev + 1;
-      if (nextSeg > numBreaks + 1) {
-        finishSession();
-        return prev;
-      } else {
-        setTime(segmentTime());
-        return nextSeg;
-      }
-    });
-  }, [numBreaks, finishSession, segmentTime]);
+    // If we haven't reached the final break, increment breakIndex
+    setBreakIndex((prev) => prev + 1);
+  }, []);
 
-  // ----------------------
-  // Main Timer Loop
-  // ----------------------
+  // ------------------------------------------------------------------
+  // The main "study" timer effect
+  // Runs once per second if isRunning && !onBreak && !sessionComplete
+  // ------------------------------------------------------------------
   useEffect(() => {
-    // If not running or session is done, do nothing
-    if (!isRunning || sessionComplete) return;
+    if (!isRunning || onBreak || sessionComplete) return;
 
     const timer = setInterval(() => {
-      setTime((prevTime) => {
-        if (prevTime <= 1) {
+      setStudyTimeLeft((prev) => {
+        const nextVal = prev - 1;
+        // If the main timer hits 0 => session ends
+        if (nextVal <= 0) {
           clearInterval(timer);
-          // On time up:
-          if (onBreak) {
-            endBreak();
-          } else {
-            endSegment();
-          }
+          finishSession();
           return 0;
         }
-        return prevTime - 1;
+
+        // Check if we've hit the next break threshold
+        const bPoints = breakPoints();
+        // If we still have breaks to trigger:
+        if (breakIndex < bPoints.length) {
+          const nextBreakThreshold = bPoints[breakIndex]; 
+          // e.g. if breakIndex=0 => threshold=1200
+          // If nextVal <= that threshold => time for a break
+          if (nextVal <= nextBreakThreshold) {
+            clearInterval(timer);
+            // Start the break
+            startBreak();
+            return nextVal;
+          }
+        }
+
+        return nextVal;
       });
     }, 1000);
 
-    // Cleanup
     return () => clearInterval(timer);
-    // Make sure to include everything used in this effect:
   }, [
     isRunning,
-    sessionComplete,
     onBreak,
-    endBreak,
-    endSegment,
+    sessionComplete,
+    breakIndex,
+    finishSession,
+    breakPoints,
+    startBreak,
   ]);
 
-  // ----------------------
-  // "Reset" => stop & reset everything
-  // ----------------------
+  // ------------------------------------------------------------------
+  // The break timer effect
+  // Runs once per second if onBreak && isRunning
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    if (!isRunning || !onBreak || sessionComplete) return;
+
+    const timer = setInterval(() => {
+      setBreakTimeLeft((prev) => {
+        const nextVal = prev - 1;
+        if (nextVal <= 0) {
+          clearInterval(timer);
+          // Break ended by countdown
+          endBreak();
+        }
+        return nextVal > 0 ? nextVal : 0;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isRunning, onBreak, sessionComplete, endBreak]);
+
+  // ------------------------------------------------------------------
+  // Reset everything
+  // ------------------------------------------------------------------
   const resetTimer = () => {
     setIsRunning(false);
-    setOnBreak(false);
     setSessionComplete(false);
-    setBreaksUsed(0);
-    setCurrentSegment(1);
-    // Reinitialize time to first segment
-    setTime(segmentTime());
+    setOnBreak(false);
+    setBreakIndex(0);
+
+    setStudyTimeLeft(totalTime);
+    setBreakTimeLeft(0);
   };
 
-  // ----------------------
-  // Manually skip or end break early
-  // ----------------------
+  // ------------------------------------------------------------------
+  // Skip break => end break immediately
+  // ------------------------------------------------------------------
   const skipBreak = () => {
     if (!onBreak) return;
-    endBreak(); // treat break as if time ran out
+    setBreakTimeLeft(0);
+    endBreak();
   };
 
-  // ----------------------
-  // Helper: Add or subtract time
-  // ----------------------
+  // ------------------------------------------------------------------
+  // Helper: Add or subtract time from whichever timer is currently running
+  // ------------------------------------------------------------------
   const handleAddTime = (seconds) => {
-    const newTime = time + seconds;
-    if (newTime >= 0) {
-      setTime(newTime);
+    if (!onBreak) {
+      // Adjust study time
+      const newVal = studyTimeLeft + seconds;
+      setStudyTimeLeft(newVal > 0 ? newVal : 0);
+    } else {
+      // Adjust break time
+      const newVal = breakTimeLeft + seconds;
+      setBreakTimeLeft(newVal > 0 ? newVal : 0);
     }
   };
 
-  // ----------------------
-  // Format time for display
-  // ----------------------
-  const formatTime = (seconds) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+  // ------------------------------------------------------------------
+  // Format time for display: HH:MM:SS → e.g. 00:20:15
+  // ------------------------------------------------------------------
+  const formatTime = (sec) => {
+    const hrs = Math.floor(sec / 3600);
+    const mins = Math.floor((sec % 3600) / 60);
+    const secs = sec % 60;
 
-    const hDisplay = hrs > 0 ? `${hrs}h ` : '';
-    const mDisplay = mins > 0 ? `${mins}m ` : '';
-    const sDisplay = `${secs}s`;
-    return hDisplay + mDisplay + sDisplay;
+    return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  // ----------------------
-  // Update states from SettingsModal
-  // ----------------------
+  // ------------------------------------------------------------------
+  // Apply new settings from the modal (in HH:MM:SS)
+  // ------------------------------------------------------------------
   const handleSettingsChange = (newTotalTime, newBreakTime, newNumBreaks) => {
-    // Stop any current timer
     setIsRunning(false);
+    setSessionComplete(false);
+    setOnBreak(false);
+    setBreakIndex(0);
 
-    // Update states
     setTotalTime(newTotalTime);
     setBreakTime(newBreakTime);
     setNumBreaks(newNumBreaks);
 
-    // Reset derived states
-    setOnBreak(false);
-    setSessionComplete(false);
-    setBreaksUsed(0);
-    setCurrentSegment(1);
-
-    // Initialize time to the first study segment
-    const firstSeg =
-      newNumBreaks > 0
-        ? Math.floor(newTotalTime / (newNumBreaks + 1))
-        : newTotalTime;
-    setTime(firstSeg);
+    // Reset the timers
+    setStudyTimeLeft(newTotalTime);
+    setBreakTimeLeft(0);
   };
 
-  // ----------------------
+  // ------------------------------------------------------------------
+  // Which timer do we display?
+  //  - If on break, show breakTimeLeft
+  //  - Otherwise show the main studyTimeLeft
+  // ------------------------------------------------------------------
+  const displayTime = onBreak ? breakTimeLeft : studyTimeLeft;
+
+  // ------------------------------------------------------------------
   // Render
-  // ----------------------
+  // ------------------------------------------------------------------
   return (
     <Router>
       <div className="app-container">
@@ -223,13 +254,18 @@ const App = () => {
 
                 {/* Timer display */}
                 <div className="timer-display">
-                  {sessionComplete ? 'Session Complete!' : formatTime(time)}
+                  {sessionComplete
+                    ? "Session Complete!"
+                    : formatTime(displayTime)}
                 </div>
 
-                {/* Which segment are we on? */}
+                {/* Info about how many breaks remain */}
                 {!sessionComplete && (
                   <div className="segment-info">
-                    Segment {currentSegment} of {numBreaks + 1}
+                    {onBreak
+                      ? `Break ${breakIndex + 1} of ${numBreaks}`
+                      : `Study Time (breaks used: ${breakIndex}/${numBreaks})`
+                    }
                   </div>
                 )}
 
@@ -251,17 +287,18 @@ const App = () => {
                     className="adjust-button"
                     onClick={() => handleAddTime(300)}
                   >
-                    +5 mins
+                    +5 min
                   </button>
                 </div>
 
                 {/* Timer controls */}
                 <div className="timer-controls">
+                  {/* Start/Pause */}
                   <button
                     className="primary-button"
                     onClick={() => {
                       if (sessionComplete) {
-                        // If already complete, let this button reset or start new session
+                        // If session is over, this restarts
                         resetTimer();
                       } else {
                         setIsRunning(!isRunning);
@@ -269,24 +306,26 @@ const App = () => {
                     }}
                   >
                     {sessionComplete
-                      ? 'Restart Session'
+                      ? "Restart"
                       : isRunning
-                      ? 'Pause'
-                      : 'Start'}
+                      ? "Pause"
+                      : "Start"
+                    }
                   </button>
 
+                  {/* Reset */}
                   <button className="reset-button" onClick={resetTimer}>
                     Reset
                   </button>
 
-                  {/* Skip break only if on break */}
+                  {/* Skip Break only if on break */}
                   {onBreak && (
                     <button className="skip-break-button" onClick={skipBreak}>
                       Skip Break
                     </button>
                   )}
 
-                  {/* Open settings modal */}
+                  {/* Settings modal */}
                   <button
                     className="settings-button"
                     onClick={() => setIsModalOpen(true)}

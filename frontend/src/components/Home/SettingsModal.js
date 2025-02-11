@@ -3,12 +3,12 @@ import './SettingsModal.css';
 
 /**
  * Props:
- *  - isOpen          (bool)
- *  - onClose         (fn)
- *  - totalTime       (seconds)
- *  - breakTime       (seconds or null)
- *  - numBreaks       (integer)
- *  - handleSettingsChange (fn) => handleSettingsChange(newTotalTime, newBreakTime, newNumBreaks)
+ *  - isOpen                (bool)
+ *  - onClose               (fn)
+ *  - totalTime             (seconds)
+ *  - breakTime             (seconds or null)
+ *  - numBreaks             (integer)
+ *  - handleSettingsChange  (fn) => handleSettingsChange(newTotalTime, newBreakTime, newNumBreaks)
  */
 
 const SettingsModal = ({
@@ -19,59 +19,46 @@ const SettingsModal = ({
   numBreaks,
   handleSettingsChange,
 }) => {
-  const [formattedTime, setFormattedTime] = useState(formatTime(totalTime));
-  const [localBreakTime, setLocalBreakTime] = useState(
-    breakTime !== null ? breakTime / 60 : ''
+  const [formattedStudyTime, setFormattedStudyTime] = useState(formatTime(totalTime));
+  const [formattedBreakTime, setFormattedBreakTime] = useState(
+    breakTime !== null ? formatTime(breakTime) : formatTime(0)
   );
   const [localNumBreaks, setLocalNumBreaks] = useState(numBreaks);
 
   useEffect(() => {
-    setFormattedTime(formatTime(totalTime));
-    setLocalBreakTime(breakTime !== null ? breakTime / 60 : '');
+    setFormattedStudyTime(formatTime(totalTime));
+    setFormattedBreakTime(breakTime !== null ? formatTime(breakTime) : formatTime(0));
     setLocalNumBreaks(numBreaks);
   }, [totalTime, breakTime, numBreaks]);
 
   if (!isOpen) return null;
 
-  // Handle typed input in the HH:MM:SS field
-  const handleInputChange = (e) => {
-    let value = e.target.value.replace(/[^0-9]/g, ''); // Keep digits only
-    const currentDigits = formattedTime.replace(/:/g, '');
-
-    if (value.length < currentDigits.length) {
-      // user backspaced
-      const newInput = '0' + currentDigits.slice(0, -1);
-      const timeInSeconds = parseTime(newInput);
-      setFormattedTime(formatTime(timeInSeconds));
-    } else if (value.length > currentDigits.length) {
-      // user typed a new digit
-      const newInput = currentDigits.slice(1) + value.slice(-1);
-      const timeInSeconds = parseTime(newInput);
-      setFormattedTime(formatTime(timeInSeconds));
-    }
+  // If user typed into the HH:MM:SS field, parse it
+  const handleStudyTimeChange = (e) => {
+    setFormattedStudyTime(e.target.value);
   };
 
-  const handleInputBlur = () => {
-    const timeInSeconds = parseTime(formattedTime.replace(/:/g, ''));
-    const validTime = Math.max(timeInSeconds, 1);
-    setFormattedTime(formatTime(validTime));
-    // We only finalize the timer in parent after user finishes editing
+  const handleBreakTimeChange = (e) => {
+    setFormattedBreakTime(e.target.value);
   };
 
-  // If user clicks "Apply" or closes modal, we’ll pass the values up
+  const handleStudyTimeBlur = () => {
+    const secs = parseTime(formattedStudyTime);
+    setFormattedStudyTime(formatTime(Math.max(secs, 1)));
+  };
+
+  const handleBreakTimeBlur = () => {
+    const secs = parseTime(formattedBreakTime);
+    setFormattedBreakTime(formatTime(Math.max(secs, 0)));
+  };
+
+  // When the user clicks "Apply" or closes modal, pass the new values up
   const handleApplySettings = () => {
-    const newTotalTime = parseTime(formattedTime.replace(/:/g, ''));
-    let newBreakTime = null;
-    if (localBreakTime !== '') {
-      const parsedBreak = parseInt(localBreakTime, 10);
-      if (!isNaN(parsedBreak) && parsedBreak >= 0) {
-        newBreakTime = parsedBreak * 60;
-      }
-    }
+    const newStudyTime = Math.max(parseTime(formattedStudyTime), 1);
+    const newBreakTime = Math.max(parseTime(formattedBreakTime), 0);
     const newNumBreaks = parseInt(localNumBreaks, 10) || 0;
 
-    // Fire the parent’s callback
-    handleSettingsChange(newTotalTime, newBreakTime, newNumBreaks);
+    handleSettingsChange(newStudyTime, newBreakTime, newNumBreaks);
     onClose();
   };
 
@@ -79,53 +66,50 @@ const SettingsModal = ({
     <div className="settings-overlay" onClick={onClose}>
       <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
         <h2>Settings</h2>
-
-        {/* Study Duration */}
+        
+        {/* Study Duration (HH:MM:SS) */}
         <div>
-          <span className="timer-label">Timer Duration</span>
+          <label className="timer-label">Study Duration (HH:MM:SS)</label>
           <div className="timer-input-container">
             <input
               type="text"
               className="timer-input"
-              value={formattedTime}
-              onChange={handleInputChange}
-              onBlur={handleInputBlur}
+              value={formattedStudyTime}
+              onChange={handleStudyTimeChange}
+              onBlur={handleStudyTimeBlur}
             />
           </div>
         </div>
 
-        {/* Break Duration */}
+        {/* Break Duration (HH:MM:SS) */}
         <div>
-          <span className="break-label">Break Duration (minutes)</span>
-          <label className="break-input-container">
+          <label className="timer-label">Break Duration (HH:MM:SS)</label>
+          <div className="timer-input-container">
             <input
-              type="number"
-              className="break-input"
-              value={localBreakTime}
-              onChange={(e) => {
-                setLocalBreakTime(e.target.value);
-              }}
-              min="0"
+              type="text"
+              className="timer-input"
+              value={formattedBreakTime}
+              onChange={handleBreakTimeChange}
+              onBlur={handleBreakTimeBlur}
             />
-          </label>
+          </div>
         </div>
 
         {/* Number of Breaks */}
         <div>
-          <span className="break-count-label">Number of Breaks</span>
-          <label className="break-count-input-container">
+          <label className="timer-label">Number of Breaks</label>
+          <div className="timer-input-container">
             <input
               type="number"
-              className="break-input"
+              className="timer-input"
               value={localNumBreaks}
-              onChange={(e) => {
-                setLocalNumBreaks(e.target.value);
-              }}
+              onChange={(e) => setLocalNumBreaks(e.target.value)}
               min="0"
             />
-          </label>
+          </div>
         </div>
 
+        {/* Confirm */}
         <div>
           <button className="save-button" onClick={handleApplySettings}>
             Apply
@@ -136,23 +120,27 @@ const SettingsModal = ({
   );
 };
 
-// ----------------------
-// Helper Functions
-// ----------------------
-/** Convert totalSeconds -> "HH:MM:SS" string */
-const formatTime = (totalSeconds) => {
-  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-  const seconds = String(totalSeconds % 60).padStart(2, '0');
-  return `${hours}:${minutes}:${seconds}`;
-};
+/**
+ * Utility: convert totalSeconds -> "HH:MM:SS"
+ */
+function formatTime(totalSeconds) {
+  const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+  const secs = String(totalSeconds % 60).padStart(2, '0');
+  return `${hrs}:${mins}:${secs}`;
+}
 
-/** Convert "HHMMSS" digits -> totalSeconds */
-const parseTime = (input) => {
-  const hours = parseInt(input.slice(0, 2), 10) || 0;
-  const minutes = parseInt(input.slice(2, 4), 10) || 0;
-  const seconds = parseInt(input.slice(4, 6), 10) || 0;
-  return hours * 3600 + minutes * 60 + seconds;
-};
+/**
+ * Utility: parse "HH:MM:SS" -> totalSeconds
+ */
+function parseTime(timeString) {
+  const parts = timeString.split(':').map((p) => parseInt(p, 10) || 0);
+  // e.g. "01:05:30" => [1, 5, 30]
+  while (parts.length < 3) {
+    parts.unshift(0); // ensure we have [hh, mm, ss]
+  }
+  const [hh, mm, ss] = parts;
+  return hh * 3600 + mm * 60 + ss;
+}
 
 export default SettingsModal;
