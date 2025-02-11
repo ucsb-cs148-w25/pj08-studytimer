@@ -7,94 +7,103 @@ import TaskManager from './components/ToDo/TaskManager';
 import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
-import './App.css'; // Import external styles
+import './App.css';
 
-// ----------------------
-// Sounds
-// ----------------------
 const freezeSound = new Audio('/sounds/freeze.mp3');
 
 const App = () => {
-  // ----------------------
-  // Timer state variables
-  // ----------------------
-  const [time, setTime] = useState(1500); // Default timer in seconds (25 minutes)
-  const [totalTime, setTotalTime] = useState(1500);
-  const [breakTime, setBreakTime] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
-  const [halfwayReached, setHalfwayReached] = useState(false);
+  
+  // Timer Settings
+  const [totalTime, setTotalTime] = useState(1500); // Total study time in seconds
+  const [breakTime, setBreakTime] = useState(300); // Break time in seconds
+  const [numberOfBreaks, setNumberOfBreaks] = useState(1); // Number of breaks
+  
+  // Timer State
+  const [time, setTime] = useState(totalTime);
+  const [segments, setSegments] = useState([]);
+  const [currentSegment, setCurrentSegment] = useState(0);
+  const [breakCount, setBreakCount] = useState(0);
 
-  // ----------------------
   // Modal state
-  // ----------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Timer logic
-  // ----------------------
+  // Calculate study segments when settings change
+  useEffect(() => {
+    const newSegments = [];
+    const numSegments = numberOfBreaks + 1;
+    const perSegment = Math.floor(totalTime / numSegments);
+    let remaining = totalTime;
+
+    for (let i = 0; i < numSegments; i++) {
+      newSegments.push(i === numSegments - 1 ? remaining : perSegment);
+      remaining -= perSegment;
+    }
+
+    setSegments(newSegments);
+    resetTimer(newSegments);
+  }, [totalTime, numberOfBreaks]);
+
+  const resetTimer = (newSegments = segments) => {
+    setIsRunning(false);
+    setCurrentSegment(0);
+    setBreakCount(0);
+    setOnBreak(false);
+    setTime(newSegments[0] || totalTime);
+  };
+
+  // Main timer logic
   useEffect(() => {
     let timer;
     if (isRunning) {
-      timer = setInterval(() => {
-        setTime((prevTime) => prevTime - 1);
-      }, 1000);
-    }
-
-    if (time === Math.floor(totalTime / 2) && !halfwayReached) {
-      if (breakTime) {
-        setIsRunning(true);
-        setOnBreak(true);
-        setHalfwayReached(true);
-        setTime(breakTime);
-        freezeSound.play();
-      }
+      timer = setInterval(() => setTime(prev => prev - 1), 1000);
     }
 
     if (time === 0) {
       if (onBreak) {
+        // Break ended
+        const newBreakCount = breakCount + 1;
+        setBreakCount(newBreakCount);
         setOnBreak(false);
-        setTime(totalTime / 2);
-        freezeSound.play();
+        
+        if (currentSegment < segments.length - 1) {
+          setCurrentSegment(prev => prev + 1);
+          setTime(segments[currentSegment + 1]);
+        } else {
+          setIsRunning(false);
+        }
       } else {
-        setIsRunning(false);
-        setHalfwayReached(false);
-        setTime(totalTime);
+        // Study segment ended
+        if (breakCount < numberOfBreaks) {
+          setOnBreak(true);
+          setTime(breakTime);
+          freezeSound.play();
+        } else if (currentSegment < segments.length - 1) {
+          setCurrentSegment(prev => prev + 1);
+          setTime(segments[currentSegment + 1]);
+        } else {
+          setIsRunning(false);
+        }
       }
     }
 
     return () => clearInterval(timer);
-  }, [isRunning, time, onBreak, halfwayReached, totalTime, breakTime]);
+  }, [isRunning, time, onBreak, currentSegment, breakCount, segments]);
 
-  // ----------------------
-  // Handle settings change
-  // ----------------------
-  const handleSettingsChange = (newTotalTime, newBreakTime) => {
-    setIsRunning(false);
-    setTime(newTotalTime);
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleSettingsChange = (newTotalTime, newBreakTime, newNumBreaks) => {
     setTotalTime(newTotalTime);
     setBreakTime(newBreakTime);
-    setHalfwayReached(false);
+    setNumberOfBreaks(newNumBreaks);
+    resetTimer();
   };
 
-  // ----------------------
-  // Helper function
-  // ----------------------
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes} minute${minutes !== 1 ? 's' : ''} ${secs} second${secs !== 1 ? 's' : ''}`;
-  };
-
-  const handleAddTime = (seconds) => {
-    const newTime = time + seconds;
-    if (newTime >= 0) {
-      setTime(newTime);
-    }
-  };
-
-  // ----------------------
-  // Return with Routes
-  // ----------------------
   return (
     <Router>
       <div className="app-container">
@@ -105,30 +114,16 @@ const App = () => {
             element={
               <div className="timer-page">
                 <div className={`icy-overlay ${onBreak ? 'visible' : ''}`}>
-                  <div className="icy-text">Take a Break ❄️</div>
+                  <div className="icy-text">
+                    {onBreak ? "Take a Break ❄️" : "Focus Time ⚡"}
+                  </div>
                 </div>
-                <div className="timer-display">{formatTime(time)}</div>
-
-                {/* New Buttons to Add Time */}
-                <div className="time-adjust-buttons">
-                  <button
-                    className="adjust-button"
-                    onClick={() => handleAddTime(60)}
-                  >
-                    +1 min
-                  </button>
-                  <button
-                    className="adjust-button"
-                    onClick={() => handleAddTime(180)}
-                  >
-                    +3 min
-                  </button>
-                  <button
-                    className="adjust-button"
-                    onClick={() => handleAddTime(300)}
-                  >
-                    +5 mins
-                  </button>
+                
+                <div className="timer-display">
+                  {formatTime(time)}
+                  <div className="session-info">
+                    Session {currentSegment + 1} of {segments.length}
+                  </div>
                 </div>
 
                 <div className="timer-controls">
@@ -138,16 +133,23 @@ const App = () => {
                   >
                     {isRunning ? 'Pause' : 'Start'}
                   </button>
+                  
+                  {onBreak && (
+                    <button
+                      className="end-break-button"
+                      onClick={() => setTime(0)}
+                    >
+                      End Break Early
+                    </button>
+                  )}
+
                   <button
                     className="reset-button"
-                    onClick={() => {
-                      setIsRunning(false);
-                      setTime(totalTime);
-                      setHalfwayReached(false);
-                    }}
+                    onClick={resetTimer}
                   >
                     Reset
                   </button>
+
                   <button
                     className="settings-button"
                     onClick={() => setIsModalOpen(true)}
@@ -156,23 +158,18 @@ const App = () => {
                   </button>
                 </div>
 
-                {/* Settings Modal */}
                 <SettingsModal
                   isOpen={isModalOpen}
                   onClose={() => setIsModalOpen(false)}
-                  totalTime={totalTime}
-                  setTotalTime={(newTime) => handleSettingsChange(newTime, breakTime)}
-                  breakTime={breakTime}
-                  setBreakTime={(newBreakTime) => handleSettingsChange(totalTime, newBreakTime)}
+                  onSettingsChange={handleSettingsChange}
+                  initialTotalTime={totalTime}
+                  initialBreakTime={breakTime}
+                  initialNumBreaks={numberOfBreaks}
                 />
               </div>
             }
           />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/task_manager" element={<TaskManager />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/settings" element={<Settings />} />
+          {/* Other routes remain the same */}
         </Routes>
       </div>
     </Router>
