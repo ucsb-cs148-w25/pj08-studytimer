@@ -3,4 +3,4 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Cache-Control: public, max-age=31536000
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://app.netlify.com https://calendar.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.netlify.app; frame-src 'self' https://app.netlify.com https://calendar.google.com; connect-src 'self'; font-src 'self'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://app.netlify.com https://calendar.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.netlify.app; frame-src https://app.netlify.com https://calendar.google.com; connect-src 'self'; font-src 'self'; object-src 'none'
