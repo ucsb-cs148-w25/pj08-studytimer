@@ -1,6 +1,16 @@
-/* 
-  X-Frame-Options: DENY
+/*
+  X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline';
+  
+  Content-Security-Policy: 
+    default-src 'self'; 
+    script-src 'self' 'unsafe-inline' https://app.netlify.com https://calendar.google.com; 
+    style-src 'self' 'unsafe-inline'; 
+    img-src 'self' data: https://deploy-preview-127--pj-timewise.netlify.app; 
+    frame-src 'self' https://app.netlify.com https://calendar.google.com; 
+    connect-src 'self'; 
+    font-src 'self'; 
+    object-src 'none';
+  
   Cache-Control: public, max-age=31536000
