@@ -9,15 +9,20 @@ import { db, auth } from "../../firebase";
 import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
+import LoginModal from "./HeadsUpModal";  // Adjust the path if needed
+
 function TaskManager() {
-  // State
-  const [tasks, setTasks] = useState(([])); // Store all tasks
-  const [taskTitle, setTaskTitle] = useState(""); // Input for task title
-  const [deadline, setDeadline] = useState(""); // Input for task deadline
-  const [priority, setPriority] = useState("Low"); // Input for priority
-  const [status] = useState("In Progress"); // Default status
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" }); // Sort state
-  const [editTaskTitle, setEditTaskTitle] = useState(null); // store title instead of index
+  const [tasks, setTasks] = useState(([])); 
+  const [taskTitle, setTaskTitle] = useState(""); 
+  const [deadline, setDeadline] = useState(""); 
+  const [priority, setPriority] = useState("Low"); 
+  const [status] = useState("In Progress"); 
+
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" }); 
+  const [editTaskTitle, setEditTaskTitle] = useState(null); 
+
+  const [modalDismissed, setModalDismissed] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -25,13 +30,19 @@ function TaskManager() {
       if (user) {
         fetchTasks(user.uid);
       } else {
-        console.log("No user logged in");
         setTasks([]);
       }
     });
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const modalShown = localStorage.getItem("modalShown");
+    if (!modalShown) {
+        setShowLoginModal(true);
+    }
+}, []);
 
   // Fetch tasks from Firestore
   const fetchTasks = async (uid) => {
@@ -133,87 +144,98 @@ function TaskManager() {
   };
 
   // Add a new task
+
   const handleAddTask = async (e) => {
-    e.preventDefault();
-    if (taskTitle.trim() && deadline.trim()) {
-      const newTask = { title: taskTitle, deadline, priority, status };
-      const user = auth.currentUser;
-  
-      if (!user) {
-        alert("You must be logged in to add tasks.");
-        return;
+      e.preventDefault();
+      if (taskTitle.trim() && deadline.trim()) {
+          const newTask = { title: taskTitle, deadline, priority, status };
+          const user = auth.currentUser;
+
+          if (user) {
+              try {
+                  const docRef = await addDoc(collection(db, `users/${user.uid}/tasks`), newTask);
+                  setTasks((prev) => [...prev, { id: docRef.id, ...newTask }]);
+              } catch (error) {
+                  console.error("Error adding task to Firestore:", error);
+              }
+          } else {
+              if (!modalDismissed) {  
+                  setShowLoginModal(true);  // Show the modal if they haven't dismissed it in this session
+              }
+              setTasks((prev) => [...prev, newTask]);  
+          }
+
+          setTaskTitle("");
+          setDeadline("");
+          setPriority("Low");
+      } else {
+          alert("Please enter a valid task title and deadline!");
       }
-  
-      try {
-        const docRef = await addDoc(collection(db, `users/${user.uid}/tasks`), newTask);
-        setTasks((prev) => [...prev, { id: docRef.id, ...newTask }]);
-        setTaskTitle("");
-        setDeadline("");
-        setPriority("Low");
-      } catch (error) {
-        console.error("Error adding task:", error);
-      }
-    } else {
-      alert("Please enter a valid task title and deadline!");
-    }
   };
 
+  
   // Move a task to Done
   const markAsDone = async (title) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.title === title ? { ...task, status: "Done" } : task
+      )
+    );
     const user = auth.currentUser;
-    const taskToUpdate = tasks.find(task => task.title === title);
-    
-    if (taskToUpdate) {
-      try {
-        await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), { status: "Done" });
-        setTasks((prevTasks) =>
-          prevTasks.map((task) =>
-            task.title === title ? { ...task, status: "Done" } : task
-          )
-        );
-      } catch (error) {
-        console.error("Error updating task status:", error);
+    if (user) {
+      const taskToUpdate = tasks.find((task) => task.title === title);
+      if (taskToUpdate) {
+        try {
+          await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), {
+            status: "Done",
+          });
+        } catch (error) {
+          console.error("Error updating task status in Firestore:", error);
+        }
       }
     }
   };
   
   const markAsInProgress = async (title) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.title === title ? { ...task, status: "In Progress" } : task
+      )
+    );
     const user = auth.currentUser;
-    const taskToUpdate = tasks.find(task => task.title === title);
-  
-    if (taskToUpdate) {
-      try {
-        await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), { status: "In Progress" });
-        setTasks((prevTasks) =>
-          prevTasks.map((task) =>
-            task.title === title ? { ...task, status: "In Progress" } : task
-          )
-        );
-      } catch (error) {
-        console.error("Error updating task status:", error);
+    if (user) {
+      const taskToUpdate = tasks.find((task) => task.title === title);
+      if (taskToUpdate) {
+        try {
+          await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), {
+            status: "In Progress",
+          });
+        } catch (error) {
+          console.error("Error updating task status in Firestore:", error);
+        }
       }
     }
-  };  
+  };
 
   // Delete a task
   const deleteTask = async (title) => {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.title !== title));
     const user = auth.currentUser;
-    const taskToDelete = tasks.find(task => task.title === title);
-  
-    if (taskToDelete) {
-      try {
-        await deleteDoc(doc(db, `users/${user.uid}/tasks`, taskToDelete.id));
-        setTasks((prevTasks) => prevTasks.filter((task) => task.title !== title));
-      } catch (error) {
-        console.error("Error deleting task:", error);
+    if (user) {
+      const taskToDelete = tasks.find((task) => task.title === title);
+      if (taskToDelete) {
+        try {
+          await deleteDoc(doc(db, `users/${user.uid}/tasks`, taskToDelete.id));
+        } catch (error) {
+          console.error("Error deleting task from Firestore:", error);
+        }
       }
     }
-  };  
+  };
 
   // Editing
   const startEditing = (title) => {
-    const user = auth.currentUser;
-    const taskToEdit = tasks.find((task) => task.title === title);    
+    const taskToEdit = tasks.find((task) => task.title === title);
     setTaskTitle(taskToEdit.title);
     setDeadline(taskToEdit.deadline);
     setPriority(taskToEdit.priority);
@@ -223,37 +245,36 @@ function TaskManager() {
   const saveEdit = async (e) => {
     e.preventDefault();
     if (taskTitle.trim() && deadline.trim()) {
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.title === editTaskTitle
+            ? { ...task, title: taskTitle, deadline, priority }
+            : task
+        )
+      );
       const user = auth.currentUser;
-      const taskToEdit = tasks.find((t) => t.title === editTaskTitle);
-  
-      if (taskToEdit) {
-        try {
-          await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToEdit.id), {
-            title: taskTitle,
-            deadline,
-            priority,
-          });
-  
-          const updatedTasks = tasks.map((task) =>
-            task.id === taskToEdit.id
-              ? { ...task, title: taskTitle, deadline, priority }
-              : task
-          );
-  
-          setTasks(updatedTasks);
-          setTaskTitle("");
-          setDeadline("");
-          setPriority("Low");
-          setEditTaskTitle(null);
-        } catch (error) {
-          console.error("Error editing task:", error);
+      if (user) {
+        const taskToUpdate = tasks.find((task) => task.title === editTaskTitle);
+        if (taskToUpdate) {
+          try {
+            await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), {
+              title: taskTitle,
+              deadline,
+              priority,
+            });
+          } catch (error) {
+            console.error("Error updating task in Firestore:", error);
+          }
         }
       }
+      setTaskTitle("");
+      setDeadline("");
+      setPriority("Low");
+      setEditTaskTitle(null);
     } else {
       alert("Please enter a valid task title and deadline!");
     }
   };
-  
 
   // Priority custom sorting
   const priorityOrder = {
@@ -334,6 +355,13 @@ function TaskManager() {
 
   return (
     <div className="container">
+      {showLoginModal && (
+          <LoginModal 
+              setShowLoginModal={setShowLoginModal} 
+              setModalDismissed={setModalDismissed}  
+          />
+      )}
+
       {/* Chart component */}
       <MetricsChart tasks={tasks} />
 
