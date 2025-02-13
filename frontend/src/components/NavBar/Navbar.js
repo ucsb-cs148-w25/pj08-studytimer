@@ -23,7 +23,7 @@ function Navbar() {
       }
     });
 
-    return () => unsubscribe(); // Cleanup listener when unmounting
+    return () => unsubscribe();
   }, []);
 
   return (
