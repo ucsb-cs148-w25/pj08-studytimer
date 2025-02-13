@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Squash as Hamburger } from "hamburger-react";
 import { loginWithGoogle, logoutUser } from "../../auth.js"; 
+import { auth } from "../../firebase.js";
+import { onAuthStateChanged } from "firebase/auth";
 import "./Navbar.css";
 
 function Navbar() {
@@ -9,10 +11,19 @@ function Navbar() {
   const [isMenuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser({
+          name: currentUser.displayName,
+          email: currentUser.email,
+          // photoURL: currentUser.photoURL,
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -34,12 +45,12 @@ function Navbar() {
         {user ? (
           <div className="user-info">
             <span className="user-name">Hello, {user.name.split(" ")[0]}!</span>
-            <button onClick={() => logoutUser(setUser)} className="logout-btn">
+            <button onClick={() => logoutUser()} className="logout-btn">
               Sign Out
             </button>
           </div>
         ) : (
-          <button onClick={() => loginWithGoogle(setUser)} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
+          <button onClick={loginWithGoogle} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
             Sign In
           </button>
         )}
