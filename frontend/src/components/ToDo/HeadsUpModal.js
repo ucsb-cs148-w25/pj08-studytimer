@@ -1,11 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { loginWithGoogle } from "../../auth"; 
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../firebase";
 import "./HeadsUpModal.css";  // Import modal styling
 
 const LoginModal = ({ setShowLoginModal, setModalDismissed }) => {  
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setShowLoginModal(false);  
+            }
+        });
+
+        return () => unsubscribe(); 
+    }, [setShowLoginModal]);
+    
     const handleContinueLocally = () => {
         setShowLoginModal(false);  
-        setModalDismissed(true);  // Set session-based dismissal flag
+        setModalDismissed(true);  
     };
 
     const handleGoogleSignIn = () => {
