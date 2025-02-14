@@ -151,6 +151,7 @@ function TaskManager() {
           const newTask = { title: taskTitle, deadline, priority, status };
           const user = auth.currentUser;
 
+          console.log("User:", user);  // TODO: Debugging output
           if (user) {
               try {
                   const docRef = await addDoc(collection(db, `users/${user.uid}/tasks`), newTask);
@@ -159,6 +160,8 @@ function TaskManager() {
                   console.error("Error adding task to Firestore:", error);
               }
           } else {
+            // TODO: REMOVE LATER ONCE TESTING IS COMPLETE
+            console.log("ModalDismisssed", modalDismissed);
               if (!modalDismissed) {  
                   setShowLoginModal(true);  // Show the modal if they haven't dismissed it in this session
               }
