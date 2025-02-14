@@ -162,6 +162,7 @@ function TaskManager() {
           } else {
             // TODO: REMOVE LATER ONCE TESTING IS COMPLETE
             console.log("ModalDismisssed", modalDismissed);
+            console.log("ShowLoginModal", showLoginModal);
               if (!modalDismissed) {  
                   setShowLoginModal(true);  // Show the modal if they haven't dismissed it in this session
               }
