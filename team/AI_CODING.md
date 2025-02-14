@@ -16,11 +16,13 @@ My task was to allow users to have multiple breaks within one study session. I u
 ## Lawrence
 My main task was implementing the table UI of our “To-Do” List page, and I used ChatGPT to help with the CSS formatting of the page to match with the home and other pages of our website. For this implementation since we had not set up the backend with Firestore yet, I wanted to find a way to save the information locally per session i.e. local host. ChatGPT helped set up the logic for preserving the data throughout the user’s session. It was also very helpful in setting up the logic of moving tasks back and forth from “In Progress” to “Done”, which later helped create a foundation for setting the backend code with Firestore. There were some problems when implementing the libraries I wanted i.e. drag&drop, so for that portion I mainly used the documentation one of our team members provided to help implement the feature to drag tasks to their respective order within a table. Overall, ChatGPT’s suggestions allowed the frontend design of the page to be user friendly, as noted in our MVP feedback  
 
+
 ## Jennifer
 I used ChatGPT to help me write unit tests for one of our files in frontend components, Login.js. I chose to write unit tests for this file since ensuring that our users can log in properly through Google OAuth is considered a top priority for our team. I had implemented unit tests in the past but I was not entirely sure how to approach writing the tests for this file. ChatGPT helped guide me through the process and suggested how to mock and render the components in our Login.js file. I did go down a rabbit hole because some of its suggestions for fixing the tests, which were not working, were a bit misleading. Regardless, ChatGPT it was pretty helpful overall and I was able to implement the unit tests. Moving forward, I think that using ChatGPT for guidance on writing more unit tests will be beneficial for our team's best interest. 
 
 
-## Cindy
-
-
 ## Edwin
+My task for the week was to improve our “To Do” page on our web app, per the feedback that we received during the MVP. The main feedback recommended the page spend more time on the tasks, and the metrics/assessments of the user’s productivity could be moved elsewhere so that the page is solely the start of your productivity! For that, I used Figma to design what I will call the “Task Board”, and it essentially just looks like a Kanban board but is more oriented to handling tasks rather than PRs and issues. Once I had settled on the design, I decided to see IF v0 could create a functional page, with just the image itself and some brief description of the previous “To Do” page. Sadly, the results/product that was delivered didn’t meet my expectations functionally, but aesthetically it got it nearly there and even created new components that I thought were interesting! So while I won’t be using any of the code that was given as it doesn’t necessarily integrate with the project well, I have a lot of new ideas that I would like to figure out and implement for the revamped/improved page.
+
+
+## Cindy
