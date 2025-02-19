@@ -3,7 +3,13 @@ import { DndContext, closestCenter, useSensor, useSensors, PointerSensor} from "
 import { SortableContext, arrayMove, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import MetricsChart from "./MetricsChart"; // The separated chart component
-import "./TaskManager.css"; // Import the CSS file
+import "./TaskManager.css"; 
+
+import { db, auth } from "../../firebase";
+import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+
+import LoginModal from "./AddModal";
 
 function TaskManager() {
   // State

@@ -4,7 +4,7 @@ import Navbar from './components/NavBar/Navbar';
 import Profile from './components/Profile/Profile';
 import CalendarPage from './components/Calendar/CalendarPage';
 import TaskManager from './components/ToDo/TaskManager';
-import KanbanBoard from './components/ToDo/KanbanBoard';
+import TaskBoard from './components/ToDo/TaskBoard';
 import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
@@ -172,7 +172,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/task_manager" element={<TaskManager />} />
-          <Route path="/kanban" element={<KanbanBoard />} />
+          <Route path="/taskboard" element={<TaskBoard />} />
           <Route path="/about" element={<About />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
