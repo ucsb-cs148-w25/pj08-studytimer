@@ -39,8 +39,8 @@ const TaskCalendarChart = () => {
       {
         label: "In Progress Tasks",
         data: tasksPerDay,
-        backgroundColor: "#ffcc00", // Yellow to indicate pending tasks
-        borderColor: "#ffcc00",
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--in-progress-color').trim(), // Yellow to indicate pending tasks
+        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--in-progress-color').trim(),
         borderWidth: 1,
       },
     ],
