@@ -32,11 +32,11 @@ These include:
 - Task manager: ensuring tasks are added and removed properly
 - Timer: Verifying countdown behavior
 ## 3. Integration Testing
-For this lab, we expanded our testing to include integration testing by testing the settings page.
+For this lab, we expanded our testing to include integration testing by testing the settings page. We tested to make sure that the theme the user selects is changed accordingly in the app.
 Libraries Used:
 - React testling library for rendering and testing component behavior
 - Jest-DOM for checking element attributes and localStorage interactions.
-We tested to make sure that the theme the user selects is changed accordingly in the app.
+
 To execute the test in the frontend directory, run:
 ```
 npm start --src/test/Settings.test.js
