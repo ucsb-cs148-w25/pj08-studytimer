@@ -5,7 +5,7 @@ import { db, auth } from "../../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
-const TasksDueChart = () => {
+const TasksCalendarChart = () => {
   const [tasks, setTasks] = useState([]);
   const [user, setUser] = useState(null); // Track authentication state
 
@@ -98,4 +98,4 @@ const TasksDueChart = () => {
   );
 };
 
-export default TasksDueChart;
+export default TasksCalendarChart;
