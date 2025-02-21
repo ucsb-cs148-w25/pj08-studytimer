@@ -34,8 +34,8 @@ These include:
 - Task manager: ensuring tasks are added and removed properly
 - Timer: Verifying countdown behavior
 ## 3.
-## Component/Integration Testing
-For this lab, we expanded our testing to include component and integration testing by testing the settings page. 
+## Integration Testing
+For this lab, we expanded our testing to include integration testing by testing the settings page.
 Libraries Used:
 - React testling library for rendering and testing component behavior
 - Jest-DOM for checking element attributes and localStorage interactions.
