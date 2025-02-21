@@ -1,3 +1,8 @@
+.sidebar p {
+    color: var(--accent-background);
+    text-align: center;
+}
+
 .sidebar h2 {
     color: var(--faint-text);
     font-size: 1.3rem;
