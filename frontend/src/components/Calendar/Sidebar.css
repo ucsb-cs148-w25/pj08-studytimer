@@ -1,7 +1,5 @@
-.sidebar h4 {
-    color: var(--faint-text);
-    font-size: 1.3rem;
-    font-weight: 400;
+.sidebar p {
+    color: var(--accent-background);
     text-align: center;
 }
 
