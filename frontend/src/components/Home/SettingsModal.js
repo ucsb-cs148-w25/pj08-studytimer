@@ -1,98 +1,146 @@
-import React, { useState } from 'react';
-import './SettingsModal.css'; 
+import React, { useState, useEffect } from 'react';
+import './SettingsModal.css';
 
-const SettingsModal = ({ isOpen, onClose, totalTime, setTotalTime, breakTime, setBreakTime }) => {
-  const [formattedTime, setFormattedTime] = useState(formatTime(totalTime));
+/**
+ * Props:
+ *  - isOpen                (bool)
+ *  - onClose               (fn)
+ *  - totalTime             (seconds)
+ *  - breakTime             (seconds or null)
+ *  - numBreaks             (integer)
+ *  - handleSettingsChange  (fn) => handleSettingsChange(newTotalTime, newBreakTime, newNumBreaks)
+ */
+
+const SettingsModal = ({
+  isOpen,
+  onClose,
+  totalTime,
+  breakTime,
+  numBreaks,
+  handleSettingsChange,
+}) => {
+  const [formattedStudyTime, setFormattedStudyTime] = useState(formatTime(totalTime));
+  const [formattedBreakTime, setFormattedBreakTime] = useState(
+    breakTime !== null ? formatTime(breakTime) : formatTime(0)
+  );
+  const [localNumBreaks, setLocalNumBreaks] = useState(numBreaks);
+
+  useEffect(() => {
+    setFormattedStudyTime(formatTime(totalTime));
+    setFormattedBreakTime(breakTime !== null ? formatTime(breakTime) : formatTime(0));
+    setLocalNumBreaks(numBreaks);
+  }, [totalTime, breakTime, numBreaks]);
 
   if (!isOpen) return null;
 
-  const handleInputChange = (e) => {
-    let value = e.target.value.replace(/[^0-9]/g, '');
-    const currentDigits = formattedTime.replace(/:/g, '');
-
-    if (value.length < currentDigits.length) {
-      const newInput = '0' + currentDigits.slice(0, -1);
-      const timeInSeconds = parseTime(newInput);
-      setFormattedTime(formatTime(timeInSeconds));
-    } else if (value.length > currentDigits.length) {
-      const newInput = currentDigits.slice(1) + value.slice(-1);
-      const timeInSeconds = parseTime(newInput);
-      setFormattedTime(formatTime(timeInSeconds));
-    }
-  };
-
-  const handleInputBlur = () => {
-    const timeInSeconds = parseTime(formattedTime.replace(/:/g, ''));
-    const validTime = Math.max(timeInSeconds, 1);
-    setTotalTime(validTime);
-    setFormattedTime(formatTime(validTime));
+  // If user typed into the HH:MM:SS field, parse it
+  const handleStudyTimeChange = (e) => {
+    setFormattedStudyTime(e.target.value);
   };
 
   const handleBreakTimeChange = (e) => {
-    const value = e.target.value.trim();
+    setFormattedBreakTime(e.target.value);
+  };
 
-    if (value === '') {
-      setBreakTime(null);
-      return;
-    }
+  const handleStudyTimeBlur = () => {
+    const secs = parseTime(formattedStudyTime);
+    setFormattedStudyTime(formatTime(Math.max(secs, 1)));
+  };
 
-    const parsedValue = parseInt(value, 10);
-    if (!isNaN(parsedValue) && parsedValue >= 0) {
-      setBreakTime(parsedValue * 60);
-    }
+  const handleBreakTimeBlur = () => {
+    const secs = parseTime(formattedBreakTime);
+    setFormattedBreakTime(formatTime(Math.max(secs, 0)));
+  };
+
+  // When the user clicks "Apply" or closes modal, pass the new values up
+  const handleApplySettings = () => {
+    const newStudyTime = Math.max(parseTime(formattedStudyTime), 1);
+    const newBreakTime = Math.max(parseTime(formattedBreakTime), 0);
+    const newNumBreaks = parseInt(localNumBreaks, 10) || 0;
+
+    handleSettingsChange(newStudyTime, newBreakTime, newNumBreaks);
+    onClose();
   };
 
   return (
-    <div className="settings-overlay" onClick={onClose}>  {/* Close when clicking outside */}
-      <div className="settings-modal" onClick={(e) => e.stopPropagation()}>  {/* Prevent closing when clicking inside */}
+    <div className="settings-overlay" onClick={onClose}>
+      <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
         <h2>Settings</h2>
-        <span className="timer-label">Timer Duration</span>
-  
-        <div className="timer-input-container">
-          <input
-            type="text"
-            className="timer-input"
-            value={formattedTime}
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
-          />
-        </div>
-  
-        {/* Break Time Input */}
+        
+        {/* Study Duration (HH:MM:SS) */}
         <div>
-          <span className="break-label">Break Duration</span>  {/* Added heading */}
-          <label className="break-input-container">
+          <label className="timer-label">Study Duration (HH:MM:SS)</label>
+          <div className="timer-input-container">
+            <input
+              type="text"
+              className="timer-input"
+              value={formattedStudyTime}
+              onChange={handleStudyTimeChange}
+              onBlur={handleStudyTimeBlur}
+            />
+          </div>
+        </div>
+
+        {/* Break Duration (HH:MM:SS) */}
+        <div>
+          <label className="timer-label">Break Duration (HH:MM:SS)</label>
+          <div className="timer-input-container">
+            <input
+              type="text"
+              className="timer-input"
+              value={formattedBreakTime}
+              onChange={handleBreakTimeChange}
+              onBlur={handleBreakTimeBlur}
+            />
+          </div>
+        </div>
+
+        {/* Number of Breaks */}
+        <div>
+          <label className="timer-label">Number of Breaks</label>
+          <div className="timer-input-container">
             <input
               type="number"
-              className="break-input"
-              value={breakTime !== null ? breakTime / 60 : ''}
-              onChange={handleBreakTimeChange}
+              className="timer-input"
+              value={localNumBreaks}
+              onChange={(e) => setLocalNumBreaks(e.target.value)}
               min="0"
             />
-          </label>
+          </div>
         </div>
-  
-        {/* <div>
-          <button className="save-button" onClick={onClose}>Save & Close</button>
-        </div> */}
+
+        {/* Confirm */}
+        <div>
+          <button className="save-button" onClick={handleApplySettings}>
+            Apply
+          </button>
+        </div>
       </div>
     </div>
-  );  
+  );
 };
 
-// Helper Functions
-const formatTime = (totalSeconds) => {
-  const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-  const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-  const seconds = String(totalSeconds % 60).padStart(2, '0');
-  return `${hours}:${minutes}:${seconds}`;
-};
+/**
+ * Utility: convert totalSeconds -> "HH:MM:SS"
+ */
+function formatTime(totalSeconds) {
+  const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+  const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+  const secs = String(totalSeconds % 60).padStart(2, '0');
+  return `${hrs}:${mins}:${secs}`;
+}
 
-const parseTime = (input) => {
-  const hours = parseInt(input.slice(0, 2), 10) || 0;
-  const minutes = parseInt(input.slice(2, 4), 10) || 0;
-  const seconds = parseInt(input.slice(4, 6), 10) || 0;
-  return hours * 3600 + minutes * 60 + seconds;
-};
+/**
+ * Utility: parse "HH:MM:SS" -> totalSeconds
+ */
+function parseTime(timeString) {
+  const parts = timeString.split(':').map((p) => parseInt(p, 10) || 0);
+  // e.g. "01:05:30" => [1, 5, 30]
+  while (parts.length < 3) {
+    parts.unshift(0); // ensure we have [hh, mm, ss]
+  }
+  const [hh, mm, ss] = parts;
+  return hh * 3600 + mm * 60 + ss;
+}
 
 export default SettingsModal;

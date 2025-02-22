@@ -12,22 +12,50 @@ import { onAuthStateChanged } from "firebase/auth";
 import LoginModal from "./AddModal";
 
 function TaskManager() {
-  // State
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem("tasks");
-    return savedTasks ? JSON.parse(savedTasks) : [];
-  }); // Store all tasks
-  const [taskTitle, setTaskTitle] = useState(""); // Input for task title
-  const [deadline, setDeadline] = useState(""); // Input for task deadline
-  const [priority, setPriority] = useState("Low"); // Input for priority
-  const [status] = useState("In Progress"); // Default status
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" }); // Sort state
-  const [editTaskTitle, setEditTaskTitle] = useState(null); // store title instead of index
+  const [tasks, setTasks] = useState(([])); 
+  const [taskTitle, setTaskTitle] = useState(""); 
+  const [deadline, setDeadline] = useState(""); 
+  const [priority, setPriority] = useState("Low"); 
+  const [status] = useState("In Progress"); 
 
-  // Local storage effect
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" }); 
+  const [editTaskTitle, setEditTaskTitle] = useState(null); 
+
+  const [modalDismissed, setModalDismissed] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user);  // Debugging output
+      if (user) {
+        fetchTasks(user.uid);
+      } else {
+        setTasks([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const modalShown = localStorage.getItem("modalShown");
+    if (!modalShown) {
+        setShowLoginModal(true);
+    }
+}, []);
+
+  // Fetch tasks from Firestore
+  const fetchTasks = async (uid) => {
+    console.log("Fetching tasks for UID:", uid);  // Debugging output
+    try {
+      const querySnapshot = await getDocs(collection(db, `users/${uid}/tasks`));
+      const tasksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log("Tasks fetched:", tasksData);  // Debugging output
+      setTasks(tasksData);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
 
   // DnD kit
   const sensors = useSensors(useSensor(PointerSensor));
@@ -116,70 +144,137 @@ function TaskManager() {
   };
 
   // Add a new task
-  const handleAddTask = (e) => {
-    e.preventDefault();
-    if (taskTitle.trim() && deadline.trim()) {
-      const newTask = { title: taskTitle, deadline, priority, status };
-      setTasks((prev) => [...prev, newTask]);
-      setTaskTitle("");
-      setDeadline("");
-      setPriority("Low");
-    } else {
-      alert("Please enter a valid task title and deadline!");
-    }
+
+  const handleAddTask = async (e) => {
+      e.preventDefault();
+      if (taskTitle.trim() && deadline.trim()) {
+          const newTask = { title: taskTitle, deadline, priority, status };
+          const user = auth.currentUser;
+
+          console.log("User:", user);  // TODO: Debugging output
+          if (user) {
+              try {
+                  const docRef = await addDoc(collection(db, `users/${user.uid}/tasks`), newTask);
+                  setTasks((prev) => [...prev, { id: docRef.id, ...newTask }]);
+              } catch (error) {
+                  console.error("Error adding task to Firestore:", error);
+              }
+          } else {
+            // TODO: REMOVE LATER ONCE TESTING IS COMPLETE
+            console.log("ModalDismisssed", modalDismissed);
+            console.log("ShowLoginModal", showLoginModal);
+              if (!modalDismissed) {  
+                  setShowLoginModal(true);  // Show the modal if they haven't dismissed it in this session
+              }
+              setTasks((prev) => [...prev, newTask]);  
+          }
+
+          setTaskTitle("");
+          setDeadline("");
+          setPriority("Low");
+      } else {
+          alert("Please enter a valid task title and deadline!");
+      }
   };
 
+  
   // Move a task to Done
-  const markAsDone = (title) => {
+  const markAsDone = async (title) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.title === title ? { ...task, status: "Done" } : task
       )
     );
+    const user = auth.currentUser;
+    if (user) {
+      const taskToUpdate = tasks.find((task) => task.title === title);
+      if (taskToUpdate) {
+        try {
+          await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), {
+            status: "Done",
+          });
+        } catch (error) {
+          console.error("Error updating task status in Firestore:", error);
+        }
+      }
+    }
   };
-
-  // Move a task to In Progress
-  const markAsInProgress = (title) => {
+  
+  const markAsInProgress = async (title) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
         task.title === title ? { ...task, status: "In Progress" } : task
       )
     );
+    const user = auth.currentUser;
+    if (user) {
+      const taskToUpdate = tasks.find((task) => task.title === title);
+      if (taskToUpdate) {
+        try {
+          await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), {
+            status: "In Progress",
+          });
+        } catch (error) {
+          console.error("Error updating task status in Firestore:", error);
+        }
+      }
+    }
   };
 
   // Delete a task
-  const deleteTask = (title) => {
+  const deleteTask = async (title) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.title !== title));
+    const user = auth.currentUser;
+    if (user) {
+      const taskToDelete = tasks.find((task) => task.title === title);
+      if (taskToDelete) {
+        try {
+          await deleteDoc(doc(db, `users/${user.uid}/tasks`, taskToDelete.id));
+        } catch (error) {
+          console.error("Error deleting task from Firestore:", error);
+        }
+      }
+    }
   };
 
   // Editing
   const startEditing = (title) => {
-    const taskToEdit = tasks.find((t) => t.title === title);
+    const taskToEdit = tasks.find((task) => task.title === title);
     setTaskTitle(taskToEdit.title);
     setDeadline(taskToEdit.deadline);
     setPriority(taskToEdit.priority);
     setEditTaskTitle(title);
   };
 
-  const saveEdit = (e) => {
+  const saveEdit = async (e) => {
     e.preventDefault();
     if (taskTitle.trim() && deadline.trim()) {
-      const updatedTasks = [...tasks];
-      const taskIndex = updatedTasks.findIndex((t) => t.title === editTaskTitle);
-      if (taskIndex !== -1) {
-        updatedTasks[taskIndex] = {
-          ...updatedTasks[taskIndex],
-          title: taskTitle,
-          deadline,
-          priority
-        };
-        setTasks(updatedTasks);
-        // Clear form
-        setTaskTitle("");
-        setDeadline("");
-        setPriority("Low");
-        setEditTaskTitle(null);
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.title === editTaskTitle
+            ? { ...task, title: taskTitle, deadline, priority }
+            : task
+        )
+      );
+      const user = auth.currentUser;
+      if (user) {
+        const taskToUpdate = tasks.find((task) => task.title === editTaskTitle);
+        if (taskToUpdate) {
+          try {
+            await updateDoc(doc(db, `users/${user.uid}/tasks`, taskToUpdate.id), {
+              title: taskTitle,
+              deadline,
+              priority,
+            });
+          } catch (error) {
+            console.error("Error updating task in Firestore:", error);
+          }
+        }
       }
+      setTaskTitle("");
+      setDeadline("");
+      setPriority("Low");
+      setEditTaskTitle(null);
     } else {
       alert("Please enter a valid task title and deadline!");
     }
@@ -264,6 +359,13 @@ function TaskManager() {
 
   return (
     <div className="container">
+      {showLoginModal && (
+          <LoginModal 
+              setShowLoginModal={setShowLoginModal} 
+              setModalDismissed={setModalDismissed}  
+          />
+      )}
+
       {/* Chart component */}
       <MetricsChart tasks={tasks} />
 

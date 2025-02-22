@@ -1,10 +1,9 @@
-.Task-board {
+.task-board {
   display: flex;
-  width: 100%;
-  height: 92vh;
+  flex: 1; 
   background-color: #f0f0f0;
   box-sizing: border-box;
-  padding: 20px;
+  padding: 0px;
 }
 
 .columns {

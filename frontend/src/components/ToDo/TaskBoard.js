@@ -118,7 +118,7 @@ const TaskBoard = () => {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div className="Task-board">
+      <div className="task-board">
         <div className="columns">
           {columns.map((column) => (
             <SortableContext key={column.id} items={column.tasks.map((task) => task.id)}>

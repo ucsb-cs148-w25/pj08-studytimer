@@ -1,0 +1,18 @@
+/* TaskPage.css */
+.task-page {
+    display: flex;
+    height: 92.5vh; /* Takes up full viewport height */
+    background-color: var(--secondary-background);
+  }
+  
+  /* The main content area on the right */
+  /* TaskPage.css */
+.task-content {
+    flex: 1;
+    /* Light gray background to match your screenshot */
+    background-color: #e5e5e5; 
+    padding: 2rem; 
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+  
