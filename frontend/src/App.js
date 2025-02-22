@@ -7,6 +7,7 @@ import TaskManager from './components/ToDo/TaskManager';
 import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
+import PrivateRoute from './privateRoute';
 import './App.css'; // Import external styles
 
 // Example sound effect
@@ -352,11 +353,35 @@ const App = () => {
           />
 
           {/* Other routes */}
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route path="/task_manager" element={<TaskManager />} />
+          <Route path="/profile" 
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              } 
+          />
+          <Route path="/calendar" 
+              element={
+                <PrivateRoute>
+                  <CalendarPage />
+                </PrivateRoute>
+              }
+          />
+          <Route path="/task_manager" 
+              element={
+                <PrivateRoute>
+                  <TaskManager />
+                </PrivateRoute>
+              } 
+          />
           <Route path="/about" element={<About />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" 
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              } 
+          />
         </Routes>
       </div>
     </Router>
