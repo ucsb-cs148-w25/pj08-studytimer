@@ -14,16 +14,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.4rem;
+  margin-left: 0.4rem;
 }
 
 .task-list-header h2 {
-  margin: 0;
-  font-size: 1.7rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.7rem;
+  font-size: 1.9rem;
   font-weight: 600;
 }
 
-/* Toggle pill */
 .toggle-container {
   position: relative;
   width: 220px;
@@ -34,88 +35,83 @@
   margin-left: 1rem;
 }
 
-.toggle-options {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
-
-.toggle-option {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  color: #333;
-}
-
-.toggle-option.active {
-  background-color: #4a4a4a;
-  color: #fff;
-}
-
-.toggle-option:hover {
-  background-color: #ddd;
-}
-
 .task-list-content {
   flex: 1;
-  overflow-y: scroll;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow-y: auto;
+  padding-right: 8px; 
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
 .task-list-content::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+}
+
+.task-list-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.task-list-content.scrolling::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.task-list-content::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .task-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  background-color: #fcfcfc;
+  background-color: #fbfbfb;
   border: 1px solid #eee;
   border-radius: 6px;
-  padding: 0.4rem;
-  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
   transition: opacity 0.3s;
-}
-
-.task-item.task-done {
-  opacity: 0.5; /* fade out more strongly */
-}
-
-.checkbox-icon {
-  width: 15px;
-  height: 15px;
-  margin-left: 3px;
-  margin-right: -5px;
-  cursor: pointer;
-}
-
-/* Middle area for the task title */
-.task-title-container {
-  flex: 1;
 }
 
 .task-item input[type="text"] {
   border: none;
   outline: none;
-  font-size: 0.95rem;
-  flex: 1;
   background-color: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem; 
+  line-height: 1.2;
 }
 
-/* Deadline pill on the far right */
-.deadline-pill-container {
-  min-width: 80px;
+.task-item input[type="text"]:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.task-item.task-done {
+  opacity: 0.5;
+}
+
+.checkbox-icon {
+  width: 13px;
+  height: 13px;
+  margin-left: 2px;
+  margin-right: -5px;
+  cursor: pointer;
+}
+
+.task-title-container {
+  flex: 1;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 0.6rem;
 }
 
-.deadline-pill {
+.deadline-btn {
+  display: inline-flex;
+  align-items: center;
   background-color: #eee;
   border-radius: 12px;
   padding: 0.2rem 0.6rem;
@@ -125,35 +121,124 @@
   transition: background-color 0.2s;
 }
 
-.deadline-pill:hover {
+.deadline-edit-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.deadline-edit-container input[type="date"] {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.2rem;
+  font-size: 0.7rem;
+}
+
+.deadline-close-btn {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  background-color: #eee;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.deadline-btn.overdue {
+  color: rgb(255, 69, 69);
+  background-color: #ffe2e2;
+  border: 1.5px solid #ff5c5c;
+}
+.deadline-btn.due-today {
+  color: rgb(255, 69, 69);
+  background-color: #ffe2e2;
+}
+.deadline-btn.due-soon {
+  background-color: #fff7c4ec;
+  color: #baa623;
+}
+
+.deadline-btn:hover {
   background-color: #ddd;
 }
 
-/* If user is editing the date, we show just an input */
-.task-item input[type="date"] {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 0.2rem;
+.time-estimate-btn {
+  cursor: pointer;
   font-size: 0.8rem;
+  background-color: #eee;
+  color: #333;
+  border-radius: 12px;
+  padding: 0.2rem 0.6rem;
+  transition: background-color 0.2s;
+}
+.time-estimate-btn:hover {
+  background-color: #ddd;
 }
 
-.general-section h3 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+.time-estimate-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.time-estimate-dropdown input[type="number"] {
+  width: 60px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.2rem;
+  font-size: 0.7rem;
+}
+.time-estimate-dropdown select {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.2rem;
+  font-size: 0.7rem;
+  background-color: #fff;
+}
+.time-estimate-dropdown button {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  background-color: #eee;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-/* Existing .label-section styling */
+.time-estimate-btn:hover {
+  background-color: #ddd;
+}
+
+.task-delete-btn {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin-right: 0.3rem;
+  display: none;
+}
+
+.task-item:hover .task-delete-btn {
+  display: block;
+}
+.task-delete-btn.always-visible {
+  display: block !important;
+}
+
+.general-section {
+  margin-bottom: 1rem;
+}
+
 .label-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+}
+.label-section.active-label-section {
+  background-color: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 0.5rem;
 }
 
-/* When this label is the active one, add a subtle border & background */
-.label-section.active-label-section {
-  background-color: #fdfdfd;  /* or a slightly different background */
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 0.5rem;
-  /* You can add margin if you want more spacing around it */
+.label-section:not(.active-label-section) .label-tasks {
+  margin-left: 1.2rem;
+}
+.label-section.active-label-section .label-tasks {
+  margin-left: 0;
 }
 
 .label-header {
@@ -161,50 +246,99 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
+  margin-bottom: 0rem;
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
 .label-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
-
 .label-count {
   font-size: 0.8rem;
   color: #777;
 }
 
+.label-header input[type="text"] {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 850;
+  line-height: 1.2;
+  width: auto;
+}
+
+.label-header input[type="text"]:focus {
+  box-shadow: none;
+  outline: none;
+}
+
 .dropdown-icon-list {
   margin-top: -1px;
-  margin-left: 2px;
-  margin-right: -2px;
+  margin-right: -1px;
   width: 12px;
   height: 12px;
   transition: transform 0.3s;
 }
-
 .dropdown-icon-list.open {
   transform: rotate(180deg);
 }
 
 .label-header.active-label {
-  background-color: rgba(74, 74, 74, 0.1);
+  background-color: rgba(74,74,74,0.1);
   border-radius: 4px;
 }
 
 .label-tasks {
-  margin-top: 0.3rem; /* tiny gap between the header and tasks */
+  margin-top: 0.3rem;
 }
 
 .label-tasks p {
   font-size: 0.9rem;
   color: #ccc;
-  margin-top: 5px;
-  margin-bottom: 0px;
+  margin-top: 3px;
+  margin-bottom: 0;
 }
 
 .no-tasks {
+  margin-left: 0.6rem;
   font-size: 0.9rem;
   color: #999;
+}
+
+.label-options-icon {
+  margin-left: auto;
+  position: relative;
+  cursor: pointer;
+}
+.label-options-icon img {
+  width: 16px;
+  height: 16px;
+}
+
+.label-options-menu {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 100px;
+  z-index: 999;
+}
+.label-options-item {
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.label-options-item:hover {
+  background-color: #eee;
+}
+.label-options-item.delete-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
