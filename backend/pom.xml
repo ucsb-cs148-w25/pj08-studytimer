@@ -57,18 +57,18 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Google API Client (For Google Calendar API) -->
+        <!-- Google API Client -->
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
-            <version>2.2.0</version>
+            <version>1.35.2</version>
         </dependency>
 
-        <!-- Google Auth Library (for authenticating Google API requests) -->
+        <!-- Google Auth Library -->
         <dependency>
             <groupId>com.google.auth</groupId>
             <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>1.19.0</version>
+            <version>1.16.0</version>
         </dependency>
 
         <!-- Google HTTP Client for JSON Parsing -->
@@ -101,7 +101,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Maven Compiler Plugin (Ensures Java 17 is used) -->
+            <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -111,18 +111,7 @@
                     <target>17</target>
                 </configuration>
             </plugin>
-
-            <!-- Maven Surefire Plugin (Runs tests but excludes CalendarControllerTest) -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
-                <configuration>
-                    <excludes>
-                        <exclude>**/CalendarControllerTest.java</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
 </project>

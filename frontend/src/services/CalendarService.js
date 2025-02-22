@@ -1,7 +1,8 @@
-import axios from 'axios';
-import { getAuth } from "firebase/auth";  // Firebase authentication
+import axios from "axios";  // ✅ Fix: Import axios
+import { getAuth } from "firebase/auth";  // ✅ Fix: Import Firebase Auth
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/calendar';
+// ✅ Define API base URL (Uses env variable or defaults to localhost)
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/api/calendar";
 
 export const fetchEvents = async () => {
   try {
@@ -9,19 +10,16 @@ export const fetchEvents = async () => {
     const user = auth.currentUser;
 
     if (!user) {
-      console.error("No logged-in user, cannot fetch events.");
+      console.error("No logged-in user, cannot fetch events."); // debug
       return [];
     }
 
-    // Get Firebase authentication token
+    // ✅ Get Firebase authentication token
     const token = await user.getIdToken();
-    console.log("🔥 Firebase Token:", token);  // Debug token before sending request
 
-    // Send request with Authorization header
+    // ✅ Send request to backend
     const response = await axios.get(`${API_BASE_URL}/events`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
+      headers: { Authorization: `Bearer ${token}` }
     });
 
     console.log("✅ Response Data:", response.data);
@@ -31,7 +29,7 @@ export const fetchEvents = async () => {
     }));
 
   } catch (error) {
-    console.error('❌ Error fetching events:', error.response?.data || error.message);
+    console.error("Error fetching events:", error.response?.data || error.message); // debug
     throw error;
   }
 };
