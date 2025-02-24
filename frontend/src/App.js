@@ -50,19 +50,6 @@ const App = () => {
   const db = getFirestore();
 
 
-  // ------------------------------------------------------------------
-  // Break thresholds: The time-left values at which a break occurs
-  // For numBreaks = 3 and totalTime = 1800s, intervals of 600s:
-  // => breaks happen when studyTimeLeft hits 1200, then 600, then 0.
-  // We'll generate them in descending order for convenience.
-  // ------------------------------------------------------------------
-  const breakPoints = useCallback(() => {
-    if (numBreaks <= 0) return [];
-    const interval = totalTime / numBreaks; // e.g., 1800s / 3 = 600s per break
-    return Array.from({ length: numBreaks }, (_, i) => totalTime - (i + 1) * interval);
-  }, [totalTime, numBreaks]);
-  
-
   // Update Firestore stats
   const updateUserStats = useCallback(async (studyTimeIncrement, breaksTaken = 0) => {
     if (!auth.currentUser) return;
@@ -106,11 +93,21 @@ const App = () => {
       console.error("Error updating stats:", error);
     }
   }, [auth.currentUser, db]);
-  
-  
-  
-  
 
+  // ------------------------------------------------------------------
+  // Break thresholds: The time-left values at which a break occurs
+  // For numBreaks = 3 and totalTime = 1800s, intervals of 600s:
+  // => breaks happen when studyTimeLeft hits 1200, then 600, then 0.
+  // We'll generate them in descending order for convenience.
+  // ------------------------------------------------------------------
+  const breakPoints = useCallback(() => {
+    if (numBreaks <= 0) return [];
+    const interval = totalTime / (numBreaks + 1); // Ensuring equal spacing
+  
+    return Array.from({ length: numBreaks }, (_, i) => Math.floor(totalTime - (i + 1) * interval));
+  }, [totalTime, numBreaks]);
+  
+  
   // ------------------------------------------------------------------
   // Called when we finish the session or time hits 0 after final break
   // ------------------------------------------------------------------
@@ -119,10 +116,9 @@ const App = () => {
     setSessionComplete(true);
     setStudyTimeLeft(0);
     alert('Session complete!');
+    updateUserStats(0, 0);
+  }, []);
   
-    // Only now do we increment session count & check longest session
-    updateUserStats(0, breakIndex, true);
-  }, [breakIndex]);
   
 
   // ------------------------------------------------------------------
@@ -134,8 +130,10 @@ const App = () => {
     setBreakTimeLeft(breakTime);
     freezeSound.play();
   
-    updateUserStats(0, 1); // Now correctly tracks breaks in Firestore
+    // Only update the break count in Firestore, don't affect breakIndex
+    updateUserStats(0, 1);
   }, [breakTime, updateUserStats]);
+  
   
   
   
@@ -146,10 +144,12 @@ const App = () => {
   const endBreak = useCallback(() => {
     setOnBreak(false);
     setBreakTimeLeft(0);
-
-    // If we haven't reached the final break, increment breakIndex
-    setBreakIndex((prev) => prev + 1);
-  }, []);
+  
+    // Increment breakIndex properly, independent of Firestore updates
+    setBreakIndex((prev) => (prev < numBreaks ? prev + 1 : prev));
+  }, [numBreaks]);
+  
+  
 
   
   // ------------------------------------------------------------------
@@ -179,7 +179,7 @@ const App = () => {
     const timer = setInterval(() => {
       setStudyTimeLeft((prev) => {
         const nextVal = prev - 1;
-        updateUserStats(1); // Ensures study time updates every second
+        updateUserStats(1); // Updates user study time every second
   
         const breakThresholds = breakPoints();
         if (breakIndex < breakThresholds.length && nextVal === breakThresholds[breakIndex]) {
@@ -201,9 +201,6 @@ const App = () => {
     return () => clearInterval(timer);
   }, [isRunning, onBreak, sessionComplete, breakIndex, finishSession, startBreak, breakPoints, updateUserStats]);
   
-  
-  
-  
 
   // ------------------------------------------------------------------
   // The break timer effect
@@ -211,22 +208,21 @@ const App = () => {
   // ------------------------------------------------------------------
   useEffect(() => {
     if (!isRunning || !onBreak || sessionComplete) return;
-  
+
     const timer = setInterval(() => {
       setBreakTimeLeft((prev) => {
         const nextVal = prev - 1;
         if (nextVal <= 0) {
           clearInterval(timer);
-          setOnBreak(false);
-          setBreakTimeLeft(0);
-          setBreakIndex((prev) => prev + 1);
+          // Break ended by countdown
+          endBreak();
         }
         return nextVal > 0 ? nextVal : 0;
       });
     }, 1000);
-  
+
     return () => clearInterval(timer);
-  }, [isRunning, onBreak, sessionComplete]);
+  }, [isRunning, onBreak, sessionComplete, endBreak]);
   
 
   // ------------------------------------------------------------------
