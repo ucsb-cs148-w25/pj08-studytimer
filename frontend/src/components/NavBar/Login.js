@@ -1,19 +1,26 @@
-import React, { useEffect } from "react";
-import { loginWithGoogle } from "../../auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+export const loginWithGoogle = async (setUser) => {
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
 
-const Login = ({ setUser }) => {
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const accessToken = credential.accessToken; 
+    if (!accessToken) {
+      throw new Error("No access token received from Google.");
     }
-  }, [setUser]);
-
-  return (
-    <button onClick={() => loginWithGoogle(setUser)} className="bg-blue-500 text-white p-2 rounded">
-      Login with Google
-    </button>
-  );
+    const loggedInUser = {
+      name: user.displayName,
+      email: user.email,
+      accessToken: accessToken,
+    };
+    localStorage.setItem("user", JSON.stringify(loggedInUser));
+    localStorage.setItem("token", accessToken);
+    setUser(loggedInUser);
+  } catch (error) {
+    console.error("Login failed:", error);
+  }
 };
-
-export default Login;

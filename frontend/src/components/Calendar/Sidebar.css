@@ -10,5 +10,9 @@
 }
 
 .sidebar {
-    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: top;
+    align-items: left;
+    height: 93vh;
 }
