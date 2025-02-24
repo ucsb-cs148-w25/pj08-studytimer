@@ -13,39 +13,44 @@ export const loginWithGoogle = async (setUser) => {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    // Extract the OAuth credential to get the Google access token.
+    // Retrieve Firebase ID token and Google access token.
+    const firebaseIdToken = await user.getIdToken();
     const credential = GoogleAuthProvider.credentialFromResult(result);
-    const accessToken = credential?.accessToken;
-    if (!accessToken) {
+    const googleAccessToken = credential?.accessToken;
+    if (!googleAccessToken) {
       throw new Error("No Google access token received");
     }
 
     const loggedInUser = {
       name: user.displayName,
       email: user.email,
-      accessToken,
+      firebaseIdToken,  
+      googleAccessToken 
     };
 
     localStorage.setItem("user", JSON.stringify(loggedInUser));
-    localStorage.setItem("token", accessToken);
+    localStorage.setItem("token", firebaseIdToken); 
+    localStorage.setItem("googleToken", googleAccessToken);
+
     setUser(loggedInUser);
 
-    // Send the access token to the backend.
-    const response = await fetch(`${BACKEND_URL}/api/auth/google`, {
+    const authResponse = await fetch(`${BACKEND_URL}/api/auth/google`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${firebaseIdToken}`,
       },
     });
 
-    if (!response.ok) {
-      throw new Error(`Backend error: ${response.statusText}`);
+    if (!authResponse.ok) {
+      const errorDetails = await authResponse.text();
+      console.error("Backend auth error details:", errorDetails);
+      throw new Error(`Backend error: ${authResponse.statusText}`);
     }
 
-    await response.json();
+    await authResponse.json();
   } catch (error) {
-    // Handle login error appropriately.
+    console.error("Login with Google failed:", error);
     throw error;
   }
 };
@@ -55,9 +60,11 @@ export const logoutUser = (setUser) => {
     .then(() => {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      localStorage.removeItem("googleToken");
       setUser(null);
     })
     .catch((error) => {
+      console.error("Logout failed:", error);
       throw error;
     });
 };
