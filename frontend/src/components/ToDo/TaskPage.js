@@ -4,7 +4,7 @@ import TaskBoard from "./TaskBoard";
 import TaskList from "./TaskList";
 import "./TaskPage.css";
 
-const TaskPage = () => {
+const TaskPage = ({ uid }) => {
   const [selectedTaskView, setSelectedTaskView] = useState(null);
 
   return (
@@ -13,8 +13,8 @@ const TaskPage = () => {
 
       <div className="task-content">
         {selectedTaskView?.type === "board" && <TaskBoard />}
-        {selectedTaskView?.type === "list" && (
-            <TaskList selectedTaskView={selectedTaskView} />
+        {selectedTaskView?.type === "list" && uid && (
+            <TaskList uid={uid} selectedTaskView={selectedTaskView} />
         )}
       </div>
     </div>

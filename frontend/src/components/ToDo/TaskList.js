@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
-import "./TaskList.css";
 import TaskToggle from "./TaskLabelToggle";
+import "./TaskList.css";
+
+import { db } from "../../firebase";
+import { collection, doc, setDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+// import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 function getOrdinalSuffix(day) {
   if (day > 3 && day < 21) return "th";
@@ -95,7 +99,7 @@ const getDeadlineClass = (deadline) => {
   return "";
 };
 
-const TaskList = ({ selectedTaskView }) => {
+const TaskList = ({ uid, selectedTaskView }) => {
   const [listTitle, setListTitle] = useState("");
   const [tasks, setTasks] = useState([]);
   const [labels, setLabels] = useState([]);
@@ -113,26 +117,78 @@ const TaskList = ({ selectedTaskView }) => {
     }
   }, [selectedTaskView]);
 
-  const addTask = () => {
+  const updateTaskDoc = async (id, data) => {
+    try {
+      const taskDocRef = doc(db, `users/${uid}/tasks`, id);
+      await updateDoc(taskDocRef, data);
+    }
+    catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!uid) return;
+    const loadTasks = async () => {
+      try {
+        const tasksSnapshot = await getDocs(collection(db, `users/${uid}/tasks`));
+        const tasksData = tasksSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+        setTasks(tasksData);
+      } catch (error) {
+        console.error("Error loading tasks:", error);
+      }
+    };
+    loadTasks();
+  }, [uid]);
+
+  const addTask = async() => {
+    if (!uid) {
+      console.error("User not signed in. cannot add new task");
+      return;
+    }
+    const customID = Date.now().toString();
     const newTask = {
-      id: Date.now().toString(),
       text: "",
+      timeValue: "",
+      timeUnit: "minutes",
       labelId: activeLabelId,
       completed: false,
       isTitleEditing: true,
       deadline: null,
       isEditingDeadline: false,
-      timeValue: "",
-      timeUnit: "minutes",
     };
-    setTasks((prev) => [...prev, newTask]);
+    try {
+      const taskDocRef = doc(db, `users/${uid}/tasks`, customID);
+      await setDoc(taskDocRef, newTask);
+      setTasks((prev) => [...prev, { ...newTask, id: customID }]);
+    }
+    catch (error) {
+      console.error("Error adding task:", error);
+    }
+  };
+
+  const deleteTask = async (id) => {
+    if (!uid) return;
+    try {
+      await deleteDoc(doc(db, `users/${uid}/tasks`, id));
+      setTasks((prev) => prev.filter((task) => task.id !== id));
+      console.log("Task deleted successfully!");
+    }
+    catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
   const handleTaskChange = (id, newText) => {
     setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, text: newText } : task
-      )
+      prev.map((task) => {
+        if (task.id === id) {
+          const updated = { ...task, text: newText };
+          updateTaskDoc(id, { text: newText });
+          return updated;
+        }
+        return task;
+      })
     );
   };
 
@@ -148,38 +204,49 @@ const TaskList = ({ selectedTaskView }) => {
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id !== id) return task;
-
         let updated = { ...task, isTitleEditing: false };
-
         if (pressedKey === "Enter" || pressedKey === "Tab") {
           if (!updated.deadline) {
-            updated.isEditingDeadline = true;
+            updated = { ...updated, isEditingDeadline: true };
           } else if (!updated.timeValue) {
             setTimeDropdownTaskId(updated.id);
           }
+          updateTaskDoc(id, {
+            isTitleEditing: false,
+            isEditingDeadline: updated.isEditingDeadline || false,
+          });
         }
         return updated;
       })
     );
   };
 
-  const deleteTask = (taskId) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
-  };
-
-  const updateTaskTime = (taskId, newValue, newUnit) => {
+  const updateTaskTime = (id, newValue, newUnit) => {
     setTasks((prev) =>
-      prev.map((t) =>
-        t.id === taskId ? { ...t, timeValue: newValue, timeUnit: newUnit } : t
-      )
+      prev.map((task) => {
+        if (task.id === id) {
+          const updated = { ...task, timeValue: newValue, timeUnit: newUnit };
+          updateTaskDoc(id, {
+            timeValue: newValue,
+            timeUnit: newUnit,
+          });
+          return updated;
+        }
+        return task;
+      })
     );
   };
 
   const toggleTaskCompleted = (id) => {
     setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
+      prev.map((task) => {
+        if (task.id === id) {
+          const updated = { ...task, completed: !task.completed };
+          updateTaskDoc(id, { completed: updated.completed });
+          return updated;
+        }
+        return task;
+      })
     );
   };
 
@@ -198,6 +265,7 @@ const TaskList = ({ selectedTaskView }) => {
         if (task.id === id) {
           const dateObj = new Date(newDate + "T00:00:00");
           const iso = dateObj.toISOString();
+          updateTaskDoc(id, { deadline: iso });
           return { ...task, deadline: iso };
         }
         return task;
@@ -213,14 +281,43 @@ const TaskList = ({ selectedTaskView }) => {
         if (updated.deadline && !updated.timeValue) {
           setTimeDropdownTaskId(updated.id);
         }
+        updateTaskDoc(id, { isEditingDeadline: false });
         return updated;
       })
     );
   };
 
+  const updateLabelDoc = async (id, data) => {
+    try {
+      const labelDocRef = doc(db, `users/${uid}/labels`, id);
+      await updateDoc(labelDocRef, data);
+    }
+    catch (error) {
+      console.error("Error updating label:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!uid) return;
+    const loadLabels = async () => {
+      try {
+        const labelsSnapshot = await getDocs(collection(db, `users/${uid}/labels`));
+        const labelsData = labelsSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+        setLabels(labelsData);
+      } catch (error) {
+        console.error("Error loading labels:", error);
+      }
+    };
+    loadLabels();
+  }, [uid]);
+
   const addLabel = () => {
+    if (!uid) {
+      console.error("User not signed in, cannot add new label");
+      return;
+    }
+    const customID = Date.now().toString();
     const newLabel = {
-      id: Date.now().toString(),
       title: "",
       isExpanded: true,
       isEditing: true,
@@ -361,7 +458,7 @@ const TaskList = ({ selectedTaskView }) => {
                 className="deadline-close-btn"
                 onClick={() => finishEditingDeadline(task.id)}
               >
-                Close
+                Save
               </button>
             </div>
           ) : (
@@ -396,7 +493,7 @@ const TaskList = ({ selectedTaskView }) => {
                 <option value="minutes">minutes</option>
                 <option value="hours">hours</option>
               </select>
-              <button onClick={() => setTimeDropdownTaskId(null)}>Close</button>
+              <button onClick={() => setTimeDropdownTaskId(null)}>Save</button>
             </div>
           )}
         </div>
@@ -500,7 +597,7 @@ const TaskList = ({ selectedTaskView }) => {
         {label.isExpanded && !label.isEditing && (
           <div className="label-tasks">
             {labelTasks.length === 0 ? (
-              <p className="no-tasks">No tasks yet</p>
+              <p className="no-tasks">No tasks here!</p>
             ) : (
               labelTasks.map((task) => renderTaskItem(task))
             )}

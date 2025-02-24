@@ -7,14 +7,14 @@ const TaskNav = ({ setSelectedTaskView }) => {
   const [deletedItems, setDeletedItems] = useState([]); 
   const [deletedExpanded, setDeletedExpanded] = useState(true);
 
-  const createNewBoard = () => {
-    const newBoard = {
-      id: Date.now().toString(),
-      title: "Untitled Board",
-      isEditing: false,
-    };
-    setBoards((prev) => [...prev, newBoard]);
-  };
+  // const createNewBoard = () => {
+  //   const newBoard = {
+  //     id: Date.now().toString(),
+  //     title: "Untitled Board",
+  //     isEditing: false,
+  //   };
+  //   setBoards((prev) => [...prev, newBoard]);
+  // };
 
   const createNewList = () => {
     const newList = {
@@ -117,16 +117,16 @@ const TaskNav = ({ setSelectedTaskView }) => {
       <div className="nav-header">
         <h2>New Container?</h2> {/*will be changed later*/}
         <div className="nav-header-icons">
-          <button onClick={createNewBoard} title="Create a New Board">
+          {/* <button onClick={createNewBoard} title="Create a New Board">
             <img src="/taskBoard.svg" alt="taskBoard" className="taskBoard-icon" />
-          </button>
+          </button> */}
           <button onClick={createNewList} title="Create a New List">
             <img src="/taskList.svg" alt="taskList" className="taskList-icon" />
           </button>
         </div>
       </div>
 
-      <div className="nav-section">
+      {/* <div className="nav-section">
         <h3>YOUR BOARDS</h3>
         <ul>
           {boards.map((board) => (
@@ -160,7 +160,7 @@ const TaskNav = ({ setSelectedTaskView }) => {
             </li>
           ))}
         </ul>
-      </div>
+      </div> */}
 
       <div className="nav-section">
         <h3>YOUR LISTS</h3>
