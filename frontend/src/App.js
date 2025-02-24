@@ -7,7 +7,16 @@ import TaskManager from './components/ToDo/TaskManager';
 import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
+import unlockAchievement from "./components/Profile/unlockAchievement";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import initializeAchievements from "./utils/initializeAchievements";
 import './App.css'; // Import external styles
+
+
+
+
+
+
 
 // Example sound effect
 const freezeSound = new Audio('/sounds/freeze.mp3');
@@ -97,37 +106,61 @@ const App = () => {
   // Runs once per second if isRunning && !onBreak && !sessionComplete
   // ------------------------------------------------------------------
   useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        initializeAchievements(); // Ensure achievements are set up
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
+  
+  useEffect(() => {
     if (!isRunning || onBreak || sessionComplete) return;
-
+  
     const timer = setInterval(() => {
       setStudyTimeLeft((prev) => {
         const nextVal = prev - 1;
-        // If the main timer hits 0 => session ends
+  
+        // Unlock "First Timer" when user starts for the first time
+        if (nextVal === totalTime - 1) {
+          unlockAchievement("first_timer");
+        }
+  
+        // Unlock "Study for 30 Minutes"
+        if (totalTime - nextVal >= 1800) {
+          unlockAchievement("study_30_min");
+        }
+  
+        // Unlock "Study for 1 Hour"
+        if (totalTime - nextVal >= 3600) {
+          unlockAchievement("study_1_hour");
+        }
+  
+        // Unlock "3 Study Sessions" (Count session completions)
         if (nextVal <= 0) {
+          unlockAchievement("study_3_sessions");
           clearInterval(timer);
           finishSession();
           return 0;
         }
-
-        // Check if we've hit the next break threshold
+  
+        // Handle break points
         const bPoints = breakPoints();
-        // If we still have breaks to trigger:
         if (breakIndex < bPoints.length) {
-          const nextBreakThreshold = bPoints[breakIndex]; 
-          // e.g. if breakIndex=0 => threshold=1200
-          // If nextVal <= that threshold => time for a break
+          const nextBreakThreshold = bPoints[breakIndex];
           if (nextVal <= nextBreakThreshold) {
             clearInterval(timer);
-            // Start the break
             startBreak();
             return nextVal;
           }
         }
-
+  
         return nextVal;
       });
     }, 1000);
-
+  
     return () => clearInterval(timer);
   }, [
     isRunning,
@@ -138,6 +171,7 @@ const App = () => {
     breakPoints,
     startBreak,
   ]);
+  
 
   // ------------------------------------------------------------------
   // The break timer effect
@@ -357,6 +391,7 @@ const App = () => {
           <Route path="/task_manager" element={<TaskManager />} />
           <Route path="/about" element={<About />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
     </Router>

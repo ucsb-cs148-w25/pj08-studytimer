@@ -38,6 +38,7 @@ function Navbar() {
           <li><Link to="/calendar">Calendar</Link></li>
           <li><Link to="/task_manager">To-Do</Link></li>
           <li><Link to="/settings">Settings</Link></li>
+          <li><Link to="/profile">Profile</Link></li>
         </ul>
       </div>
 

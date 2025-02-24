@@ -1,0 +1,37 @@
+.achievements {
+    text-align: center;
+  }
+  
+  .achievements ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .achievements li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 10px;
+    transition: opacity 0.3s;
+  }
+  
+  .achievements li.locked {
+    opacity: 0.5;
+  }
+  
+  .achievements li.unlocked {
+    opacity: 1;
+  }
+  
+  .achievements img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .achievements button {
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  

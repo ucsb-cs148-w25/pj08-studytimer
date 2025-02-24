@@ -1,22 +1,45 @@
-.profile {
+/* Ensure styles apply only within the Profile page */
+.profile .user-info {
     display: flex;
-    flex-direction: column;
-    align-items: above;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: var(--secondary-background);
-    color: var(--text);
-    font-size: 2rem;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
-}
-
-.profile h1 {
-    margin-bottom: 10px;
-}
-
-.profile p {
-    font-size: 1.3rem;
-    opacity: 0.8;
-}
+    align-items: center;
+    position: relative; /* Keeps it within the profile section */
+    top: 0;
+    left: 0;
+    margin-bottom: 20px; /* Adds spacing below */
+  }
+  
+  /* User profile picture */
+  .profile .profile-picture {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+    border: 2px solid #ddd;
+  }
+  
+  /* User name styling */
+  .profile .user-name {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+  }
+  
+  /* Reset Achievements Button */
+  .profile .reset-achievements-btn {
+    margin-top: 20px;
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .profile .reset-achievements-btn:hover {
+    background-color: darkred;
+  }
+  
