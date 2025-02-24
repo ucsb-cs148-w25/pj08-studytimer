@@ -11,7 +11,7 @@
 - Product Owner - Cindy Zhao
 - Scrum Master - Andrew Vosgueritchian
 - Retro 2 Leader - Lawrence Wang
-- MVP Peer Evaluation Leader - 
+- MVP Peer Evaluation Leader - Thienan Vu
 - Testing/QA Coordinator - Thienan Vu 
 - Retro 3 leader - Kevin Lee 
 - UX Coordinator - Edwin Medrano Villela 
