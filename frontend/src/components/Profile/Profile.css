@@ -1,19 +1,24 @@
-/* Ensure styles apply only within the Profile page */
-.profile .user-info {
+/* Profile container */
+.profile {
     display: flex;
-    align-items: center;
-    position: relative; /* Keeps it within the profile section */
-    top: 0;
-    left: 0;
-    margin-bottom: 20px; /* Adds spacing below */
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
   }
   
-  /* User profile picture */
+  /* User info section */
+  .profile .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  /* Profile picture */
   .profile .profile-picture {
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    margin-right: 15px;
     object-fit: cover;
     border: 2px solid #ddd;
   }
@@ -26,20 +31,144 @@
     color: #333;
   }
   
-  /* Reset Achievements Button */
-  .profile .reset-achievements-btn {
+  /* Main container to hold stats & achievements side-by-side */
+  .profile-content {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
     margin-top: 20px;
-    padding: 10px 15px;
-    font-size: 16px;
-    background-color: red;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
   }
   
-  .profile .reset-achievements-btn:hover {
-    background-color: darkred;
+ /* User Stats Box - Left Side */
+.user-stats {
+    flex: 1;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    max-width: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures the button is pushed to the bottom */
+    height: 100%;
+}
+  
+  /* Scrollable User Stats */
+.user-stats-container {
+    flex-grow: 1;
+    max-height: 250px; /* Adjust this to fit your layout */
+    overflow-y: auto;
+    padding-right: 10px; /* Prevents scrollbar overlap */
+}
+  
+  
+/* Achievements Box - Right Side */
+.achievements-box {
+    flex: 1;
+    max-width: 50%;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures button stays at the bottom */
+    height: 100%;
   }
+  
+  /* Achievements List - Scrollable */
+.achievements-list-container {
+    flex-grow: 1;
+    max-height: 300px; /* Adjust to fit your layout */
+    overflow-y: auto;
+    padding-right: 10px; /* Prevent scrollbar overlap */
+  }
+  
+  /* Achievements List */
+  .achievements-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Achievement Item */
+  .achievements-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 10px;
+    transition: opacity 0.3s;
+    text-align: left;
+  }
+  
+  /* Locked achievements appear slightly transparent */
+  .achievements-list .locked {
+    opacity: 0.5;
+  }
+  
+  /* Unlocked achievements appear fully visible */
+  .achievements-list .unlocked {
+    opacity: 1;
+  }
+  
+  /* Achievement Icons */
+  .achievements-list img {
+    width: 50px;
+    height: 50px;
+  }
+  
+  /* Achievement Text Wrapper */
+  .achievement-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  /* Achievement Name */
+  .achievement-text p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  /* Achievement Description */
+  .achievement-text span {
+    font-size: 14px;
+    color: gray;
+  }  
+  
+  /* Reset Buttons - Keep them fixed at the bottom */
+.reset-stats-btn,
+.reset-achievements-btn {
+  padding: 10px 15px;
+  font-size: 16px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  margin-top: 10px; /* Ensure spacing between content */
+}
+
+.reset-stats-btn {
+  background-color: blue;
+}
+
+.reset-stats-btn:hover {
+  background-color: darkblue;
+}
+
+.reset-achievements-btn {
+  background-color: red;
+}
+
+.reset-achievements-btn:hover {
+  background-color: darkred;
+}
+  
   

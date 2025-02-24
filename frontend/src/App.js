@@ -9,14 +9,10 @@ import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
 import unlockAchievement from "./components/Profile/unlockAchievement";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import initializeAchievements from "./utils/initializeAchievements";
-import './App.css'; // Import external styles
-
-
-
-
-
-
+import initializeStats from "./utils/initializeStats";
+import './App.css';
 
 // Example sound effect
 const freezeSound = new Audio('/sounds/freeze.mp3');
@@ -50,6 +46,10 @@ const App = () => {
   // ------------------------------------------------------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const auth = getAuth();
+  const db = getFirestore();
+
+
   // ------------------------------------------------------------------
   // Break thresholds: The time-left values at which a break occurs
   // For numBreaks = 3 and totalTime = 1800s, intervals of 600s:
@@ -58,14 +58,58 @@ const App = () => {
   // ------------------------------------------------------------------
   const breakPoints = useCallback(() => {
     if (numBreaks <= 0) return [];
-    const interval = totalTime / numBreaks; // e.g., 1800 / 3 = 600
-    const points = [];
-    for (let i = 1; i <= numBreaks; i++) {
-      points.push(Math.floor(totalTime - i * interval)); 
-      // e.g. i=1 => 1200, i=2 => 600, i=3 => 0
-    }
-    return points;
+    const interval = totalTime / numBreaks; // e.g., 1800s / 3 = 600s per break
+    return Array.from({ length: numBreaks }, (_, i) => totalTime - (i + 1) * interval);
   }, [totalTime, numBreaks]);
+  
+
+  // Update Firestore stats
+  const updateUserStats = useCallback(async (studyTimeIncrement, breaksTaken = 0) => {
+    if (!auth.currentUser) return;
+    const userId = auth.currentUser.uid;
+    const statsRef = doc(db, `users/${userId}`);
+  
+    try {
+      const statsSnap = await getDoc(statsRef);
+      let newStats = {
+        totalStudyTime: studyTimeIncrement,
+        totalBreaksTaken: breaksTaken,
+        studySessions: 0,
+        longestSession: 0,
+        lastSessionDate: new Date().toISOString(),
+      };
+  
+      if (statsSnap.exists() && statsSnap.data().stats) {
+        const stats = statsSnap.data().stats;
+        newStats = {
+          totalStudyTime: stats.totalStudyTime + studyTimeIncrement,
+          totalBreaksTaken: stats.totalBreaksTaken + breaksTaken,
+          studySessions: stats.studySessions,
+          longestSession: stats.longestSession,
+          lastSessionDate: new Date().toISOString(),
+        };
+      }
+  
+      await updateDoc(statsRef, { stats: newStats });
+  
+      // Unlock Achievements
+      const achievementsToCheck = [
+        "first_timer", "study_5_sessions", "study_10_sessions", "study_20_sessions",
+        "study_1_hour", "study_5_hours", "study_10_hours", "break_10_taken",
+        "break_25_taken", "longest_30_min", "longest_1_hour", "consistency_week"
+      ];
+      for (const achievementId of achievementsToCheck) {
+        await unlockAchievement(achievementId);
+      }
+  
+    } catch (error) {
+      console.error("Error updating stats:", error);
+    }
+  }, [auth.currentUser, db]);
+  
+  
+  
+  
 
   // ------------------------------------------------------------------
   // Called when we finish the session or time hits 0 after final break
@@ -75,20 +119,26 @@ const App = () => {
     setSessionComplete(true);
     setStudyTimeLeft(0);
     alert('Session complete!');
-  }, []);
+  
+    // Only now do we increment session count & check longest session
+    updateUserStats(0, breakIndex, true);
+  }, [breakIndex]);
+  
 
   // ------------------------------------------------------------------
   // Start a break: Pause the main study timer, set breakTimeLeft
   // ------------------------------------------------------------------
   const startBreak = useCallback(() => {
-    if (!breakTime) {
-      // If there's no breakTime set, just continue or finish
-      return;
-    }
+    if (!breakTime) return;
     setOnBreak(true);
     setBreakTimeLeft(breakTime);
     freezeSound.play();
-  }, [breakTime]);
+  
+    updateUserStats(0, 1); // Now correctly tracks breaks in Firestore
+  }, [breakTime, updateUserStats]);
+  
+  
+  
 
   // ------------------------------------------------------------------
   // End the break (either time ran out or user clicked skip)
@@ -101,60 +151,47 @@ const App = () => {
     setBreakIndex((prev) => prev + 1);
   }, []);
 
+  
   // ------------------------------------------------------------------
-  // The main "study" timer effect
-  // Runs once per second if isRunning && !onBreak && !sessionComplete
+  // Initialize Achievements
   // ------------------------------------------------------------------
+
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        initializeAchievements(); // Ensure achievements are set up
+        initializeAchievements(); // Initialize achievements
+        initializeStats(); // Initialize stats
       }
     });
   
     return () => unsubscribe();
   }, []);
-  
+
+  // ------------------------------------------------------------------
+  // The main "study" timer effect
+  // Runs once per second if isRunning && !onBreak && !sessionComplete
+  // ------------------------------------------------------------------
+
   useEffect(() => {
     if (!isRunning || onBreak || sessionComplete) return;
   
     const timer = setInterval(() => {
       setStudyTimeLeft((prev) => {
         const nextVal = prev - 1;
+        updateUserStats(1); // Ensures study time updates every second
   
-        // Unlock "First Timer" when user starts for the first time
-        if (nextVal === totalTime - 1) {
-          unlockAchievement("first_timer");
+        const breakThresholds = breakPoints();
+        if (breakIndex < breakThresholds.length && nextVal === breakThresholds[breakIndex]) {
+          clearInterval(timer);
+          startBreak();
+          return nextVal;
         }
   
-        // Unlock "Study for 30 Minutes"
-        if (totalTime - nextVal >= 1800) {
-          unlockAchievement("study_30_min");
-        }
-  
-        // Unlock "Study for 1 Hour"
-        if (totalTime - nextVal >= 3600) {
-          unlockAchievement("study_1_hour");
-        }
-  
-        // Unlock "3 Study Sessions" (Count session completions)
         if (nextVal <= 0) {
-          unlockAchievement("study_3_sessions");
           clearInterval(timer);
           finishSession();
           return 0;
-        }
-  
-        // Handle break points
-        const bPoints = breakPoints();
-        if (breakIndex < bPoints.length) {
-          const nextBreakThreshold = bPoints[breakIndex];
-          if (nextVal <= nextBreakThreshold) {
-            clearInterval(timer);
-            startBreak();
-            return nextVal;
-          }
         }
   
         return nextVal;
@@ -162,15 +199,10 @@ const App = () => {
     }, 1000);
   
     return () => clearInterval(timer);
-  }, [
-    isRunning,
-    onBreak,
-    sessionComplete,
-    breakIndex,
-    finishSession,
-    breakPoints,
-    startBreak,
-  ]);
+  }, [isRunning, onBreak, sessionComplete, breakIndex, finishSession, startBreak, breakPoints, updateUserStats]);
+  
+  
+  
   
 
   // ------------------------------------------------------------------
@@ -179,21 +211,23 @@ const App = () => {
   // ------------------------------------------------------------------
   useEffect(() => {
     if (!isRunning || !onBreak || sessionComplete) return;
-
+  
     const timer = setInterval(() => {
       setBreakTimeLeft((prev) => {
         const nextVal = prev - 1;
         if (nextVal <= 0) {
           clearInterval(timer);
-          // Break ended by countdown
-          endBreak();
+          setOnBreak(false);
+          setBreakTimeLeft(0);
+          setBreakIndex((prev) => prev + 1);
         }
         return nextVal > 0 ? nextVal : 0;
       });
     }, 1000);
-
+  
     return () => clearInterval(timer);
-  }, [isRunning, onBreak, sessionComplete, endBreak]);
+  }, [isRunning, onBreak, sessionComplete]);
+  
 
   // ------------------------------------------------------------------
   // Reset everything
@@ -203,7 +237,6 @@ const App = () => {
     setSessionComplete(false);
     setOnBreak(false);
     setBreakIndex(0);
-
     setStudyTimeLeft(totalTime);
     setBreakTimeLeft(0);
   };
