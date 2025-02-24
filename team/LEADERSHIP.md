@@ -8,7 +8,7 @@
 | Fri 01/24 | Jennifer Lopez    | Will lead first Retro                                 | 
 
 
-- Product Owner - Andrew Vosgueritchian
+- Product Owner - Cindy Zhao
 - Scrum Master - Andrew Vosgueritchian
 - Retro 2 Leader - Lawrence Wang
 - MVP Peer Evaluation Leader - 
