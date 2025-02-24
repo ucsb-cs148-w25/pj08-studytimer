@@ -1,18 +1,45 @@
-import React from 'react';
-import "./CalendarEmbed.css";
+import React, { useState, useEffect } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import listPlugin from '@fullcalendar/list';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import { fetchEvents } from '../../services/CalendarService';
+import './CalendarEmbed.css';
 
 const CalendarEmbed = () => {
-    return (
-        <div className="calendar-container">
-            <iframe 
-                src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FLos_Angeles&showPrint=0&showNav=0&showTabs=0&showCalendars=0&showTz=0&showTitle=0&mode=WEEK&src=ZW4udXNhI2hvbGlkYXlAZ3JvdXAudi5jYWxlbmRhci5nb29nbGUuY29t&color=%230B8043" 
-                style={{ border: "none", width: "97%", height: "95%", marginTop: "100px", borderRadius: "10px" }}
-                frameborder="0" 
-                title="myCalendar">
-            </iframe>
-        </div>
-    );
+  const [events, setEvents] = useState([]);
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const data = await fetchEvents();
+        setEvents(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+
+    loadEvents();
+  }, []);
+  
+
+  return (
+    <div className="calendar-wrapper">
+      <FullCalendar
+        plugins={[dayGridPlugin, listPlugin, timeGridPlugin]}
+        initialView="dayGridMonth"
+        initialDate={new Date()}
+        events={events}
+        headerToolbar={{
+          left: 'prev,next',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+        }}
+        dayMaxEvents={3}          
+        moreLinkContent="..."     
+      />
+    </div>
+  );
 };
 
 export default CalendarEmbed;
-  

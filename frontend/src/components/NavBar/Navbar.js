@@ -48,13 +48,16 @@ function Navbar() {
       <div className="nav-right">
         {user ? (
           <div className="user-info">
-            <span className="user-name">Hello, {user.name.split(" ")[0]}!</span>
-            <button onClick={() => logoutUser()} className="logout-btn">
+            {/* Wrap greeting in a Link to profile page */}
+            <Link to="/profile" className="profile-link">
+              <span className="user-name">Hello, {user.name.split(" ")[0]}!</span>
+            </Link>
+            <button onClick={() => logoutUser(setUser)} className="logout-btn">
               Sign Out
             </button>
           </div>
         ) : (
-          <button onClick={loginWithGoogle} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
+          <button onClick={() => loginWithGoogle(setUser)} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
             Sign In
           </button>
         )}
