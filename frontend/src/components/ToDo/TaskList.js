@@ -3,8 +3,7 @@ import TaskToggle from "./TaskLabelToggle";
 import "./TaskList.css";
 
 import { db } from "../../firebase";
-import { collection, doc, setDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
-// import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { query, where, writeBatch, collection, doc, setDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 
 function getOrdinalSuffix(day) {
   if (day > 3 && day < 21) return "th";
@@ -118,8 +117,9 @@ const TaskList = ({ uid, selectedTaskView }) => {
   }, [selectedTaskView]);
 
   const updateTaskDoc = async (id, data) => {
+    console.log("Updating task", id, data);
     try {
-      const taskDocRef = doc(db, `users/${uid}/tasks`, id);
+      const taskDocRef = doc(db, `users/${uid}/tasks`, id.toString());
       await updateDoc(taskDocRef, data);
     }
     catch (error) {
@@ -168,28 +168,18 @@ const TaskList = ({ uid, selectedTaskView }) => {
   };
 
   const deleteTask = async (id) => {
-    if (!uid) return;
+    if (!uid) {
+      console.error("User not signed in, cannot delete the task");
+      return;
+    }
     try {
-      await deleteDoc(doc(db, `users/${uid}/tasks`, id));
-      setTasks((prev) => prev.filter((task) => task.id !== id));
+      await deleteDoc(doc(db, `users/${uid}/tasks`, id.toString()));
+      setTasks((prev) => prev.filter((task) => task.id.toString() !== id.toString()));
       console.log("Task deleted successfully!");
     }
     catch (error) {
       console.error("Error deleting task:", error);
     }
-  };
-
-  const handleTaskChange = (id, newText) => {
-    setTasks((prev) =>
-      prev.map((task) => {
-        if (task.id === id) {
-          const updated = { ...task, text: newText };
-          updateTaskDoc(id, { text: newText });
-          return updated;
-        }
-        return task;
-      })
-    );
   };
 
   const startTaskEditing = (id) => {
@@ -200,21 +190,31 @@ const TaskList = ({ uid, selectedTaskView }) => {
     );
   };
 
+  const handleTaskChange = (id, newText) => {
+    setTasks((prev) =>
+      prev.map((task) => {
+        if (task.id === id) {
+          const updated = { ...task, text: newText };
+          return updated;
+        }
+        return task;
+      })
+    );
+  };
+
   const finishTaskEditing = (id, pressedKey) => {
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id !== id) return task;
         let updated = { ...task, isTitleEditing: false };
+        updateTaskDoc(id.toString(), { text: updated.text, isTitleEditing: false });
         if (pressedKey === "Enter" || pressedKey === "Tab") {
           if (!updated.deadline) {
             updated = { ...updated, isEditingDeadline: true };
           } else if (!updated.timeValue) {
             setTimeDropdownTaskId(updated.id);
           }
-          updateTaskDoc(id, {
-            isTitleEditing: false,
-            isEditingDeadline: updated.isEditingDeadline || false,
-          });
+          updateTaskDoc(id.toString(), { isEditingDeadline: updated.isEditingDeadline || false });
         }
         return updated;
       })
@@ -226,10 +226,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
       prev.map((task) => {
         if (task.id === id) {
           const updated = { ...task, timeValue: newValue, timeUnit: newUnit };
-          updateTaskDoc(id, {
-            timeValue: newValue,
-            timeUnit: newUnit,
-          });
+          updateTaskDoc(id.toString(), {timeValue: newValue, timeUnit: newUnit });
           return updated;
         }
         return task;
@@ -242,7 +239,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
       prev.map((task) => {
         if (task.id === id) {
           const updated = { ...task, completed: !task.completed };
-          updateTaskDoc(id, { completed: updated.completed });
+          updateTaskDoc(id.toString(), { completed: updated.completed });
           return updated;
         }
         return task;
@@ -265,7 +262,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
         if (task.id === id) {
           const dateObj = new Date(newDate + "T00:00:00");
           const iso = dateObj.toISOString();
-          updateTaskDoc(id, { deadline: iso });
+          updateTaskDoc(id.toString(), { deadline: iso });
           return { ...task, deadline: iso };
         }
         return task;
@@ -281,7 +278,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
         if (updated.deadline && !updated.timeValue) {
           setTimeDropdownTaskId(updated.id);
         }
-        updateTaskDoc(id, { isEditingDeadline: false });
+        updateTaskDoc(id.toString(), { isEditingDeadline: false });
         return updated;
       })
     );
@@ -289,7 +286,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
 
   const updateLabelDoc = async (id, data) => {
     try {
-      const labelDocRef = doc(db, `users/${uid}/labels`, id);
+      const labelDocRef = doc(db, `users/${uid}/labels`, id.toString());
       await updateDoc(labelDocRef, data);
     }
     catch (error) {
@@ -311,7 +308,8 @@ const TaskList = ({ uid, selectedTaskView }) => {
     loadLabels();
   }, [uid]);
 
-  const addLabel = () => {
+  const addLabel = async() => {
+    console.log("User uid:", uid);
     if (!uid) {
       console.error("User not signed in, cannot add new label");
       return;
@@ -321,9 +319,49 @@ const TaskList = ({ uid, selectedTaskView }) => {
       title: "",
       isExpanded: true,
       isEditing: true,
+      order: labels.length,
     };
-    setLabels((prev) => [...prev, newLabel]);
-    setActiveLabelId(newLabel.id);
+    try {
+      const labelDocRef = doc(db, `users/${uid}/labels`, customID);
+      await setDoc(labelDocRef, newLabel);
+      setLabels((prev) => [...prev, { ...newLabel, id: customID }]);
+      setActiveLabelId(customID);
+    }
+    catch (error) {
+      console.error("Error adding label:", error);
+    }
+  };
+
+  const deleteLabel = async (id) => {
+    if (!uid) {
+      console.error("User not signed in, cannot delete the label");
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, `users/${uid}/labels`, id.toString()));
+
+      // gather all tasks with this label
+      const taskQuery = query(
+        collection(db, `users/${uid}/tasks`), 
+        where("labelId", "==", id.toString())
+      );
+      const tasksSnapshot = await getDocs(taskQuery);
+
+      // to thennn, delete them all!
+      const batch = writeBatch(db);
+      tasksSnapshot.forEach((taskSnap) => {
+        batch.delete(doc(db, `users/${uid}/tasks`, taskSnap.id.toString()));
+        console.log("Task deleted successfully!");
+      });
+      await batch.commit();
+
+      setLabels((prev) => prev.filter((label) => label.id.toString() !== id.toString()));
+      setTasks((prev) => prev.filter((task) => task.labelId !== id));
+      console.log("Label deleted and associated tasks successfully!");
+    }
+    catch (error) {
+      console.error("Error deleting label:", error);
+    }
   };
 
   const startLabelEditing = (id) => {
@@ -344,9 +382,12 @@ const TaskList = ({ uid, selectedTaskView }) => {
 
   const finishLabelEditing = (id) => {
     setLabels((prev) =>
-      prev.map((label) =>
-        label.id === id ? { ...label, isEditing: false } : label
-      )
+      prev.map((label) => {
+        if (label.id !== id) return label;
+        let updated = { ...label, isEditing: false };
+        updateLabelDoc(id.toString(), { title: updated.title, isEditing: false });
+        return updated;
+      })
     );
   };
 
@@ -358,6 +399,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
           l.id === label.id ? { ...l, isExpanded: false } : l
         )
       );
+      updateLabelDoc(label.id, { isExpanded: false });
       setActiveLabelId(null);
     } else {
       setLabels((prev) =>
@@ -365,6 +407,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
           l.id === label.id ? { ...l, isExpanded: true } : l
         )
       );
+      updateLabelDoc(label.id, { isExpanded: true });
       setActiveLabelId(label.id);
     }
   };
@@ -395,12 +438,6 @@ const TaskList = ({ uid, selectedTaskView }) => {
       return newArr;
     });
   };
-
-  const deleteLabel = (labelId) => {
-    setLabels((prev) => prev.filter((l) => l.id !== labelId));
-    setTasks((prev) => prev.filter((t) => t.labelId !== labelId));
-  };
-
 
   const getTasksForLabel = (labelId) => tasks.filter((t) => t.labelId === labelId);
   const generalTasks = tasks.filter((t) => t.labelId === null);

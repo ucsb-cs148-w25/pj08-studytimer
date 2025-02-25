@@ -152,8 +152,9 @@
   background-color: #ffe2e2;
 }
 .deadline-btn.due-soon {
-  background-color: #fff7c4ec;
+  background-color: #fcf8dfec;
   color: #baa623;
+  border: 1.5px solid #cbb948;
 }
 
 .deadline-btn:hover {
