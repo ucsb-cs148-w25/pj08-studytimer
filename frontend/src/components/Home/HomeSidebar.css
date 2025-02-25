@@ -1,0 +1,21 @@
+.sidebar p {
+    color: var(--accent-background);
+    text-align: center;
+ }
+ 
+ 
+ .sidebar h2 {
+    color: var(--faint-text);
+    font-size: 1.3rem;
+    font-weight: 400;
+ }
+ 
+ 
+ .sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: top;
+    align-items: left;
+    height: 93vh;
+ }
+ 
