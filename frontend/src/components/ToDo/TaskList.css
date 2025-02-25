@@ -1,0 +1,345 @@
+.task-list-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.task-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  margin-left: 0.4rem;
+}
+
+.task-list-header h2 {
+  margin-top: 0.4rem;
+  margin-bottom: 0.7rem;
+  font-size: 1.9rem;
+  font-weight: 600;
+}
+
+.toggle-container {
+  position: relative;
+  width: 220px;
+  height: 40px;
+  border: 2px solid #888;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-left: 1rem;
+}
+
+.task-list-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px; 
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.task-list-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.task-list-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.task-list-content.scrolling::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.task-list-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.task-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background-color: #fbfbfb;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  transition: opacity 0.3s;
+}
+
+.task-item input[type="text"] {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem; 
+  line-height: 1.2;
+}
+
+.task-item input[type="text"]:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.task-item.task-done {
+  opacity: 0.5;
+}
+
+.checkbox-icon {
+  width: 13px;
+  height: 13px;
+  margin-left: 2px;
+  margin-right: -5px;
+  cursor: pointer;
+}
+
+.task-title-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.deadline-btn {
+  display: inline-flex;
+  align-items: center;
+  background-color: #eee;
+  border-radius: 12px;
+  padding: 0.2rem 0.6rem;
+  color: #333;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.deadline-edit-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.deadline-edit-container input[type="date"] {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.2rem;
+  font-size: 0.7rem;
+}
+
+.deadline-close-btn {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  background-color: #eee;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.deadline-btn.overdue {
+  color: rgb(255, 69, 69);
+  background-color: #ffe2e2;
+  border: 1.5px solid #ff5c5c;
+}
+.deadline-btn.due-today {
+  color: rgb(255, 69, 69);
+  background-color: #ffe2e2;
+}
+.deadline-btn.due-soon {
+  background-color: #fcf8dfec;
+  color: #baa623;
+  border: 1.5px solid #cbb948;
+}
+
+.deadline-btn:hover {
+  background-color: #ddd;
+}
+
+.time-estimate-btn {
+  cursor: pointer;
+  font-size: 0.8rem;
+  background-color: #eee;
+  color: #333;
+  border-radius: 12px;
+  padding: 0.2rem 0.6rem;
+  transition: background-color 0.2s;
+}
+.time-estimate-btn:hover {
+  background-color: #ddd;
+}
+
+.time-estimate-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.time-estimate-dropdown input[type="number"] {
+  width: 60px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.2rem;
+  font-size: 0.7rem;
+}
+.time-estimate-dropdown select {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.2rem;
+  font-size: 0.7rem;
+  background-color: #fff;
+}
+.time-estimate-dropdown button {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  background-color: #eee;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.time-estimate-btn:hover {
+  background-color: #ddd;
+}
+
+.task-delete-btn {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin-right: 0.3rem;
+  display: none;
+}
+
+.task-item:hover .task-delete-btn {
+  display: block;
+}
+.task-delete-btn.always-visible {
+  display: block !important;
+}
+
+.general-section {
+  margin-bottom: 1rem;
+}
+
+.label-section {
+  margin-bottom: 1rem;
+}
+.label-section.active-label-section {
+  background-color: #fdfdfd;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+.label-section:not(.active-label-section) .label-tasks {
+  margin-left: 1.2rem;
+}
+.label-section.active-label-section .label-tasks {
+  margin-left: 0;
+}
+
+.label-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 0rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.label-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.label-count {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.label-header input[type="text"] {
+  border: none;
+  outline: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 850;
+  line-height: 1.2;
+  width: auto;
+}
+
+.label-header input[type="text"]:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.dropdown-icon-list {
+  margin-top: -1px;
+  margin-right: -1px;
+  width: 12px;
+  height: 12px;
+  transition: transform 0.3s;
+}
+.dropdown-icon-list.open {
+  transform: rotate(180deg);
+}
+
+.label-header.active-label {
+  background-color: rgba(74,74,74,0.1);
+  border-radius: 4px;
+}
+
+.label-tasks {
+  margin-top: 0.3rem;
+}
+
+.label-tasks p {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-top: 3px;
+  margin-bottom: 0;
+}
+
+.no-tasks {
+  margin-left: 0.6rem;
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.label-options-icon {
+  margin-left: auto;
+  position: relative;
+  cursor: pointer;
+}
+.label-options-icon img {
+  width: 16px;
+  height: 16px;
+}
+
+.label-options-menu {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 100px;
+  z-index: 999;
+}
+.label-options-item {
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.label-options-item:hover {
+  background-color: #eee;
+}
+.label-options-item.delete-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}

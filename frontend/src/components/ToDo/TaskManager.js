@@ -9,7 +9,7 @@ import { db, auth } from "../../firebase";
 import { collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
-import LoginModal from "./HeadsUpModal";  // Adjust the path if needed
+import LoginModal from "./AddModal";
 
 function TaskManager() {
   const [tasks, setTasks] = useState(([])); 

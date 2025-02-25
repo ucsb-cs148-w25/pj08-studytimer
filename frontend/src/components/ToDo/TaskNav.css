@@ -1,0 +1,180 @@
+.task-nav {
+    width: 300px;
+    height: 100%;
+    background-color: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+  
+  /* Top bar */
+  .nav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .nav-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+  
+  .nav-header-icons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .nav-header-icons button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 0.5rem;
+    width: 40px;
+    height: 40px;
+    outline: none;
+    transition: background-color 0.2s;
+  }
+  
+  .nav-header-icons button:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .nav-header-icons button img {
+    width: 17px;
+    height: 17px;
+  }
+  
+  /* Sections */
+  .nav-section {
+    padding: 1rem;
+  }
+  
+  .nav-section:last-of-type {
+    border-bottom: none;
+  }
+  
+  .nav-section h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Item list styles */
+  .nav-section ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  .nav-item:hover {
+    background-color: #e9ecef;
+  }
+  
+  .nav-item span {
+    flex: 1;
+  }
+  
+  /* Trash button - hidden by default, shown on hover */
+  .trash-button {
+    display: none;
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  
+  .nav-item:hover .trash-button {
+    display: block;
+  }
+  
+  .trash-button img {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* Inline text input for renaming */
+  .nav-section input[type="text"] {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 0.95rem;
+    color: #333;
+    padding: 0.2rem;
+    margin: 0;
+  }
+  
+  .nav-section input[type="text"]:focus {
+    outline: none;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Recently Deleted header with carrot icon on same line */
+  .nav-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 0.4rem;
+  }
+  
+  .dropdown-icon {
+    margin-top: -10px;
+    width: 12px;
+    height: 12px;
+    transition: transform 0.3s;
+  }
+  
+  /* Rotate 180 degrees when expanded */
+  .dropdown-icon.open {
+    transform: rotate(180deg);
+  }
+  
+  /* Deleted items styling */
+  .deleted-item {
+    padding: 0.2rem 0;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .deleted-item-icon {
+    width: 14px;
+    height: 14px;
+    margin-left: 0.3rem;
+    margin-right: 0.2rem;
+  }
+  
+  .no-deleted-items {
+    color: #888;
+    font-size: 0.9rem;
+  }
+  
