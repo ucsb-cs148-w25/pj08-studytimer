@@ -1,21 +1,27 @@
-.sidebar p {
+.homesidebar p {
     color: var(--accent-background);
     text-align: center;
  }
  
  
- .sidebar h2 {
+ .homesidebar h1 {
     color: var(--faint-text);
     font-size: 1.3rem;
     font-weight: 400;
  }
  
  
- .sidebar {
+ .homesidebar {
     display: flex;
     flex-direction: column;
     justify-content: top;
-    align-items: left;
     height: 93vh;
+    width: 250px; /* Adjust as needed */
+    position: fixed;
+    right: 0;
+    top: 50px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    background: var(--secondary-accent-background);
  }
  

@@ -1,8 +1,11 @@
 .chartContainer {
-    width: 250px;
-    margin-bottom: -5px;
-    margin-top: -150px;
-    color: var(--text-color);  /* Ensure text like legend labels uses theme */
+    width: 220px;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    margin-left: 15px;
+    margin-top: 50px;
+  /* Ensure text like legend labels uses theme */
 }
 
 /* CSS Variables for Theming */

@@ -1,19 +1,52 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { db, auth } from "../../firebase";
+import { collection, getDocs } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import "./MetricsChart.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-function MetricsChart({ tasks }) {
+const MetricsChart = () => {
+  const [tasks, setTasks] = useState([]);
+  const [user, setUser] = useState(null); // Track authentication state
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        fetchTasks(currentUser.uid);
+      } else {
+        setTasks([]); // Clear tasks if user logs out
+      }
+    });
+
+    return () => unsubscribe();
+  }, [])
+
+  // Fetch tasks from Firestore
+  const fetchTasks = async (uid) => {
+    try {
+      const querySnapshot = await getDocs(collection(db, `users/${uid}/tasks`));
+      const tasksData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTasks(tasksData);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
   // Prepare chart data
   const taskStats = {
     labels: ["In Progress", "Completed"],
     datasets: [
       {
         data: [
-          tasks.filter((task) => task.status === "In Progress").length,
-          tasks.filter((task) => task.status === "Done").length
+          tasks.filter((task) => task.completed === false).length,
+          tasks.filter((task) => task.completed === true).length
         ],
         backgroundColor: [
           getComputedStyle(document.documentElement).getPropertyValue('--in-progress-color').trim(),
@@ -53,9 +86,10 @@ function MetricsChart({ tasks }) {
 
   return (
     <div className="chartContainer">
+      <p>Total Tasks</p>
       <Doughnut data={taskStats} options={chartOptions} />
     </div>
   );
-}
+};
 
 export default MetricsChart;

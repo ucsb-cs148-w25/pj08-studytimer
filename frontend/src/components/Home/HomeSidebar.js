@@ -4,12 +4,16 @@ import MetricsChart from "../ToDo/MetricsChart.js";
 import TaskCalendarChart from "../ToDo/TaskCalendarChart.js";
 
 
-const Sidebar = () => {
+const HomeSidebar = () => {
    return (
-     <div className="sidebar">
-       <h2>Metrics</h2>
-       <TaskCalendarChart />
+     <div className="homesidebar">
+        <h1>Metrics</h1>
+       <div>
+            <TaskCalendarChart />
+       </div>
+       <div>
+        <MetricsChart/></div>
      </div>
    );
  };
-  export default Sidebar;
+  export default HomeSidebar;
