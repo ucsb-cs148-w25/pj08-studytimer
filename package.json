@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "@fullcalendar/list": "^6.1.15",
+    "@fullcalendar/react": "^6.1.15",
+    "@fullcalendar/timegrid": "^6.1.15",
+    "axios": "^1.7.9",
     "firebase": "^11.2.0"
   }
 }

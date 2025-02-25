@@ -7,6 +7,7 @@ import TaskPage from './components/ToDo/TaskPage';
 import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
+import PrivateRoute from './privateRoute';
 import './App.css'; // Import external styles
 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -364,13 +365,35 @@ const App = () => {
           />
 
           {/* Other routes */}
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/calendar" element={<CalendarPage />} />
-          <Route 
-            path="/taskpage" 
-            element={<TaskPage uid={user ? user.uid : null}/>} />
+          <Route path="/profile" 
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              } 
+          />
+          <Route path="/calendar" 
+              element={
+                <PrivateRoute>
+                  <CalendarPage />
+                </PrivateRoute>
+              }
+          />
+          <Route path="/taskpage" 
+              element={
+                <PrivateRoute>
+                  <TaskPage uid={user ? user.uid : null} />
+                </PrivateRoute>
+              } 
+          />
           <Route path="/about" element={<About />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" 
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              } 
+          />
         </Routes>
       </div>
     </Router>

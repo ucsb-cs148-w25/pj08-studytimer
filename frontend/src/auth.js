@@ -1,55 +1,70 @@
-import { signInWithPopup, signOut } from "firebase/auth";
+import { signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
 import { auth, provider } from "./firebase";
 
-const BACKEND_URL =
+provider.addScope("https://www.googleapis.com/auth/calendar");
+
+export const BACKEND_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:8080"
     : "https://pj08-studytimer.onrender.com";
 
 export const loginWithGoogle = async (setUser) => {
   try {
-    console.log("Logging in...");
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
+
+    // Retrieve Firebase ID token and Google access token.
+    const firebaseIdToken = await user.getIdToken();
+    const credential = GoogleAuthProvider.credentialFromResult(result);
+    const googleAccessToken = credential?.accessToken;
+    if (!googleAccessToken) {
+      throw new Error("No Google access token received");
+    }
 
     const loggedInUser = {
       name: user.displayName,
       email: user.email,
+      firebaseIdToken,  
+      googleAccessToken 
     };
 
     localStorage.setItem("user", JSON.stringify(loggedInUser));
+    localStorage.setItem("token", firebaseIdToken); 
+    localStorage.setItem("googleToken", googleAccessToken);
+
     setUser(loggedInUser);
 
-    const idToken = await user.getIdToken();
-    localStorage.setItem("token", idToken);
-
-    // Send the ID token to the backend
-    const response = await fetch(`${BACKEND_URL}/api/auth/google`, {
+    const authResponse = await fetch(`${BACKEND_URL}/api/auth/google`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${idToken}`,
+        Authorization: `Bearer ${firebaseIdToken}`,
       },
     });
 
-    if (!response.ok) {
-      throw new Error(`Backend error: ${response.statusText}`);
+    if (!authResponse.ok) {
+      const errorDetails = await authResponse.text();
+      console.error("Backend auth error details:", errorDetails);
+      throw new Error(`Backend error: ${authResponse.statusText}`);
     }
 
-    const data = await response.json();
-    console.log("Backend Response:", data);
+    await authResponse.json();
   } catch (error) {
-    console.error("Login failed:", error);
+    console.error("Login with Google failed:", error);
+    throw error;
   }
 };
 
 export const logoutUser = (setUser) => {
-  console.log("Logging out...");
   signOut(auth)
     .then(() => {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      localStorage.removeItem("googleToken");
       setUser(null);
     })
-    .catch((error) => console.error("Logout failed", error));
+    .catch((error) => {
+      console.error("Logout failed:", error);
+      throw error;
+    });
 };

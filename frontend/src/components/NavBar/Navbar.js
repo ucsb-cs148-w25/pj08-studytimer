@@ -35,23 +35,29 @@ function Navbar() {
         </Link>
 
         <ul id="navbar" className={`desktop-navbar ${isMenuOpen ? "mobile" : ""}`}>
-          <li><Link to="/calendar">Calendar</Link></li>
-          <li><Link to="/task_manager">To-Do</Link></li>
-          <li><Link to="/taskpage">Tasks</Link></li>
-          <li><Link to="/settings">Settings</Link></li>
+          {user && (
+            <>
+              <li><Link to="/calendar">Calendar</Link></li>
+              <li><Link to="/taskpage">Tasks</Link></li>
+              <li><Link to="/settings">Settings</Link></li>
+            </>
+          )}
         </ul>
       </div>
 
       <div className="nav-right">
         {user ? (
           <div className="user-info">
-            <span className="user-name">Hello, {user.name.split(" ")[0]}!</span>
-            <button onClick={() => logoutUser()} className="logout-btn">
+            {/* Wrap greeting in a Link to profile page */}
+            <Link to="/profile" className="profile-link">
+              <span className="user-name">Hello, {user.name.split(" ")[0]}!</span>
+            </Link>
+            <button onClick={() => logoutUser(setUser)} className="logout-btn">
               Sign Out
             </button>
           </div>
         ) : (
-          <button onClick={loginWithGoogle} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
+          <button onClick={() => loginWithGoogle(setUser)} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
             Sign In
           </button>
         )}
