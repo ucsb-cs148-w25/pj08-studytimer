@@ -46,7 +46,7 @@ const TasksCalendarChart = () => {
   const tasksPerDay = new Array(7).fill(0); 
 
   // **Filter only tasks that are not completed**
-  const pendingTasks = tasks.filter((task) => task.status !== "Done");
+  const pendingTasks = tasks.filter((task) => task.completed !== true);
 
   // Count pending tasks for each day of the current week
   pendingTasks.forEach((task) => {
