@@ -1,0 +1,93 @@
+.task-card {
+  background-color: #f5f5f5;
+  padding: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+  margin-top: 4px;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  border: 2px solid #c5c5c5;
+}
+
+.task-title {
+  font-size: 18px;
+  font-weight: 200rem;
+  margin-bottom: 8px;
+}
+
+.task-milestone {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.task-checkbox {
+  margin-right: 8px;
+}
+
+.milestone-text {
+  font-size: 14px;
+  font-weight: normal;
+  color: #222;
+}
+
+.move-btn {
+  border-radius: 50%;
+  border: 2px solid #000;
+  cursor: pointer;
+  background: none;
+}
+
+.move-btn:nth-child(1) { 
+  width: 4px;
+  height: 16px;
+  background: #ffb4bc; 
+  border-radius: 50%;
+  border: 2px solid #c62828;
+} 
+
+.move-btn:nth-child(2) {
+  width: 6px;
+  height: 16px; 
+  background: #f9f09e; 
+  border-radius: 50%;
+  border: 2px solid #dfbb28;
+}
+.move-btn:nth-child(3) { 
+  width: 6px;
+  height: 16px;
+  background: #8edf90; 
+  border-radius: 50%;
+  border: 2px solid #2e7d32;
+} 
+
+.task-options {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 5px;
+}
+
+
+.move-btn.disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 12px;
+}
+
+.task-date {
+  color: #666;
+  font-weight: bold;
+}

@@ -3,12 +3,14 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/NavBar/Navbar';
 import Profile from './components/Profile/Profile';
 import CalendarPage from './components/Calendar/CalendarPage';
-import TaskManager from './components/ToDo/TaskManager';
+import TaskPage from './components/ToDo/TaskPage';
 import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
 import PrivateRoute from './privateRoute';
 import './App.css'; // Import external styles
+
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 // Example sound effect
 const freezeSound = new Audio('/sounds/freeze.mp3');
@@ -41,6 +43,16 @@ const App = () => {
   // Modal state
   // ------------------------------------------------------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user);
+      });
+      return () => unsubscribe();
+  }, []);
 
   // ------------------------------------------------------------------
   // Break thresholds: The time-left values at which a break occurs
@@ -367,10 +379,10 @@ const App = () => {
                 </PrivateRoute>
               }
           />
-          <Route path="/task_manager" 
+          <Route path="/taskpage" 
               element={
                 <PrivateRoute>
-                  <TaskManager />
+                  <TaskPage uid={user ? user.uid : null} />
                 </PrivateRoute>
               } 
           />
