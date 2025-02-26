@@ -116,6 +116,11 @@ const App = () => {
     }
   }, [auth.currentUser, db]);
 
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", storedTheme);
+  }, []);
+
   // ------------------------------------------------------------------
   // Break thresholds: The time-left values at which a break occurs
   // ------------------------------------------------------------------
