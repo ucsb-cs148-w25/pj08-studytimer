@@ -1,22 +1,211 @@
+/* Reset default margins/padding and prevent horizontal scrolling */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Apply box-sizing to all elements */
+* {
+  box-sizing: inherit;
+}
+
+/* Custom Properties */
+:root {
+  --primary-color: #333;
+  --secondary-color: gray;
+  --light-bg: #f9f9f9;
+  --white-bg: #ffffff;
+  --blue: #007bff;
+  --dark-blue: #0056b3;
+  --red: #dc3545;
+  --dark-red: #a71d2a;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --border-radius: 10px;
+  --gap-size: 20px;
+  --padding: 15px;
+}
+
+/* Profile Container */
 .profile {
-    display: flex;
-    flex-direction: column;
-    align-items: above;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: var(--secondary-background);
-    color: var(--text);
-    font-size: 2rem;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  width: 100%;
+  padding: 20px;
 }
 
-.profile h1 {
-    margin-bottom: 10px;
+/* User Info Section */
+.profile__user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  width: 100%;
+  max-width: 1200px;
 }
 
-.profile p {
-    font-size: 1.3rem;
-    opacity: 0.8;
+.profile__picture {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.profile__user-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: var(--primary-color);
+}
+
+/* Content Section for Stats & Achievements */
+.profile__content {
+  display: flex;
+  flex-direction: row;
+  gap: 200px;
+  margin-top: var(--gap-size);
+  width: 100%;
+  max-width: 1200px;
+}
+
+
+/* Stats Box */
+.stats {
+  flex: 1;
+  background: var(--light-bg);
+  padding: var(--padding);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Scrollable Stats Container */
+.stats__container {
+  flex-grow: 1;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Achievements Box */
+.achievements {
+  flex: 2;
+  background: var(--white-bg);
+  padding: var(--padding);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Scrollable Achievements Container */
+.achievements__container {
+  flex-grow: 1;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Achievements List - Grid Layout */
+.achievements__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--gap-size);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Achievement Item */
+.achievements__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: var(--border-radius);
+  transition: opacity 0.3s;
+  text-align: left;
+}
+
+.achievements__item--locked {
+  opacity: 0.5;
+}
+
+.achievements__item--unlocked {
+  opacity: 1;
+}
+
+/* Achievement Icon */
+.achievements__icon {
+  width: 50px;
+  height: 50px;
+}
+
+/* Achievement Text */
+.achievement__text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.achievement__name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.achievement__description {
+  font-size: 14px;
+  color: var(--secondary-color);
+}
+
+/* Reset Buttons */
+.button-reset {
+  padding: 10px 15px;
+  font-size: 16px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.stats .button-reset--stats {
+  margin-top: auto;
+}
+
+
+.button-reset--stats {
+  background-color: var(--blue);
+}
+
+.button-reset--stats:hover {
+  background-color: var(--dark-blue);
+}
+
+.button-reset--achievements {
+  background-color: var(--red);
+}
+
+.button-reset--achievements:hover {
+  background-color: var(--dark-red);
+}
+
+/* Sidebar (if still needed) */
+.profile__sidebar {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: var(--gap-size);
 }
