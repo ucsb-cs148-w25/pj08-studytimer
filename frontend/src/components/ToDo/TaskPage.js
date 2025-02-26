@@ -5,16 +5,16 @@ import TaskList from "./TaskList";
 import "./TaskPage.css";
 
 const TaskPage = ({ uid }) => {
-  const [selectedTaskView, setSelectedTaskView] = useState(null);
+  const [selectedView, setSelectedTaskView] = useState(null);
 
   return (
     <div className="task-page">
-      <TaskNav setSelectedTaskView={setSelectedTaskView} />
+      <TaskNav uid={uid} setSelectedTaskView={setSelectedTaskView} />
 
       <div className="task-content">
-        {selectedTaskView?.type === "board" && <TaskBoard />}
-        {selectedTaskView?.type === "list" && uid && (
-            <TaskList uid={uid} selectedTaskView={selectedTaskView} />
+        {selectedView?.type === "board" && <TaskBoard />}
+        {selectedView?.type === "list" && uid && (
+            <TaskList uid={uid} selectedView={selectedView} />
         )}
       </div>
     </div>

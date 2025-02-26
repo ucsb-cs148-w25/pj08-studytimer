@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./TaskNav.css";
 
-const TaskNav = ({ setSelectedTaskView }) => {
-  const [boards, setBoards] = useState([]);
+import { db } from "../../firebase";
+import { doc, setDoc, getDocs, updateDoc, deleteDoc, collection, writeBatch } from "firebase/firestore";
+
+const TaskNav = ({ uid, setSelectedTaskView }) => {
+  // const [boards, setBoards] = useState([]);
   const [lists, setLists] = useState([]);
   const [deletedItems, setDeletedItems] = useState([]); 
   const [deletedExpanded, setDeletedExpanded] = useState(true);
@@ -16,62 +19,108 @@ const TaskNav = ({ setSelectedTaskView }) => {
   //   setBoards((prev) => [...prev, newBoard]);
   // };
 
-  const createNewList = () => {
-    const newList = {
-      id: Date.now().toString(),
-      title: "Untitled List",
-      isEditing: false,
+  const updateListDoc = async (listId, data) => {
+    console.log("Updating list", listId, data)
+    try {
+      const listDocRef = doc(db, `users/${uid}/lists`, listId.toString());
+      await updateDoc(listDocRef, data);
+    } catch (error ) {
+      console.error("Error updating list document: ", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!uid) {
+      console.error("User not signed in, cannot load lists");
+      return;
+    }
+    const loadLists = async () => {
+      try {
+        const listSnapshot = await getDocs(collection(db, `users/${uid}/lists`));
+        const listData = listSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setLists(listData);
+      }
+      catch (error) {
+        console.error("Error loading lists: ", error);
+      }
     };
-    setLists((prev) => [...prev, newList]);
+    loadLists();
+  }, [uid]);
+
+  const createNewList = async() => {
+    if (!uid) { 
+      console.error("User ID not found while creating new list");
+      return;
+    }
+    const customID = Date.now().toString();
+    const newList = {
+      title: "",
+      isEditing: true,
+    };
+    try {
+      const listDocRef = doc(db, `users/${uid}/lists`, customID);
+      await setDoc(listDocRef, newList);
+      setLists((prev) => [...prev, { id: customID, ...newList }]);
+    }
+    catch (error) {
+      console.error("Error creating new list: ", error);
+    }
   };
 
   const handleDoubleClick = (id, type) => {
-    if (type === "board") {
-      setBoards((prev) =>
-        prev.map((board) =>
-          board.id === id ? { ...board, isEditing: true } : board
-        )
-      );
-    } else {
+    // if (type === "board") {
+    //   setBoards((prev) =>
+    //     prev.map((board) =>
+    //       board.id === id ? { ...board, isEditing: true } : board
+    //     )
+    //   );
+    // } else {
       setLists((prev) =>
         prev.map((list) =>
           list.id === id ? { ...list, isEditing: true } : list
         )
       );
-    }
+    // }
   };
 
   const handleTitleChange = (e, id, type) => {
     const newTitle = e.target.value;
-    if (type === "board") {
-      setBoards((prev) =>
-        prev.map((board) =>
-          board.id === id ? { ...board, title: newTitle } : board
-        )
-      );
-    } else {
+    // if (type === "board") {
+    //   setBoards((prev) =>
+    //     prev.map((board) =>
+    //       board.id === id ? { ...board, title: newTitle } : board
+    //     )
+    //   );
+    // } else {
       setLists((prev) =>
         prev.map((list) =>
           list.id === id ? { ...list, title: newTitle } : list
         )
       );
-    }
+    // }
   };
 
   const handleBlur = (id, type) => {
-    if (type === "board") {
-      setBoards((prev) =>
-        prev.map((board) =>
-          board.id === id ? { ...board, isEditing: false } : board
-        )
-      );
-    } else {
-      setLists((prev) =>
-        prev.map((list) =>
+    // if (type === "board") {
+    //   setBoards((prev) =>
+    //     prev.map((board) =>
+    //       board.id === id ? { ...board, isEditing: false } : board
+    //     )
+    //   );
+    // } else {
+      setLists((prev) => {
+        const updatedLists = prev.map((list) =>
           list.id === id ? { ...list, isEditing: false } : list
-        )
-      );
-    }
+        );
+
+        const updatedList = updatedLists.find((list) => list.id === id);
+        if (updatedList) {
+          updateListDoc(id.toString(), { title: updatedList.title, isEditing: false });
+        }
+        console.log("Updated lists: ", updatedLists, updatedList.title);
+        return updatedLists;
+      });
+    // }
   };
 
   const handleSelect = (id, type, title) => {
@@ -84,27 +133,53 @@ const TaskNav = ({ setSelectedTaskView }) => {
     }
   };
 
-  const handleDelete = (id, type) => {
-    if (type === "board") {
-      const boardToDelete = boards.find((board) => board.id === id);
-      if (boardToDelete) {
-        setBoards(boards.filter((board) => board.id !== id));
-        setDeletedItems((prev) =>
-          prev.some((item) => item.id === id && item.type === "board")
-            ? prev
-            : [...prev, { ...boardToDelete, type: "board" }]
-        );
-      }
-    } else {
-      const listToDelete = lists.find((list) => list.id === id);
-      if (listToDelete) {
-        setLists(lists.filter((list) => list.id !== id));
-        setDeletedItems((prev) =>
-          prev.some((item) => item.id === id && item.type === "list")
-            ? prev
-            : [...prev, { ...listToDelete, type: "list" }]
-        );
-      }
+  const handleDelete = async (id) => { // there was a delete here!
+    // if (type === "board") {
+    //   const boardToDelete = boards.find((board) => board.id === id);
+    //   if (boardToDelete) {
+    //     setBoards(boards.filter((board) => board.id !== id));
+    //     setDeletedItems((prev) =>
+    //       prev.some((item) => item.id === id && item.type === "board")
+    //        ? prev
+    //         : [...prev, { ...boardToDelete, type: "board" }]
+    //     );
+    //   }
+    // }
+    if (!uid) {
+      console.error("User not signed in, cannot delete list");
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, `users/${uid}/lists`, id.toString()));
+      const batch = writeBatch(db);
+
+      const taskQuery = await getDocs(collection(db, `users/${uid}/lists{${id.toString()}}/tasks`));
+      const taskSnapshot = taskQuery.docs;
+      taskSnapshot.forEach((taskSnap) => {
+        batch.delete(doc(db, `users/${uid}/lists{${id.toString()}}/tasks`, taskSnap.id.toString()));
+      })
+
+      const labelQuery = await getDocs(collection(db, `users/${uid}/lists{${id.toString()}}/labels`));
+      const labelSnapshot = labelQuery.docs;
+      labelSnapshot.forEach((labelSnap) => {
+        batch.delete(doc(db, `users/${uid}/lists{${id.toString()}}/labels`, labelSnap.id.toString()));
+      });
+
+      await batch.commit();
+      setLists((prev) => prev.filter((list) => list.id.toString() !== id.toString()));
+    }
+    catch (error) {
+      console.error("Error deleting list: ", error);
+    }
+
+    const listToDelete = lists.find((list) => list.id === id);
+    if (listToDelete) {
+      setLists(lists.filter((list) => list.id !== id));
+      setDeletedItems((prev) =>
+        prev.some((item) => item.id === id && item.type === "list")
+          ? prev
+          : [...prev, { ...listToDelete, type: "list" }]
+      );
     }
   };
 
@@ -182,13 +257,13 @@ const TaskNav = ({ setSelectedTaskView }) => {
                   onKeyDown={(e) => handleKeyDown(e, list.id, "list")}
                 />
               ) : (
-                <span>{list.title}</span>
+                <span>{list.title || "Untitled List"}</span>
               )}
               <button
                 className="trash-button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDelete(list.id, "list");
+                  handleDelete(list.id);
                 }}
               >
                 <img src="/trash.svg" alt="Delete List" />
