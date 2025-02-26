@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/NavBar/Navbar';
-import HomeSidebar from './components/Home/HomeSidebar';
 import Profile from './components/Profile/Profile';
 import CalendarPage from './components/Calendar/CalendarPage';
 import TaskPage from './components/ToDo/TaskPage';
@@ -9,9 +8,12 @@ import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import SettingsModal from './components/Home/SettingsModal';
 import PrivateRoute from './privateRoute';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
+import unlockAchievement from "./components/Profile/unlockAchievement";
+import initializeAchievements from "./utils/initializeAchievements";
+import initializeStats from "./utils/initializeStats";
 import './App.css'; // Import external styles
-
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 // Example sound effect
 const freezeSound = new Audio('/sounds/freeze.mp3');
@@ -46,28 +48,88 @@ const App = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const [user, setUser] = useState(null);
+  const auth = getAuth();
+  const db = getFirestore();
 
   useEffect(() => {
-    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-        setUser(user);
-      });
-      return () => unsubscribe();
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, [auth]);
+
+  // ------------------------------------------------------------------
+  // Update Firestore stats function
+  // ------------------------------------------------------------------
+  // Parameters:
+  //   studyTimeIncrement: seconds of study time to add
+  //   breaksTaken: number of breaks to add (e.g. 1 per break event)
+  //   sessionCompleted: if true, also increments studySessions,
+  //                     updates longestSession, and sets lastSessionDate
+  const updateUserStats = useCallback(async (studyTimeIncrement, breaksTaken = 0, sessionCompleted = false) => {
+    if (!auth.currentUser) return;
+    const userId = auth.currentUser.uid;
+    const statsRef = doc(db, `users/${userId}`);
+  
+    try {
+      const statsSnap = await getDoc(statsRef);
+      let currentStats = {
+        totalStudyTime: 0,
+        totalBreaksTaken: 0,
+        studySessions: 0,
+        longestSession: 0,
+        lastSessionDate: '',
+      };
+  
+      if (statsSnap.exists() && statsSnap.data().stats) {
+        currentStats = statsSnap.data().stats;
+      }
+  
+      const newTotalStudyTime = currentStats.totalStudyTime + studyTimeIncrement;
+      const newTotalBreaksTaken = currentStats.totalBreaksTaken + breaksTaken;
+      const newStudySessions = sessionCompleted ? currentStats.studySessions + 1 : currentStats.studySessions;
+      const newLongestSession = sessionCompleted ? Math.max(currentStats.longestSession, studyTimeIncrement) : currentStats.longestSession;
+      const newLastSessionDate = sessionCompleted ? new Date().toISOString() : currentStats.lastSessionDate;
+  
+      const newStats = {
+        totalStudyTime: newTotalStudyTime,
+        totalBreaksTaken: newTotalBreaksTaken,
+        studySessions: newStudySessions,
+        longestSession: newLongestSession,
+        lastSessionDate: newLastSessionDate,
+      };
+  
+      await updateDoc(statsRef, { stats: newStats });
+  
+      // Unlock Achievements
+      const achievementsToCheck = [
+        "first_timer", "study_5_sessions", "study_10_sessions", "study_20_sessions",
+        "study_1_hour", "study_5_hours", "study_10_hours", "break_10_taken",
+        "break_25_taken", "longest_30_min", "longest_1_hour", "consistency_week"
+      ];
+      for (const achievementId of achievementsToCheck) {
+        await unlockAchievement(achievementId);
+      }
+  
+    } catch (error) {
+      console.error("Error updating stats:", error);
+    }
+  }, [auth.currentUser, db]);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", storedTheme);
   }, []);
 
   // ------------------------------------------------------------------
   // Break thresholds: The time-left values at which a break occurs
-  // For numBreaks = 3 and totalTime = 1800s, intervals of 600s:
-  // => breaks happen when studyTimeLeft hits 1200, then 600, then 0.
-  // We'll generate them in descending order for convenience.
   // ------------------------------------------------------------------
   const breakPoints = useCallback(() => {
     if (numBreaks <= 0) return [];
     const interval = totalTime / numBreaks; // e.g., 1800 / 3 = 600
     const points = [];
     for (let i = 1; i <= numBreaks; i++) {
-      points.push(Math.floor(totalTime - i * interval)); 
-      // e.g. i=1 => 1200, i=2 => 600, i=3 => 0
+      points.push(Math.floor(totalTime - i * interval));
     }
     return points;
   }, [totalTime, numBreaks]);
@@ -79,15 +141,20 @@ const App = () => {
     setIsRunning(false);
     setSessionComplete(true);
     setStudyTimeLeft(0);
-    alert('Session complete!');
-  }, []);
+
+    // Update stats for completed session:
+    // - Add the full study time (totalTime)
+    // - Do not add additional break count (they are updated separately)
+    // - Mark session as completed to increment studySessions,
+    //   update longestSession, and lastSessionDate
+    updateUserStats(totalTime, 0, true);
+  }, [totalTime, updateUserStats]);
 
   // ------------------------------------------------------------------
   // Start a break: Pause the main study timer, set breakTimeLeft
   // ------------------------------------------------------------------
   const startBreak = useCallback(() => {
     if (!breakTime) {
-      // If there's no breakTime set, just continue or finish
       return;
     }
     setOnBreak(true);
@@ -104,11 +171,26 @@ const App = () => {
 
     // If we haven't reached the final break, increment breakIndex
     setBreakIndex((prev) => prev + 1);
-  }, []);
+
+    // Record that a break was taken (study time not increased, but 1 break)
+    updateUserStats(0, 1, false);
+  }, [updateUserStats]);
+
+  // ------------------------------------------------------------------
+  // Initialize Achievements and Stats on user login
+  // ------------------------------------------------------------------
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        initializeAchievements();
+        initializeStats();
+      }
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
   // ------------------------------------------------------------------
   // The main "study" timer effect
-  // Runs once per second if isRunning && !onBreak && !sessionComplete
   // ------------------------------------------------------------------
   useEffect(() => {
     if (!isRunning || onBreak || sessionComplete) return;
@@ -116,7 +198,6 @@ const App = () => {
     const timer = setInterval(() => {
       setStudyTimeLeft((prev) => {
         const nextVal = prev - 1;
-        // If the main timer hits 0 => session ends
         if (nextVal <= 0) {
           clearInterval(timer);
           finishSession();
@@ -125,14 +206,10 @@ const App = () => {
 
         // Check if we've hit the next break threshold
         const bPoints = breakPoints();
-        // If we still have breaks to trigger:
         if (breakIndex < bPoints.length) {
-          const nextBreakThreshold = bPoints[breakIndex]; 
-          // e.g. if breakIndex=0 => threshold=1200
-          // If nextVal <= that threshold => time for a break
+          const nextBreakThreshold = bPoints[breakIndex];
           if (nextVal <= nextBreakThreshold) {
             clearInterval(timer);
-            // Start the break
             startBreak();
             return nextVal;
           }
@@ -155,7 +232,6 @@ const App = () => {
 
   // ------------------------------------------------------------------
   // The break timer effect
-  // Runs once per second if onBreak && isRunning
   // ------------------------------------------------------------------
   useEffect(() => {
     if (!isRunning || !onBreak || sessionComplete) return;
@@ -165,7 +241,7 @@ const App = () => {
         const nextVal = prev - 1;
         if (nextVal <= 0) {
           clearInterval(timer);
-          // Break ended by countdown
+          // End the break when countdown finishes
           endBreak();
         }
         return nextVal > 0 ? nextVal : 0;
@@ -202,11 +278,9 @@ const App = () => {
   // ------------------------------------------------------------------
   const handleAddTime = (seconds) => {
     if (!onBreak) {
-      // Adjust study time
       const newVal = studyTimeLeft + seconds;
       setStudyTimeLeft(newVal > 0 ? newVal : 0);
     } else {
-      // Adjust break time
       const newVal = breakTimeLeft + seconds;
       setBreakTimeLeft(newVal > 0 ? newVal : 0);
     }
@@ -219,7 +293,6 @@ const App = () => {
     const hrs = Math.floor(sec / 3600);
     const mins = Math.floor((sec % 3600) / 60);
     const secs = sec % 60;
-
     return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
@@ -236,15 +309,12 @@ const App = () => {
     setBreakTime(newBreakTime);
     setNumBreaks(newNumBreaks);
 
-    // Reset the timers
     setStudyTimeLeft(newTotalTime);
     setBreakTimeLeft(0);
   };
 
   // ------------------------------------------------------------------
   // Which timer do we display?
-  //  - If on break, show breakTimeLeft
-  //  - Otherwise show the main studyTimeLeft
   // ------------------------------------------------------------------
   const displayTime = onBreak ? breakTimeLeft : studyTimeLeft;
 
@@ -255,149 +325,96 @@ const App = () => {
     <Router>
       <div className="app-container">
         <Navbar />
-
         <Routes>
           <Route
             path="/"
             element={
               <>
-              <div className="timer-page">
-                {/* Icy overlay if on break */}
-                <div className={`icy-overlay ${onBreak ? 'visible' : ''}`}>
-                  <div className="icy-text">Take a Break ❄️</div>
-                </div>
-
-                {/* Timer display */}
-                <div className="timer-display">
-                  {sessionComplete
-                    ? "Session Complete!"
-                    : formatTime(displayTime)}
-                </div>
-
-                {/* Info about how many breaks remain */}
-                {!sessionComplete && (
-                  <div className="segment-info">
-                    {onBreak
-                      ? `Break ${breakIndex + 1} of ${numBreaks}`
-                      : `Study Time (breaks used: ${breakIndex}/${numBreaks})`
-                    }
+                <div className="timer-page">
+                  <div className={`icy-overlay ${onBreak ? 'visible' : ''}`}>
+                    <div className="icy-text">Take a Break ❄️</div>
                   </div>
-                )}
-
-                {/* Quick-add time buttons */}
-                <div className="time-adjust-buttons">
-                  <button
-                    className="adjust-button"
-                    onClick={() => handleAddTime(60)}
-                  >
-                    +1 min
-                  </button>
-                  <button
-                    className="adjust-button"
-                    onClick={() => handleAddTime(180)}
-                  >
-                    +3 min
-                  </button>
-                  <button
-                    className="adjust-button"
-                    onClick={() => handleAddTime(300)}
-                  >
-                    +5 min
-                  </button>
-                </div>
-
-                {/* Timer controls */}
-                <div className="timer-controls">
-                  {/* Start/Pause */}
-                  <button
-                    className="primary-button"
-                    onClick={() => {
-                      if (sessionComplete) {
-                        // If session is over, this restarts
-                        resetTimer();
-                      } else {
-                        setIsRunning(!isRunning);
-                      }
-                    }}
-                  >
+                  <div className="timer-display">
                     {sessionComplete
-                      ? "Restart"
-                      : isRunning
-                      ? "Pause"
-                      : "Start"
-                    }
-                  </button>
-
-                  {/* Reset */}
-                  <button className="reset-button" onClick={resetTimer}>
-                    Reset
-                  </button>
-
-                  {/* Skip Break only if on break */}
-                  {onBreak && (
-                    <button className="skip-break-button" onClick={skipBreak}>
-                      Skip Break
-                    </button>
+                      ? "Session Complete!"
+                      : formatTime(displayTime)}
+                  </div>
+                  {!sessionComplete && (
+                    <div className="segment-info">
+                      {onBreak
+                        ? `Break ${breakIndex + 1} of ${numBreaks}`
+                        : `Study Time (breaks used: ${breakIndex}/${numBreaks})`}
+                    </div>
                   )}
-
-                  {/* Settings modal */}
-                  <button
-                    className="settings-button"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <img
-                      src="/settingsGear.svg"
-                      alt="Settings"
-                      className="settings-icon"
-                    />
-                  </button>
+                  <div className="time-adjust-buttons">
+                    <button className="adjust-button" onClick={() => handleAddTime(60)}>
+                      +1 min
+                    </button>
+                    <button className="adjust-button" onClick={() => handleAddTime(180)}>
+                      +3 min
+                    </button>
+                    <button className="adjust-button" onClick={() => handleAddTime(300)}>
+                      +5 min
+                    </button>
+                  </div>
+                  <div className="timer-controls">
+                    <button
+                      className="primary-button"
+                      onClick={() => {
+                        if (sessionComplete) {
+                          resetTimer();
+                        } else {
+                          setIsRunning(!isRunning);
+                        }
+                      }}
+                    >
+                      {sessionComplete ? "Restart" : isRunning ? "Pause" : "Start"}
+                    </button>
+                    <button className="reset-button" onClick={resetTimer}>
+                      Reset
+                    </button>
+                    {onBreak && (
+                      <button className="skip-break-button" onClick={skipBreak}>
+                        Skip Break
+                      </button>
+                    )}
+                    <button className="settings-button" onClick={() => setIsModalOpen(true)}>
+                      <img src="/settingsGear.svg" alt="Settings" className="settings-icon" />
+                    </button>
+                  </div>
+                  <SettingsModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    totalTime={totalTime}
+                    breakTime={breakTime}
+                    numBreaks={numBreaks}
+                    handleSettingsChange={handleSettingsChange}
+                  />
                 </div>
-
-                {/* Settings Modal */}
-                <SettingsModal
-                  isOpen={isModalOpen}
-                  onClose={() => setIsModalOpen(false)}
-                  totalTime={totalTime}
-                  breakTime={breakTime}
-                  numBreaks={numBreaks}
-                  handleSettingsChange={handleSettingsChange}
-                />
-              </div>
-              <HomeSidebar />
               </>
             }
           />
-
-          {/* Other routes */}
-          <Route path="/profile" 
-              element={
-                <PrivateRoute>
-                  <Profile />
-                </PrivateRoute>
-              } 
-          />
-          <Route path="/calendar" 
-              element={
-                <PrivateRoute>
-                  <CalendarPage />
-                </PrivateRoute>
-              }
-          />
-          <Route path="/taskpage" 
-              element={
-                <PrivateRoute>
-                  <TaskPage uid={user ? user.uid : null} />
-                </PrivateRoute>
-              } 
-          />
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          } />
+          <Route path="/calendar" element={
+            <PrivateRoute>
+              <CalendarPage />
+            </PrivateRoute>
+          } />
+          <Route path="/taskpage" element={
+            <PrivateRoute>
+              <TaskPage uid={user ? user.uid : null} />
+            </PrivateRoute>
+          } />
           <Route path="/about" element={<About />} />
-          <Route path="/settings" 
-              element={
-                <PrivateRoute>
-                  <Settings />
-                </PrivateRoute>
-              } 
-          />
+          <Route path="/settings" element={
+            <PrivateRoute>
+              <Settings />
+            </PrivateRoute>
+          } />
         </Routes>
       </div>
     </Router>
