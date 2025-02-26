@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, doc, getDoc, collection, getDocs } from "firebase/firestore";
-import initializeAchievements from "../../utils/initializeAchievements";
-import initializeStats from "../../utils/initializeStats";
+import { getFirestore, doc, collection, onSnapshot } from "firebase/firestore";
 import resetAchievements from "../../utils/resetAchievements";
 import resetStats from "../../utils/resetStats";
+import HomeSidebar from "../Home/HomeSidebar";
 import "./Profile.css";
 
 const achievementDescriptions = {
-  "first_timer": "Start the timer for the first time.",
-  "study_5_sessions": "Complete 5 study sessions.",
-  "study_10_sessions": "Complete 10 study sessions.",
-  "study_20_sessions": "Complete 20 study sessions.",
-  "study_1_hour": "Accumulate 1 hour of total study time.",
-  "study_5_hours": "Accumulate 5 hours of total study time.",
-  "study_10_hours": "Accumulate 10 hours of total study time.",
-  "break_10_taken": "Take 10 breaks during study sessions.",
-  "break_25_taken": "Take 25 breaks during study sessions.",
-  "longest_30_min": "Study for 30 minutes in a single session.",
-  "longest_1_hour": "Study for 1 hour in a single session.",
-  "consistency_week": "Study at least once per day for a week."
+  first_timer: "Start the timer for the first time.",
+  study_5_sessions: "Complete 5 study sessions.",
+  study_10_sessions: "Complete 10 study sessions.",
+  study_20_sessions: "Complete 20 study sessions.",
+  study_1_hour: "Accumulate 1 hour of total study time.",
+  study_5_hours: "Accumulate 5 hours of total study time.",
+  study_10_hours: "Accumulate 10 hours of total study time.",
+  break_10_taken: "Take 10 breaks during study sessions.",
+  break_25_taken: "Take 25 breaks during study sessions.",
+  longest_30_min: "Study for 30 minutes in a single session.",
+  longest_1_hour: "Study for 1 hour in a single session.",
+  consistency_week: "Study at least once per day for a week."
 };
 
 function Profile() {
@@ -37,42 +36,46 @@ function Profile() {
   useEffect(() => {
     const auth = getAuth();
     const db = getFirestore();
-
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+  
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserName(user.displayName || "User");
         setUserPhoto(user.photoURL || "/default-profile.png");
-
-        initializeAchievements();
-        await initializeStats();
-
-        // Fetch user stats
+  
+        // Listen to real-time changes in stats
         const statsRef = doc(db, `users/${user.uid}`);
-        const statsSnap = await getDoc(statsRef);
-
-        if (statsSnap.exists() && statsSnap.data().stats) {
-          setUserStats(statsSnap.data().stats);
-        }
-
-        // Fetch achievements
+        const unsubscribeStats = onSnapshot(statsRef, (docSnap) => {
+          if (docSnap.exists() && docSnap.data().stats) {
+            setUserStats(docSnap.data().stats);
+          }
+        });
+  
+        // Listen to real-time changes in achievements
         const achievementsRef = collection(db, `users/${user.uid}/achievements`);
-        const achievementsSnap = await getDocs(achievementsRef);
-
-        if (!achievementsSnap.empty) {
-          const achievementsList = achievementsSnap.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setAchievements(achievementsList);
-        }
+        const unsubscribeAchievements = onSnapshot(achievementsRef, (snapshot) => {
+          if (!snapshot.empty) {
+            const achievementsList = snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setAchievements(achievementsList);
+          }
+        });
+  
+        // Cleanup listeners when component unmounts or user changes
+        return () => {
+          unsubscribeStats();
+          unsubscribeAchievements();
+        };
       } else {
         setUserName("User");
         setUserPhoto("/default-profile.png");
       }
     });
-
-    return () => unsubscribe();
+  
+    return () => unsubscribeAuth();
   }, []);
+  
 
   // Format time (hh:mm:ss)
   const formatTime = (seconds) => {
@@ -84,55 +87,83 @@ function Profile() {
 
   return (
     <div className="profile">
-      {/* User info section */}
-      <div className="user-info">
-        <img 
-          className="profile-picture" 
-          src={userPhoto} 
-          alt="Profile" 
-          referrerPolicy="no-referrer" 
-          onError={(e) => e.target.src = "/default-profile.png"} 
+      {/* User Info Section */}
+      <div className="profile__user-info">
+        <img
+          className="profile__picture"
+          src={userPhoto}
+          alt="Profile"
+          referrerPolicy="no-referrer"
+          onError={(e) => (e.target.src = "/default-profile.png")}
         />
-        <h1 className="user-name">{userName}</h1>
+        <h1 className="profile__user-name">{userName}</h1>
       </div>
 
-      {/* Container for stats & achievements */}
-      <div className="profile-content">
-        {/* Left: User Stats */}
-        <div className="user-stats">
+      {/* Container for Stats & Achievements */}
+      <div className="profile__content">
+        {/* Stats Box */}
+        <div className="stats">
           <h2>User Stats</h2>
-          <div className="user-stats-container">
-            <p><strong>Total Study Time:</strong> {formatTime(userStats.totalStudyTime)}</p>
-            <p><strong>Study Sessions:</strong> {userStats.studySessions}</p>
-            <p><strong>Breaks Taken:</strong> {userStats.totalBreaksTaken}</p>
-            <p><strong>Longest Study Session:</strong> {formatTime(userStats.longestSession)}</p>
-            <p><strong>Last Study Session:</strong> {userStats.lastSessionDate !== "N/A" ? new Date(userStats.lastSessionDate).toLocaleString() : "N/A"}</p>
+          <div className="stats__container">
+            <p>
+              <strong>Total Study Time:</strong> {formatTime(userStats.totalStudyTime)}
+            </p>
+            <p>
+              <strong>Study Sessions:</strong> {userStats.studySessions}
+            </p>
+            <p>
+              <strong>Breaks Taken:</strong> {userStats.totalBreaksTaken}
+            </p>
+            <p>
+              <strong>Longest Study Session:</strong> {formatTime(userStats.longestSession)}
+            </p>
+            <p>
+              <strong>Last Study Session:</strong>{" "}
+              {userStats.lastSessionDate !== "N/A"
+                ? new Date(userStats.lastSessionDate).toLocaleString()
+                : "N/A"}
+            </p>
           </div>
-          <button className="reset-stats-btn" onClick={resetStats}>
+          <button className="button-reset button-reset--stats" onClick={resetStats}>
             Reset Stats
           </button>
         </div>
 
-        {/* Right: Achievements Box */}
-        <div className="achievements-box">
+        {/* Achievements Box */}
+        <div className="achievements">
           <h2>Your Achievements</h2>
-          <div className="achievements-list-container">
-            <ul className="achievements-list">
+          <div className="achievements__container">
+            <ul className="achievements__list">
               {achievements.map((achievement) => (
-                <li key={achievement.id} className={achievement.unlocked ? "unlocked" : "locked"}>
-                  <img src={achievement.icon} alt={achievement.name} />
-                  <div className="achievement-text">
-                    <p>{achievement.name}</p>
-                    <span>{achievementDescriptions[achievement.id] || "Achievement description not available."}</span>
+                <li
+                  key={achievement.id}
+                  className={
+                    achievement.unlocked
+                      ? "achievements__item--unlocked"
+                      : "achievements__item--locked"
+                  }
+                >
+                  <img src={achievement.icon} alt={achievement.name} className="achievements__icon" />
+                  <div className="achievement__text">
+                    <p className="achievement__name">{achievement.name}</p>
+                    <span className="achievement__description">
+                      {achievementDescriptions[achievement.id] ||
+                        "Achievement description not available."}
+                    </span>
                   </div>
                 </li>
               ))}
             </ul>
           </div>
-          <button className="reset-achievements-btn" onClick={resetAchievements}>
+          <button className="button-reset button-reset--achievements" onClick={resetAchievements}>
             Reset Achievements
           </button>
         </div>
+      </div>
+
+      {/* Sidebar Section */}
+      <div className="profile__sidebar">
+        <HomeSidebar />
       </div>
     </div>
   );

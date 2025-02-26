@@ -1,21 +1,52 @@
-/* Profile container */
+/* Reset default margins/padding and prevent horizontal scrolling */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Apply box-sizing to all elements */
+* {
+  box-sizing: inherit;
+}
+
+/* Custom Properties */
+:root {
+  --primary-color: #333;
+  --secondary-color: gray;
+  --light-bg: #f9f9f9;
+  --white-bg: #ffffff;
+  --blue: #007bff;
+  --dark-blue: #0056b3;
+  --red: #dc3545;
+  --dark-red: #a71d2a;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --border-radius: 10px;
+  --gap-size: 20px;
+  --padding: 15px;
+}
+
+/* Profile Container */
 .profile {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: left;
+  width: 100%;
   padding: 20px;
 }
 
-/* User info section */
-.profile .user-info {
+/* User Info Section */
+.profile__user-info {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px;
+  width: 100%;
+  max-width: 1200px;
 }
 
-/* Profile picture */
-.profile .profile-picture {
+.profile__picture {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -23,151 +54,158 @@
   border: 2px solid #ddd;
 }
 
-/* User name styling */
-.profile .user-name {
+.profile__user-name {
   font-size: 24px;
   font-weight: bold;
   margin: 0;
-  color: #333;
+  color: var(--primary-color);
 }
 
-/* Main container to hold stats & achievements side-by-side */
-.profile-content {
+/* Content Section for Stats & Achievements */
+.profile__content {
   display: flex;
+  flex-direction: row;
+  gap: 200px;
+  margin-top: var(--gap-size);
   width: 100%;
-  justify-content: space-between;
-  margin-top: 20px;
+  max-width: 1200px;
 }
 
-/* User Stats Box - Left Side */
-.user-stats {
+
+/* Stats Box */
+.stats {
   flex: 1;
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background: var(--light-bg);
+  padding: var(--padding);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   text-align: left;
-  max-width: 40%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Ensures the button is pushed to the bottom */
-  height: 100%;
+  justify-content: flex-start;
 }
 
-/* Scrollable User Stats */
-.user-stats-container {
+/* Scrollable Stats Container */
+.stats__container {
   flex-grow: 1;
-  max-height: 250px; /* Adjust this to fit your layout */
+  max-height: 250px;
   overflow-y: auto;
-  padding-right: 10px; /* Prevents scrollbar overlap */
+  padding-right: 10px;
 }
 
-
-/* Achievements Box - Right Side */
-.achievements-box {
-  flex: 1;
-  max-width: 50%;
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+/* Achievements Box */
+.achievements {
+  flex: 2;
+  background: var(--white-bg);
+  padding: var(--padding);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Ensures button stays at the bottom */
-  height: 100%;
+  justify-content: flex-start;
 }
 
-/* Achievements List - Scrollable */
-.achievements-list-container {
+/* Scrollable Achievements Container */
+.achievements__container {
   flex-grow: 1;
-  max-height: 300px; /* Adjust to fit your layout */
+  max-height: 500px;
   overflow-y: auto;
-  padding-right: 10px; /* Prevent scrollbar overlap */
+  padding-right: 10px;
 }
 
-/* Achievements List */
-.achievements-list {
-  list-style: none;
+/* Achievements List - Grid Layout */
+.achievements__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--gap-size);
   padding: 0;
   margin: 0;
+  list-style: none;
 }
 
 /* Achievement Item */
-.achievements-list li {
+.achievements__item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 15px;
   margin: 10px 0;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: var(--border-radius);
   transition: opacity 0.3s;
   text-align: left;
 }
 
-/* Locked achievements appear slightly transparent */
-.achievements-list .locked {
+.achievements__item--locked {
   opacity: 0.5;
 }
 
-/* Unlocked achievements appear fully visible */
-.achievements-list .unlocked {
+.achievements__item--unlocked {
   opacity: 1;
 }
 
-/* Achievement Icons */
-.achievements-list img {
+/* Achievement Icon */
+.achievements__icon {
   width: 50px;
   height: 50px;
 }
 
-/* Achievement Text Wrapper */
-.achievement-text {
+/* Achievement Text */
+.achievement__text {
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-/* Achievement Name */
-.achievement-text p {
+.achievement__name {
   margin: 0;
   font-size: 16px;
   font-weight: bold;
 }
 
-/* Achievement Description */
-.achievement-text span {
+.achievement__description {
   font-size: 14px;
-  color: gray;
-}  
-
-/* Reset Buttons - Keep them fixed at the bottom */
-.reset-stats-btn,
-.reset-achievements-btn {
-padding: 10px 15px;
-font-size: 16px;
-color: white;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-transition: background-color 0.3s;
-width: 100%;
-margin-top: 10px; /* Ensure spacing between content */
+  color: var(--secondary-color);
 }
 
-.reset-stats-btn {
-background-color: blue;
+/* Reset Buttons */
+.button-reset {
+  padding: 10px 15px;
+  font-size: 16px;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  margin-top: 10px;
 }
 
-.reset-stats-btn:hover {
-background-color: darkblue;
+.stats .button-reset--stats {
+  margin-top: auto;
 }
 
-.reset-achievements-btn {
-background-color: red;
+
+.button-reset--stats {
+  background-color: var(--blue);
 }
 
-.reset-achievements-btn:hover {
-background-color: darkred;
+.button-reset--stats:hover {
+  background-color: var(--dark-blue);
 }
 
+.button-reset--achievements {
+  background-color: var(--red);
+}
+
+.button-reset--achievements:hover {
+  background-color: var(--dark-red);
+}
+
+/* Sidebar (if still needed) */
+.profile__sidebar {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: var(--gap-size);
+}
