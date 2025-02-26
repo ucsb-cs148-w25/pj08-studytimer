@@ -4,8 +4,7 @@
 
 ## Design Overview
 
-## SW Architecture Design
-
 ## Design Process Documentation
+### SW Architecture Design
 
 ## User Interface and User Experience
