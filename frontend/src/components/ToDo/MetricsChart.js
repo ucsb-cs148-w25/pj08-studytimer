@@ -83,6 +83,10 @@ const MetricsChart = () => {
       }
     }
   };
+  // **Render nothing if user is not signed in**
+  if (!user) {
+    return;
+  }
 
   return (
     <div className="chartContainer">

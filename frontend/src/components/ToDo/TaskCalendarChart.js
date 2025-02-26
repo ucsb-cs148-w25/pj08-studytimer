@@ -85,7 +85,7 @@ const TasksCalendarChart = () => {
 
   // **Render nothing if user is not signed in**
   if (!user) {
-    return <p>Please sign in to view your tasks chart.</p>;
+    return <p>Please sign in to view your task metrics.</p>;
   }
 
   return (
