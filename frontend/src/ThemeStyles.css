@@ -1,4 +1,40 @@
-:root { /* This is dusk! */
+:root {
+    --primary-background: #ffffff;  
+    --secondary-background: #f6f6f6f0;
+    --accent-background: #81b8f2;
+    --secondary-accent-background: #dddddd;  
+    --faint-background: rgba(0, 0, 0, 0.3);
+
+    --text: #121212df;
+    --title-text: #3d83ceef;
+    --description-text: rgba(0, 0, 0, 0.6);
+    --faint-text: rgba(0, 0, 0, 0.4);  
+
+    --hover-change: #609ad8;
+    --hover-faint-change: rgba(0, 0, 0, 0.8);
+
+    --scroll-background: #f6f6f6f0;
+
+    --accent-rgb: 30, 100, 200; 
+
+    --inner-button-text: #f6f6f6f0;  
+
+    --screen-overlay-rgb: 255, 255, 255;  
+    --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2); 
+
+    --in-progress-area: #f9b050;  
+    --done-area: #57b85a;  
+    --hover-in-progress: #f3a239;  
+    --hover-done: #388e3c; 
+
+    --in-progress-button: #f9b050;
+    --done-button: #57b85a;  
+    --edit-button: #81b8f2;  
+    --delete-button: #dc3636; 
+    --cancel-button: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] { /* This is dusk! */
     --primary-background: #121212;
     --secondary-background: #191919;
     --accent-background: #9bc9fa;
@@ -37,42 +73,6 @@
     --edit-button: #9bc9fa;
     --delete-button: #fd4444f7;
     --cancel-button: var(--faint-background);
-}
-
-[data-theme="light"] {
-    --primary-background: #ffffff;  
-    --secondary-background: #f6f6f6f0;
-    --accent-background: #81b8f2;
-    --secondary-accent-background: #dddddd;  
-    --faint-background: rgba(0, 0, 0, 0.3);
-
-    --text: #121212df;
-    --title-text: #3d83ceef;
-    --description-text: rgba(0, 0, 0, 0.6);
-    --faint-text: rgba(0, 0, 0, 0.4);  
-
-    --hover-change: #609ad8;
-    --hover-faint-change: rgba(0, 0, 0, 0.8);
-
-    --scroll-background: #f6f6f6f0;
-
-    --accent-rgb: 30, 100, 200; 
-
-    --inner-button-text: #f6f6f6f0;  
-
-    --screen-overlay-rgb: 255, 255, 255;  
-    --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2); 
-
-    --in-progress-area: #f9b050;  
-    --done-area: #57b85a;  
-    --hover-in-progress: #f3a239;  
-    --hover-done: #388e3c; 
-
-    --in-progress-button: #f9b050;
-    --done-button: #57b85a;  
-    --edit-button: #81b8f2;  
-    --delete-button: #dc3636; 
-    --cancel-button: rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="forest"] {
