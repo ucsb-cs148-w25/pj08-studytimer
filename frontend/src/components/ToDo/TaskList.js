@@ -109,12 +109,24 @@ const TaskList = ({ uid, selectedView }) => {
   const [labelOptionsOpen, setLabelOptionsOpen] = useState(null);
 
   useEffect(() => {
-    if (selectedView?.title) {
-      setListTitle(selectedView.title);
-    } else {
-      setListTitle("Untitled List");
-    }
-  }, [selectedView]);
+    if (!uid || !selectedView?.id) return;
+    const docRef = doc(db, `users/${uid}/lists`, selectedView.id);
+    const unsubscribe = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setListTitle(data.title || "Untitled List");
+        } else {
+          setListTitle("Untitled List");
+        }
+      },
+      (error) => {
+        console.error("Error reading list doc snapshot:", error);
+      }
+    );
+    return () => unsubscribe();
+  }, [uid, selectedView]);
 
   const updateTaskDoc = async (id, data) => {
     if (!uid || !selectedView) {
