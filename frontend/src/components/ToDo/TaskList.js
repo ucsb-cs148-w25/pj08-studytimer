@@ -3,7 +3,7 @@ import TaskToggle from "./TaskLabelToggle";
 import "./TaskList.css";
 
 import { db } from "../../firebase";
-import { query, where, writeBatch, collection, doc, setDoc, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
+import { query, where, writeBatch, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, orderBy } from "firebase/firestore";
 
 function getOrdinalSuffix(day) {
   if (day > 3 && day < 21) return "th";
@@ -98,7 +98,7 @@ const getDeadlineClass = (deadline) => {
   return "";
 };
 
-const TaskList = ({ uid, selectedTaskView }) => {
+const TaskList = ({ uid, selectedView }) => {
   const [listTitle, setListTitle] = useState("");
   const [tasks, setTasks] = useState([]);
   const [labels, setLabels] = useState([]);
@@ -109,17 +109,32 @@ const TaskList = ({ uid, selectedTaskView }) => {
   const [labelOptionsOpen, setLabelOptionsOpen] = useState(null);
 
   useEffect(() => {
-    if (selectedTaskView?.title) {
-      setListTitle(selectedTaskView.title);
-    } else {
-      setListTitle("Untitled List");
-    }
-  }, [selectedTaskView]);
+    if (!uid || !selectedView?.id) return;
+    const docRef = doc(db, `users/${uid}/lists`, selectedView.id);
+    const unsubscribe = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setListTitle(data.title || "Untitled List");
+        } else {
+          setListTitle("Untitled List");
+        }
+      },
+      (error) => {
+        console.error("Error reading list doc snapshot:", error);
+      }
+    );
+    return () => unsubscribe();
+  }, [uid, selectedView]);
 
   const updateTaskDoc = async (id, data) => {
-    console.log("Updating task", id, data);
+    if (!uid || !selectedView) {
+      console.error("Cannot update task, user not signed in or task not selected");
+      return;
+    }
     try {
-      const taskDocRef = doc(db, `users/${uid}/tasks`, id.toString());
+      const taskDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, id.toString());
       await updateDoc(taskDocRef, data);
     }
     catch (error) {
@@ -128,18 +143,22 @@ const TaskList = ({ uid, selectedTaskView }) => {
   };
 
   useEffect(() => {
-    if (!uid) return;
-    const loadTasks = async () => {
-      try {
-        const tasksSnapshot = await getDocs(collection(db, `users/${uid}/tasks`));
-        const tasksData = tasksSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
-        setTasks(tasksData);
-      } catch (error) {
-        console.error("Error loading tasks:", error);
-      }
-    };
-    loadTasks();
-  }, [uid]);
+    if (!uid || !selectedView) return;
+    const tasksRef = collection(
+      db,
+      `users/${uid}/lists/${selectedView.id.toString()}/tasks`
+    );
+    const unsubscribe = onSnapshot(tasksRef, (snapshot) => {
+      const tasksData = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+      }));
+      setTasks(tasksData);
+    }, (error) => {
+      console.error("Error listening to tasks:", error);
+    });
+    return () => unsubscribe();
+  }, [uid, selectedView]);
 
   const addTask = async() => {
     if (!uid) {
@@ -151,18 +170,17 @@ const TaskList = ({ uid, selectedTaskView }) => {
       text: "",
       timeValue: "",
       timeUnit: "minutes",
-      labelId: activeLabelId,
+      labelId: activeLabelId || null,
       completed: false,
       isTitleEditing: true,
       deadline: null,
       isEditingDeadline: false,
     };
     try {
-      const taskDocRef = doc(db, `users/${uid}/tasks`, customID);
+      console.log("Adding task:", customID, " To list:", selectedView.id.toString());
+      const taskDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, customID);
       await setDoc(taskDocRef, newTask);
-      setTasks((prev) => [...prev, { ...newTask, id: customID }]);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error adding task:", error);
     }
   };
@@ -173,11 +191,10 @@ const TaskList = ({ uid, selectedTaskView }) => {
       return;
     }
     try {
-      await deleteDoc(doc(db, `users/${uid}/tasks`, id.toString()));
+      await deleteDoc(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, id.toString()));
       setTasks((prev) => prev.filter((task) => task.id.toString() !== id.toString()));
       console.log("Task deleted successfully!");
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error deleting task:", error);
     }
   };
@@ -286,7 +303,9 @@ const TaskList = ({ uid, selectedTaskView }) => {
 
   const updateLabelDoc = async (id, data) => {
     try {
-      const labelDocRef = doc(db, `users/${uid}/labels`, id.toString());
+      const labelDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, 
+                                   id.toString()
+                              );
       await updateDoc(labelDocRef, data);
     }
     catch (error) {
@@ -298,7 +317,9 @@ const TaskList = ({ uid, selectedTaskView }) => {
     if (!uid) return;
     const loadLabels = async () => {
       try {
-        const labelsSnapshot = await getDocs(collection(db, `users/${uid}/labels`));
+        const labelRef = collection(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`);
+        const q = query(labelRef, orderBy("order"));
+        const labelsSnapshot = await getDocs(q);
         const labelsData = labelsSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
         setLabels(labelsData);
       } catch (error) {
@@ -306,7 +327,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
       }
     };
     loadLabels();
-  }, [uid]);
+  }, [uid, selectedView]);
 
   const addLabel = async() => {
     console.log("User uid:", uid);
@@ -322,7 +343,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
       order: labels.length,
     };
     try {
-      const labelDocRef = doc(db, `users/${uid}/labels`, customID);
+      const labelDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, customID);
       await setDoc(labelDocRef, newLabel);
       setLabels((prev) => [...prev, { ...newLabel, id: customID }]);
       setActiveLabelId(customID);
@@ -338,11 +359,11 @@ const TaskList = ({ uid, selectedTaskView }) => {
       return;
     }
     try {
-      await deleteDoc(doc(db, `users/${uid}/labels`, id.toString()));
+      await deleteDoc(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, id.toString()));
 
       // gather all tasks with this label
       const taskQuery = query(
-        collection(db, `users/${uid}/tasks`), 
+        collection(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`), 
         where("labelId", "==", id.toString())
       );
       const tasksSnapshot = await getDocs(taskQuery);
@@ -350,7 +371,7 @@ const TaskList = ({ uid, selectedTaskView }) => {
       // to thennn, delete them all!
       const batch = writeBatch(db);
       tasksSnapshot.forEach((taskSnap) => {
-        batch.delete(doc(db, `users/${uid}/tasks`, taskSnap.id.toString()));
+        batch.delete(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, taskSnap.id.toString()));
         console.log("Task deleted successfully!");
       });
       await batch.commit();
@@ -422,20 +443,40 @@ const TaskList = ({ uid, selectedTaskView }) => {
   };
 
   const moveLabelUp = (index) => {
-    setLabels((prev) => {
-      if (index <= 0) return prev;
-      const newArr = [...prev];
-      [newArr[index - 1], newArr[index]] = [newArr[index], newArr[index - 1]];
-      return newArr;
+    if (index <= 0) return;
+    const newLabel = [...labels];
+    [newLabel[index], newLabel[index - 1]] = [newLabel[index - 1], newLabel[index]];
+    setLabels(newLabel);
+
+    const batch = writeBatch(db);
+    const labelA = newLabel[index - 1];
+    const labelB = newLabel[index];
+
+    batch.update(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, labelA.id.toString()), { order: index - 1});
+    batch.update(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, labelB.id.toString()), { order: index });
+    batch.commit().then(() => {
+      console.log("Labels re-ordered successfully!");
+    }).catch((error) => {
+      console.error("Error re-ordering labels:", error);
     });
   };
 
   const moveLabelDown = (index) => {
-    setLabels((prev) => {
-      if (index >= prev.length - 1) return prev;
-      const newArr = [...prev];
-      [newArr[index], newArr[index + 1]] = [newArr[index + 1], newArr[index]];
-      return newArr;
+    if (index >= labels.length - 1) return;
+    const newLabel = [...labels];
+    [newLabel[index], newLabel[index + 1]] = [newLabel[index + 1], newLabel[index]];
+    setLabels(newLabel);
+
+    const batch = writeBatch(db);
+    const labelA = newLabel[index];
+    const labelB = newLabel[index + 1];
+
+    batch.update(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, labelA.id.toString()), { order: index });
+    batch.update(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, labelB.id.toString()), { order: index + 1 });
+    batch.commit().then(() => {
+      console.log("Labels re-ordered successfully!");
+    }).catch((error) => {
+      console.error("Error re-ordering labels:", error);
     });
   };
 

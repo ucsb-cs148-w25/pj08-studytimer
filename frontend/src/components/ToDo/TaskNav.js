@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./TaskNav.css";
 
-const TaskNav = ({ setSelectedTaskView }) => {
-  const [boards, setBoards] = useState([]);
+import { db } from "../../firebase";
+import { doc, setDoc, getDocs, updateDoc, deleteDoc, collection, writeBatch } from "firebase/firestore";
+
+const TaskNav = ({ uid, setSelectedTaskView }) => {
+  // const [boards, setBoards] = useState([]);
   const [lists, setLists] = useState([]);
   const [deletedItems, setDeletedItems] = useState([]); 
   const [deletedExpanded, setDeletedExpanded] = useState(true);
+  const [activeListId, setActiveListId] = useState(null);
 
   // const createNewBoard = () => {
   //   const newBoard = {
@@ -16,66 +20,113 @@ const TaskNav = ({ setSelectedTaskView }) => {
   //   setBoards((prev) => [...prev, newBoard]);
   // };
 
-  const createNewList = () => {
-    const newList = {
-      id: Date.now().toString(),
-      title: "Untitled List",
-      isEditing: false,
+  const updateListDoc = async (listId, data) => {
+    console.log("Updating list", listId, data)
+    try {
+      const listDocRef = doc(db, `users/${uid}/lists`, listId.toString());
+      await updateDoc(listDocRef, data);
+    } catch (error ) {
+      console.error("Error updating list document: ", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!uid) {
+      console.error("User not signed in, cannot load lists");
+      return;
+    }
+    const loadLists = async () => {
+      try {
+        const listSnapshot = await getDocs(collection(db, `users/${uid}/lists`));
+        const listData = listSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setLists(listData);
+      }
+      catch (error) {
+        console.error("Error loading lists: ", error);
+      }
     };
-    setLists((prev) => [...prev, newList]);
+    loadLists();
+  }, [uid]);
+
+  const createNewList = async() => {
+    if (!uid) { 
+      console.error("User ID not found while creating new list");
+      return;
+    }
+    const customID = Date.now().toString();
+    const newList = {
+      title: "",
+      isEditing: true,
+    };
+    try {
+      const listDocRef = doc(db, `users/${uid}/lists`, customID);
+      await setDoc(listDocRef, newList);
+      setLists((prev) => [...prev, { id: customID, ...newList }]);
+    }
+    catch (error) {
+      console.error("Error creating new list: ", error);
+    }
   };
 
   const handleDoubleClick = (id, type) => {
-    if (type === "board") {
-      setBoards((prev) =>
-        prev.map((board) =>
-          board.id === id ? { ...board, isEditing: true } : board
-        )
-      );
-    } else {
+    // if (type === "board") {
+    //   setBoards((prev) =>
+    //     prev.map((board) =>
+    //       board.id === id ? { ...board, isEditing: true } : board
+    //     )
+    //   );
+    // } else {
       setLists((prev) =>
         prev.map((list) =>
           list.id === id ? { ...list, isEditing: true } : list
         )
       );
-    }
+    // }
   };
 
   const handleTitleChange = (e, id, type) => {
     const newTitle = e.target.value;
-    if (type === "board") {
-      setBoards((prev) =>
-        prev.map((board) =>
-          board.id === id ? { ...board, title: newTitle } : board
-        )
-      );
-    } else {
+    // if (type === "board") {
+    //   setBoards((prev) =>
+    //     prev.map((board) =>
+    //       board.id === id ? { ...board, title: newTitle } : board
+    //     )
+    //   );
+    // } else {
       setLists((prev) =>
         prev.map((list) =>
           list.id === id ? { ...list, title: newTitle } : list
         )
       );
-    }
+    // }
   };
 
   const handleBlur = (id, type) => {
-    if (type === "board") {
-      setBoards((prev) =>
-        prev.map((board) =>
-          board.id === id ? { ...board, isEditing: false } : board
-        )
-      );
-    } else {
-      setLists((prev) =>
-        prev.map((list) =>
+    // if (type === "board") {
+    //   setBoards((prev) =>
+    //     prev.map((board) =>
+    //       board.id === id ? { ...board, isEditing: false } : board
+    //     )
+    //   );
+    // } else {
+      setLists((prev) => {
+        const updatedLists = prev.map((list) =>
           list.id === id ? { ...list, isEditing: false } : list
-        )
-      );
-    }
+        );
+
+        const updatedList = updatedLists.find((list) => list.id === id);
+        if (updatedList) {
+          updateListDoc(id.toString(), { title: updatedList.title, isEditing: false });
+        }
+        console.log("Updated lists: ", updatedLists, updatedList.title);
+        return updatedLists;
+      });
+    // }
   };
 
   const handleSelect = (id, type, title) => {
-    setSelectedTaskView({ id, type, title });
+    setSelectedTaskView({ id, type: "list", title });
+    setActiveListId(id);
   };
 
   const handleKeyDown = (e, id, type) => {
@@ -84,27 +135,54 @@ const TaskNav = ({ setSelectedTaskView }) => {
     }
   };
 
-  const handleDelete = (id, type) => {
-    if (type === "board") {
-      const boardToDelete = boards.find((board) => board.id === id);
-      if (boardToDelete) {
-        setBoards(boards.filter((board) => board.id !== id));
-        setDeletedItems((prev) =>
-          prev.some((item) => item.id === id && item.type === "board")
-            ? prev
-            : [...prev, { ...boardToDelete, type: "board" }]
-        );
-      }
-    } else {
-      const listToDelete = lists.find((list) => list.id === id);
-      if (listToDelete) {
-        setLists(lists.filter((list) => list.id !== id));
-        setDeletedItems((prev) =>
-          prev.some((item) => item.id === id && item.type === "list")
-            ? prev
-            : [...prev, { ...listToDelete, type: "list" }]
-        );
-      }
+  const handleDelete = async (id) => { // there was a delete here!
+    // if (type === "board") {
+    //   const boardToDelete = boards.find((board) => board.id === id);
+    //   if (boardToDelete) {
+    //     setBoards(boards.filter((board) => board.id !== id));
+    //     setDeletedItems((prev) =>
+    //       prev.some((item) => item.id === id && item.type === "board")
+    //        ? prev
+    //         : [...prev, { ...boardToDelete, type: "board" }]
+    //     );
+    //   }
+    // }
+    if (!uid) {
+      console.error("User not signed in, cannot delete list");
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, `users/${uid}/lists`, id.toString()));
+      const batch = writeBatch(db);
+
+      const tasksSnapshot = await getDocs(collection(db, `users/${uid}/lists/${id.toString()}/tasks`));
+      tasksSnapshot.forEach((taskSnap) => {
+        batch.delete(doc(db, `users/${uid}/lists/${id.toString()}/tasks`, taskSnap.id.toString()));
+        console.log("Task deleted successfully!");
+      });
+
+      const labelsSnapshot = await getDocs(collection(db, `users/${uid}/lists/${id.toString()}/labels`));
+      labelsSnapshot.forEach((labelSnap) => {
+        batch.delete(doc(db, `users/${uid}/lists/${id.toString()}/labels`, labelSnap.id.toString()));
+        console.log("Label deleted successfully!");
+      });
+
+      await batch.commit();
+      setLists((prev) => prev.filter((list) => list.id.toString() !== id.toString()));
+      console.log("List deleted and associated tasks and labels successfully!");
+    }
+    catch (error) {
+      console.error("Error deleting list: ", error);
+    }
+
+    const listToDelete = lists.find((list) => list.id === id);
+    if (listToDelete) {
+      setLists(lists.filter((list) => list.id !== id));
+      setDeletedItems((prev) =>
+        prev.some((item) => item.id === id && item.type === "list")
+          ? prev
+          : [...prev, { ...listToDelete, type: "list" }]
+      );
     }
   };
 
@@ -117,50 +195,11 @@ const TaskNav = ({ setSelectedTaskView }) => {
       <div className="nav-header">
         <h2>New Container?</h2> {/*will be changed later*/}
         <div className="nav-header-icons">
-          {/* <button onClick={createNewBoard} title="Create a New Board">
-            <img src="/taskBoard.svg" alt="taskBoard" className="taskBoard-icon" />
-          </button> */}
           <button onClick={createNewList} title="Create a New List">
             <img src="/taskList.svg" alt="taskList" className="taskList-icon" />
           </button>
         </div>
       </div>
-
-      {/* <div className="nav-section">
-        <h3>YOUR BOARDS</h3>
-        <ul>
-          {boards.map((board) => (
-            <li
-              key={board.id}
-              onClick={() => handleSelect(board.id, "board", board.title)}
-              onDoubleClick={() => handleDoubleClick(board.id, "board")}
-              className="nav-item"
-            >
-              {board.isEditing ? (
-                <input
-                  type="text"
-                  value={board.title}
-                  autoFocus
-                  onChange={(e) => handleTitleChange(e, board.id, "board")}
-                  onBlur={() => handleBlur(board.id, "board")}
-                  onKeyDown={(e) => handleKeyDown(e, board.id, "board")}
-                />
-              ) : (
-                <span>{board.title}</span>
-              )}
-              <button
-                className="trash-button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(board.id, "board");
-                }}
-              >
-                <img src="/trash.svg" alt="Delete Board" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div> */}
 
       <div className="nav-section">
         <h3>YOUR LISTS</h3>
@@ -168,9 +207,11 @@ const TaskNav = ({ setSelectedTaskView }) => {
           {lists.map((list) => (
             <li
               key={list.id}
+              // MODIFIED: onClick now calls handleSelect to update activeListId locally
               onClick={() => handleSelect(list.id, "list", list.title)}
               onDoubleClick={() => handleDoubleClick(list.id, "list")}
-              className="nav-item"
+              // MODIFIED: Add "active" class if this list is the currently active list
+              className={`nav-item ${activeListId === list.id ? "active" : ""}`}
             >
               {list.isEditing ? (
                 <input
@@ -182,13 +223,13 @@ const TaskNav = ({ setSelectedTaskView }) => {
                   onKeyDown={(e) => handleKeyDown(e, list.id, "list")}
                 />
               ) : (
-                <span>{list.title}</span>
+                <span>{list.title || "Untitled List"}</span>
               )}
               <button
                 className="trash-button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDelete(list.id, "list");
+                  handleDelete(list.id);
                 }}
               >
                 <img src="/trash.svg" alt="Delete List" />
