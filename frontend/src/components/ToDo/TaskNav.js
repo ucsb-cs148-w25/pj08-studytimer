@@ -9,6 +9,7 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
   const [lists, setLists] = useState([]);
   const [deletedItems, setDeletedItems] = useState([]); 
   const [deletedExpanded, setDeletedExpanded] = useState(true);
+  const [activeListId, setActiveListId] = useState(null);
 
   // const createNewBoard = () => {
   //   const newBoard = {
@@ -124,7 +125,8 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
   };
 
   const handleSelect = (id, type, title) => {
-    setSelectedTaskView({ id, type, title });
+    setSelectedTaskView({ id, type: "list", title });
+    setActiveListId(id);
   };
 
   const handleKeyDown = (e, id, type) => {
@@ -193,50 +195,11 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
       <div className="nav-header">
         <h2>New Container?</h2> {/*will be changed later*/}
         <div className="nav-header-icons">
-          {/* <button onClick={createNewBoard} title="Create a New Board">
-            <img src="/taskBoard.svg" alt="taskBoard" className="taskBoard-icon" />
-          </button> */}
           <button onClick={createNewList} title="Create a New List">
             <img src="/taskList.svg" alt="taskList" className="taskList-icon" />
           </button>
         </div>
       </div>
-
-      {/* <div className="nav-section">
-        <h3>YOUR BOARDS</h3>
-        <ul>
-          {boards.map((board) => (
-            <li
-              key={board.id}
-              onClick={() => handleSelect(board.id, "board", board.title)}
-              onDoubleClick={() => handleDoubleClick(board.id, "board")}
-              className="nav-item"
-            >
-              {board.isEditing ? (
-                <input
-                  type="text"
-                  value={board.title}
-                  autoFocus
-                  onChange={(e) => handleTitleChange(e, board.id, "board")}
-                  onBlur={() => handleBlur(board.id, "board")}
-                  onKeyDown={(e) => handleKeyDown(e, board.id, "board")}
-                />
-              ) : (
-                <span>{board.title}</span>
-              )}
-              <button
-                className="trash-button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(board.id, "board");
-                }}
-              >
-                <img src="/trash.svg" alt="Delete Board" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div> */}
 
       <div className="nav-section">
         <h3>YOUR LISTS</h3>
@@ -244,9 +207,11 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
           {lists.map((list) => (
             <li
               key={list.id}
+              // MODIFIED: onClick now calls handleSelect to update activeListId locally
               onClick={() => handleSelect(list.id, "list", list.title)}
               onDoubleClick={() => handleDoubleClick(list.id, "list")}
-              className="nav-item"
+              // MODIFIED: Add "active" class if this list is the currently active list
+              className={`nav-item ${activeListId === list.id ? "active" : ""}`}
             >
               {list.isEditing ? (
                 <input
