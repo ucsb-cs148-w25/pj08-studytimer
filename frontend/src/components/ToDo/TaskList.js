@@ -3,7 +3,7 @@ import TaskToggle from "./TaskLabelToggle";
 import "./TaskList.css";
 
 import { db } from "../../firebase";
-import { query, where, writeBatch, collection, doc, setDoc, getDocs, updateDoc, deleteDoc, orderBy } from "firebase/firestore";
+import { query, where, writeBatch, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, orderBy } from "firebase/firestore";
 
 function getOrdinalSuffix(day) {
   if (day > 3 && day < 21) return "th";
@@ -132,20 +132,20 @@ const TaskList = ({ uid, selectedView }) => {
 
   useEffect(() => {
     if (!uid || !selectedView) return;
-    const loadTasks = async () => {
-      try {
-        const tasksSnapshot = await getDocs(collection(
-                                db, 
-                                `users/${uid}/lists/${selectedView.id.toString()}/tasks`
-                              ));
-
-        const tasksData = tasksSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
-        setTasks(tasksData);
-      } catch (error) {
-        console.error("Error loading tasks:", error);
-      }
-    };
-    loadTasks();
+    const tasksRef = collection(
+      db,
+      `users/${uid}/lists/${selectedView.id.toString()}/tasks`
+    );
+    const unsubscribe = onSnapshot(tasksRef, (snapshot) => {
+      const tasksData = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+      }));
+      setTasks(tasksData);
+    }, (error) => {
+      console.error("Error listening to tasks:", error);
+    });
+    return () => unsubscribe();
   }, [uid, selectedView]);
 
   const addTask = async() => {
@@ -158,16 +158,16 @@ const TaskList = ({ uid, selectedView }) => {
       text: "",
       timeValue: "",
       timeUnit: "minutes",
-      labelId: activeLabelId,
+      labelId: activeLabelId || null,
       completed: false,
       isTitleEditing: true,
       deadline: null,
       isEditingDeadline: false,
     };
     try {
+      console.log("Adding task:", customID, " To list:", selectedView.id.toString());
       const taskDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, customID);
       await setDoc(taskDocRef, newTask);
-      setTasks((prev) => [...prev, { ...newTask, id: customID }]);
     } catch (error) {
       console.error("Error adding task:", error);
     }

@@ -30,7 +30,7 @@ const TasksCalendarChart = () => {
 
         let allTasks = [];
         for (const listId of listsData) {
-          const tasksSnapshot = await getDocs(collection(db, `users/${uid}/lists/${listId}/tasks`));
+          const tasksSnapshot = await getDocs(collection(db, `users/${uid}/lists/${listId.toString()}/tasks`));
           const tasksForList = tasksSnapshot.docs.map(docSnap => ({
             id: docSnap.id,
             listId,
