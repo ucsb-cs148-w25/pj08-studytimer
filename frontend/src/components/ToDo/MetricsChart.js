@@ -16,7 +16,7 @@ const MetricsChart = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        fetchTasks(currentUser.uid);
+        fetchAllTasks(currentUser.uid);
       } else {
         setTasks([]); // Clear tasks if user logs out
       }
@@ -26,18 +26,27 @@ const MetricsChart = () => {
   }, [])
 
   // Fetch tasks from Firestore
-  const fetchTasks = async (uid) => {
+  const fetchAllTasks = async (uid) => {
     try {
-      const querySnapshot = await getDocs(collection(db, `users/${uid}/tasks`));
-      const tasksData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setTasks(tasksData);
+      const listsSnapshot = await getDocs(collection(db, `users/${uid}/lists`));
+      const listsData = listsSnapshot.docs.map(docSnap => docSnap.id);
+
+      let allTasks = [];
+      for (const listId of listsData) {
+        const tasksSnapshot = await getDocs(collection(db, `users/${uid}/lists/${listId}/tasks`));
+        const tasksForList = tasksSnapshot.docs.map(docSnap => ({
+          id: docSnap.id,
+          listId,
+          ...docSnap.data()
+        }));
+        allTasks = allTasks.concat(tasksForList);
+      }
+      setTasks(allTasks);
     } catch (error) {
       console.error("Error fetching tasks:", error);
     }
   };
+  
 
   // Prepare chart data
   const taskStats = {

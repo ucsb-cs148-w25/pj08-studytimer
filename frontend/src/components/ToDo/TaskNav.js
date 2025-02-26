@@ -153,20 +153,21 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
       await deleteDoc(doc(db, `users/${uid}/lists`, id.toString()));
       const batch = writeBatch(db);
 
-      const taskQuery = await getDocs(collection(db, `users/${uid}/lists{${id.toString()}}/tasks`));
-      const taskSnapshot = taskQuery.docs;
-      taskSnapshot.forEach((taskSnap) => {
-        batch.delete(doc(db, `users/${uid}/lists{${id.toString()}}/tasks`, taskSnap.id.toString()));
-      })
+      const tasksSnapshot = await getDocs(collection(db, `users/${uid}/lists/${id.toString()}/tasks`));
+      tasksSnapshot.forEach((taskSnap) => {
+        batch.delete(doc(db, `users/${uid}/lists/${id.toString()}/tasks`, taskSnap.id.toString()));
+        console.log("Task deleted successfully!");
+      });
 
-      const labelQuery = await getDocs(collection(db, `users/${uid}/lists{${id.toString()}}/labels`));
-      const labelSnapshot = labelQuery.docs;
-      labelSnapshot.forEach((labelSnap) => {
-        batch.delete(doc(db, `users/${uid}/lists{${id.toString()}}/labels`, labelSnap.id.toString()));
+      const labelsSnapshot = await getDocs(collection(db, `users/${uid}/lists/${id.toString()}/labels`));
+      labelsSnapshot.forEach((labelSnap) => {
+        batch.delete(doc(db, `users/${uid}/lists/${id.toString()}/labels`, labelSnap.id.toString()));
+        console.log("Label deleted successfully!");
       });
 
       await batch.commit();
       setLists((prev) => prev.filter((list) => list.id.toString() !== id.toString()));
+      console.log("List deleted and associated tasks and labels successfully!");
     }
     catch (error) {
       console.error("Error deleting list: ", error);
