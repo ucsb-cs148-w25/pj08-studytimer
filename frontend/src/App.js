@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/NavBar/Navbar';
+import HomeSidebar from './components/Home/HomeSidebar';
 import Profile from './components/Profile/Profile';
 import CalendarPage from './components/Calendar/CalendarPage';
 import TaskPage from './components/ToDo/TaskPage';
@@ -259,6 +260,7 @@ const App = () => {
           <Route
             path="/"
             element={
+              <>
               <div className="timer-page">
                 {/* Icy overlay if on break */}
                 <div className={`icy-overlay ${onBreak ? 'visible' : ''}`}>
@@ -361,6 +363,8 @@ const App = () => {
                   handleSettingsChange={handleSettingsChange}
                 />
               </div>
+              <HomeSidebar />
+              </>
             }
           />
 
