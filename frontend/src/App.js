@@ -95,17 +95,15 @@ const App = () => {
   }, [auth.currentUser, db]);
 
   // ------------------------------------------------------------------
-  // Break thresholds: The time-left values at which a break occurs
-  // For numBreaks = 3 and totalTime = 1800s, intervals of 600s:
-  // => breaks happen when studyTimeLeft hits 1200, then 600, then 0.
-  // We'll generate them in descending order for convenience.
-  // ------------------------------------------------------------------
-  const breakPoints = useCallback(() => {
-    if (numBreaks <= 0) return [];
-    const interval = totalTime / (numBreaks + 1); // Ensuring equal spacing
-  
-    return Array.from({ length: numBreaks }, (_, i) => Math.floor(totalTime - (i + 1) * interval));
-  }, [totalTime, numBreaks]);
+// Break thresholds: Use the previous logic: totalTime/numBreaks
+// ------------------------------------------------------------------
+const breakPoints = useCallback(() => {
+  if (numBreaks <= 0) return [];
+  const interval = totalTime / numBreaks; // e.g., 1800 / 3 = 600
+  return Array.from({ length: numBreaks }, (_, i) =>
+    Math.floor(totalTime - (i + 1) * interval)
+  );
+}, [totalTime, numBreaks]);
   
   
   // ------------------------------------------------------------------
@@ -181,17 +179,19 @@ const App = () => {
         const nextVal = prev - 1;
         updateUserStats(1); // Updates user study time every second
   
-        const breakThresholds = breakPoints();
-        if (breakIndex < breakThresholds.length && nextVal === breakThresholds[breakIndex]) {
-          clearInterval(timer);
-          startBreak();
-          return nextVal;
-        }
-  
+        // First, check if the session is over
         if (nextVal <= 0) {
           clearInterval(timer);
           finishSession();
           return 0;
+        }
+  
+        // Now, check if we've hit the next break threshold
+        const breakThresholds = breakPoints();
+        if (breakIndex < breakThresholds.length && nextVal <= breakThresholds[breakIndex]) {
+          clearInterval(timer);
+          startBreak();
+          return nextVal;
         }
   
         return nextVal;
@@ -200,6 +200,7 @@ const App = () => {
   
     return () => clearInterval(timer);
   }, [isRunning, onBreak, sessionComplete, breakIndex, finishSession, startBreak, breakPoints, updateUserStats]);
+  
   
 
   // ------------------------------------------------------------------
