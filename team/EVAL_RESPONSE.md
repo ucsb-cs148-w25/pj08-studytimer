@@ -1,6 +1,6 @@
 # Inter-team Evaluation Response
 
-## Feedback received summarized:
+## Summary of Feedback Received:
 ### Interface Design & Usability
 - The overall layout of the app is pretty intuitive and the Pistachio theme was a user favorite
 - The overall layout of the application is very clean and intuitive users appreciated having three different color modes for the user interface
