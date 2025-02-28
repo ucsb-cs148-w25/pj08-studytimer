@@ -71,4 +71,6 @@ Team member: Andrew
 
 ## Experiment/Change
 
-TBD
+During our experiment we greatly improved our emphasis on handling features that were important for our application. This is evident in the numerous PRs being pushed to main that dealt with the functionality rather than UI enhancements as well as in our deployed website.
+
+Going forward, we will keep on adding improvements to our functionality of the application and provide help when needed on issues. This means continuing to be active in the team discord and providing updates of each of our progress
