@@ -12,10 +12,10 @@
 - Scrum Master - Andrew Vosgueritchian
 - Retro 2 Leader - Lawrence Wang
 - MVP Peer Evaluation Leader - Thienan Vu
-- Testing/QA Coordinator - Thienan Vu 
+- Testing/QA Coordinator - Jennifer Lopez 
 - Retro 3 leader - Kevin Lee 
 - UX Coordinator - Edwin Medrano Villela 
-- Design Document Coordinator - Jennifer Lopez
+- Design Document Coordinator - Thienan Vu
 - Deployment Document Coordinator - Lawrence Wang
 - User Manual Coordinator - Cindy Zhao 
 - Final presentation leader (week 9/10) - Edwin Medrano Villela 
