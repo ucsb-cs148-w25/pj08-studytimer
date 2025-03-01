@@ -1,6 +1,10 @@
 import { signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
 import { auth, provider } from "./firebase";
 
+provider.setCustomParameters({
+  hd: "ucsb.edu",
+});
+
 provider.addScope("https://www.googleapis.com/auth/calendar");
 
 export const BACKEND_URL =
