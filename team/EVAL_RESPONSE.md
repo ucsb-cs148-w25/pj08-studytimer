@@ -18,3 +18,4 @@
 -  I liked this feature, could be a little more clear about when the breaks will happen
 -  The time that the user initially sees is for 30 minutes but you have the option to add 1, 3 or 5 minutes to the timer which is great. The start and reset buttons are easy to view and make sense. The settings option is also really nice in case the user wants to start off with a different time. I think that maybe making the settings button more visible could be helpful because initially i did not notice that it was there (dark mode)
 - Setting the timer and applying different parameters for the timer is easy to understand
+// testing
