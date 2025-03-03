@@ -7,11 +7,10 @@
 - This app seems to meet all the needs that it had planned to meet as users can use it in all functionalities as planned
 
 ### Task Page Design & Functionality
-- It's easy to add a task, and create a label but "label" could possibly be renamed to "category," to make the feature more intuitive
-- It is easy and intuitive to add tasks, but possibly add a way to color code the tasks
+- It's easy and intuitive to add a task, and create a label but "label" could possibly be renamed to "category," to make the feature more intuitive
+- Consider adding a way to color code the tasks
 - The UI/UX of the tasks list is a bit plain as of right now -> possibly add option to color code tasks to keep them more organized
 - Users liked being able to add a due date and also an approximation of how long it'll take. This kept things neat and users liked that the tasks were automatically added to the upcoming deadlines chart
-- It is easy to add and remove tasks, overall the page is intuitive
 - Potentially include a priority label, a label to distinguish between different types of tasks (events vs tasks), and a small description/notes section to a task (expand/hide description)
 
 ### Features of Timer
