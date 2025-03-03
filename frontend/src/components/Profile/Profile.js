@@ -57,9 +57,9 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
   // Define pastel background colors for different levels of unlocked achievements.
   const backgroundColors = [
     "#ffffff",   // 0 stars: white
-    "	#d1dff6",
-    " #b2cbf2",
-    " #92b6f0",
+    "#d1dff6",   // 1 star
+    "#b2cbf2",   // 2 stars
+    "#92b6f0",   // 3 stars
   ];
   const cardStyle = { backgroundColor: backgroundColors[unlockedCount] };
 
@@ -216,7 +216,12 @@ function Profile() {
             {/* Total Study Time */}
             <div className="stats__item">
               <div className="stats__icon">
-                <i className="fas fa-clock"></i>
+                {/* Replace Font Awesome with your PNG icon */}
+                <img
+                  src="/icons/clock.png"
+                  alt="Clock Icon"
+                  className="stats__icon-img"
+                />
               </div>
               <h3 className="stats__item-title">Total Study Time</h3>
               <p className="stats__item-value">{formatTime(userStats.totalStudyTime)}</p>
@@ -225,7 +230,11 @@ function Profile() {
             {/* Study Sessions */}
             <div className="stats__item">
               <div className="stats__icon">
-                <i className="fas fa-play-circle"></i>
+                <img
+                  src="/icons/play.png"
+                  alt="Play Icon"
+                  className="stats__icon-img"
+                />
               </div>
               <h3 className="stats__item-title">Study Sessions</h3>
               <p className="stats__item-value">{userStats.studySessions}</p>
@@ -234,7 +243,11 @@ function Profile() {
             {/* Breaks Taken */}
             <div className="stats__item">
               <div className="stats__icon">
-                <i className="fas fa-coffee"></i>
+                <img
+                  src="/icons/coffee.png"
+                  alt="Coffee Icon"
+                  className="stats__icon-img"
+                />
               </div>
               <h3 className="stats__item-title">Breaks Taken</h3>
               <p className="stats__item-value">{userStats.totalBreaksTaken}</p>
@@ -243,7 +256,11 @@ function Profile() {
             {/* Longest Study Session */}
             <div className="stats__item">
               <div className="stats__icon">
-                <i className="fas fa-stopwatch"></i>
+                <img
+                  src="/icons/stopwatch.png"
+                  alt="Stopwatch Icon"
+                  className="stats__icon-img"
+                />
               </div>
               <h3 className="stats__item-title">Longest Study Session</h3>
               <p className="stats__item-value">{formatTime(userStats.longestSession)}</p>
@@ -252,7 +269,11 @@ function Profile() {
             {/* Last Study Session */}
             <div className="stats__item">
               <div className="stats__icon">
-                <i className="fas fa-calendar-check"></i>
+                <img
+                  src="/icons/calendar.png"
+                  alt="Calendar Icon"
+                  className="stats__icon-img"
+                />
               </div>
               <h3 className="stats__item-title">Last Study Session</h3>
               <p className="stats__item-value">

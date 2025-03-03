@@ -13,7 +13,6 @@ import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import unlockAchievement from "./components/Profile/unlockAchievement";
 import initializeAchievements from "./utils/initializeAchievements";
 import initializeStats from "./utils/initializeStats";
-import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css'; // Import external styles
 
 // Example sound effect

@@ -79,6 +79,13 @@ body {
   margin-bottom: 20px;
 }
 
+.stats__icon-img {
+  width: 48px;     /* Adjust as needed */
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
 /* Stats Title */
 .stats__title {
   font-size: 1.5rem;
