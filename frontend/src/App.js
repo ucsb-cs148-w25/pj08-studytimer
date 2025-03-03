@@ -13,6 +13,7 @@ import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import unlockAchievement from "./components/Profile/unlockAchievement";
 import initializeAchievements from "./utils/initializeAchievements";
 import initializeStats from "./utils/initializeStats";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import './App.css'; // Import external styles
 
 // Example sound effect
@@ -103,9 +104,10 @@ const App = () => {
   
       // Unlock Achievements
       const achievementsToCheck = [
-        "first_timer", "study_5_sessions", "study_10_sessions", "study_20_sessions",
-        "study_1_hour", "study_5_hours", "study_10_hours", "break_10_taken",
-        "break_25_taken", "longest_30_min", "longest_1_hour", "consistency_week"
+        "study_5_sessions", "study_10_sessions", "study_20_sessions",
+        "study_1_hour", "study_5_hours", "study_10_hours", 
+        "break_10_taken", "break_25_taken", "break_50_taken", 
+        "longest_30_min", "longest_1_hour", "longest_3_hour"
       ];
       for (const achievementId of achievementsToCheck) {
         await unlockAchievement(achievementId);

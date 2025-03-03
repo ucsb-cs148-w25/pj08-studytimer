@@ -15,7 +15,6 @@ const initializeAchievements = async () => {
     if (!snapshot.empty) return; // If achievements already exist, don't overwrite them
 
     const allAchievements = [
-      { id: "first_timer", name: "First Timer", unlocked: false, icon: "/badges/locked.png" },
       { id: "study_5_sessions", name: "Study Streak", unlocked: false, icon: "/badges/locked.png" },
       { id: "study_10_sessions", name: "Dedicated Student", unlocked: false, icon: "/badges/locked.png" },
       { id: "study_20_sessions", name: "Study Warrior", unlocked: false, icon: "/badges/locked.png" },
@@ -24,9 +23,10 @@ const initializeAchievements = async () => {
       { id: "study_10_hours", name: "Study Master", unlocked: false, icon: "/badges/locked.png" },
       { id: "break_10_taken", name: "Break Master", unlocked: false, icon: "/badges/locked.png" },
       { id: "break_25_taken", name: "Break Strategist", unlocked: false, icon: "/badges/locked.png" },
+      { id: "break_50_taken", name: "Break Overlord", unlocked: false, icon: "/badges/locked.png" },
       { id: "longest_30_min", name: "Focused Mind", unlocked: false, icon: "/badges/locked.png" },
       { id: "longest_1_hour", name: "Deep Focus", unlocked: false, icon: "/badges/locked.png" },
-      { id: "consistency_week", name: "Weekly Grinder", unlocked: false, icon: "/badges/locked.png" },
+      { id: "longest_3_hour", name: "Study Guru", unlocked: false, icon: "/badges/locked.png" },
     ];
 
     for (const achievement of allAchievements) {
