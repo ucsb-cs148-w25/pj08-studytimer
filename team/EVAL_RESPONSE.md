@@ -9,13 +9,19 @@
 ### Task Page Design & Functionality
 - It's easy to add a task, and create a label but "label" could possibly be renamed to "category," to make the feature more intuitive
 - It is easy and intuitive to add tasks, but possibly add a way to color code the tasks
-- Improve the UI/UX of the tasks list because that seems kind of plain right now and possibly color code the tasks to keep it more organized
-- This feature was really intuitive and easy to use, it was easy to add/delete tasks. Users liked being able to add a due date and also an approximation of how long it'll take. This kept things neat and users liked that the tasks were automatically added to the upcoming deadlines chart
-- It is easy to add and remove tasks, overall the page is intuitive. Some features that could potentially be added include a priority label, a label to distinguish between different types of tasks (events vs tasks), and a small description/notes section to a task (expand/hide description)
+- The UI/UX of the tasks list is a bit plain as of right now -> possibly add option to color code tasks to keep them more organized
+- Users liked being able to add a due date and also an approximation of how long it'll take. This kept things neat and users liked that the tasks were automatically added to the upcoming deadlines chart
+- It is easy to add and remove tasks, overall the page is intuitive
+- Potentially include a priority label, a label to distinguish between different types of tasks (events vs tasks), and a small description/notes section to a task (expand/hide description)
 
 ### Features of Timer
 - There is a functional timer that users can use in order to time their study sessions and tasks
--  I liked this feature, could be a little more clear about when the breaks will happen
--  The time that the user initially sees is for 30 minutes but you have the option to add 1, 3 or 5 minutes to the timer which is great. The start and reset buttons are easy to view and make sense. The settings option is also really nice in case the user wants to start off with a different time. I think that maybe making the settings button more visible could be helpful because initially i did not notice that it was there (dark mode)
-- Setting the timer and applying different parameters for the timer is easy to understand
-// testing
+- Feature could be a little more clear about when the breaks will happen
+- The start and reset buttons are easy to view and make sense and the settings option is a nice addition to provide user autonomy; However, the settings button should be more visible in dark mode
+
+## Decisions Moving Forward
+We have decided to focus on the following:
+- Make break system more intuitive for users (possibly display break time left on top of ice overlay)
+- Make Profile Page more obvious in the navigation bar
+- Make changes to the Task Page based on user feedback (renaming, coloring)
+- Work on making app more customizable for users
