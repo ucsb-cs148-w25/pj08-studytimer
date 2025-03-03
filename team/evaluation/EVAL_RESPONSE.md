@@ -20,7 +20,7 @@
 
 ## Decisions Moving Forward
 We have decided to focus on the following:
-- Make break system more intuitive for users (possibly display break time left on top of ice overlay)
-- Make Profile Page more obvious in the navigation bar
-- Make changes to the Task Page based on user feedback (renaming, coloring)
-- Work on making app more customizable for users
+- Make break system more intuitive for users (possibly display break time left on top of ice overlay) (3)
+- Make Profile Page more obvious in the navigation bar (3)
+- Consider making changes to the Task Page based on user feedback (renaming, coloring) (2)
+- Work on making app more customizable for users (3)
