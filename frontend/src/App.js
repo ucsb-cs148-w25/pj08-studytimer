@@ -15,6 +15,14 @@ import initializeAchievements from "./utils/initializeAchievements";
 import initializeStats from "./utils/initializeStats";
 import './App.css'; // Import external styles
 
+/* BREAK SUGGESTION FEATURES:
+2. Progress Bar ticking away with respect to break time user sets
+3. Show encouraging message when ice-overlay for break occurs
+4. If dismissing a break, show optional snooze “Remind me in 5 minutes” 
+(will need to reset timer to 5 minutes and not count the break count until 
+user chooses not to snooze break i.e. skip break or endure whole break duration)
+*/
+
 // Example sound effect
 const freezeSound = new Audio('/sounds/freeze.mp3');
 
@@ -41,6 +49,9 @@ const App = () => {
 
   // Keep track of how many breaks have started
   const [breakIndex, setBreakIndex] = useState(0);
+
+  // Break Notifications
+  const [showBreakNotification, setShowBreakNotification] = useState(false);
 
   // ------------------------------------------------------------------
   // Modal state
@@ -126,12 +137,8 @@ const App = () => {
   // ------------------------------------------------------------------
   const breakPoints = useCallback(() => {
     if (numBreaks <= 0) return [];
-    const interval = totalTime / numBreaks; // e.g., 1800 / 3 = 600
-    const points = [];
-    for (let i = 1; i <= numBreaks; i++) {
-      points.push(Math.floor(totalTime - i * interval));
-    }
-    return points;
+    const interval = totalTime / (numBreaks + 1); // e.g., 1800 / 3 = 600
+    return Array.from({ length: numBreaks }, (_, i) => Math.floor(totalTime - (i + 1)* interval));
   }, [totalTime, numBreaks]);
 
   // ------------------------------------------------------------------
@@ -170,11 +177,13 @@ const App = () => {
     setBreakTimeLeft(0);
 
     // If we haven't reached the final break, increment breakIndex
-    setBreakIndex((prev) => prev + 1);
+    if (breakIndex < numBreaks - 1) {
+      setBreakIndex((prev) => prev + 1);
+    }
 
     // Record that a break was taken (study time not increased, but 1 break)
     updateUserStats(0, 1, false);
-  }, [updateUserStats]);
+  }, [updateUserStats, numBreaks, breakIndex]);
 
   // ------------------------------------------------------------------
   // Initialize Achievements and Stats on user login
@@ -195,6 +204,8 @@ const App = () => {
   useEffect(() => {
     if (!isRunning || onBreak || sessionComplete) return;
 
+    const breakAlertSound = new Audio('/sounds/breakNotification.mp3');
+
     const timer = setInterval(() => {
       setStudyTimeLeft((prev) => {
         const nextVal = prev - 1;
@@ -208,7 +219,14 @@ const App = () => {
         const bPoints = breakPoints();
         if (breakIndex < bPoints.length) {
           const nextBreakThreshold = bPoints[breakIndex];
-          if (nextVal <= nextBreakThreshold) {
+
+          if (nextVal === nextBreakThreshold + 30 && nextVal > 30) {
+            setShowBreakNotification(true);
+            breakAlertSound.play().catch(error => console.error("Audio play error:", error));
+            setTimeout(() => setShowBreakNotification(false), 5000);  // hide after 5 seconds
+          }
+
+          if (nextVal === nextBreakThreshold) {
             clearInterval(timer);
             startBreak();
             return nextVal;
@@ -344,6 +362,11 @@ const App = () => {
                       {onBreak
                         ? `Break ${breakIndex + 1} of ${numBreaks}`
                         : `Study Time (breaks used: ${breakIndex}/${numBreaks})`}
+                    </div>
+                  )}
+                  {showBreakNotification && (
+                    <div className='floating-notification'>
+                      Break in 30 seconds! ⏳
                     </div>
                   )}
                   <div className="time-adjust-buttons">
