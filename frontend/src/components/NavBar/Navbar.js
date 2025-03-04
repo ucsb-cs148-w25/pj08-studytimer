@@ -9,6 +9,7 @@ import "./Navbar.css";
 function Navbar() {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -16,7 +17,7 @@ function Navbar() {
         setUser({
           name: currentUser.displayName,
           email: currentUser.email,
-          // photoURL: currentUser.photoURL,
+          photoURL: currentUser.photoURL,
         });
       } else {
         setUser(null);
@@ -47,14 +48,40 @@ function Navbar() {
 
       <div className="nav-right">
         {user ? (
-          <div className="user-info">
-            {/* Wrap greeting in a Link to profile page */}
-            <Link to="/profile" className="profile-link">
-              <span className="user-name">Hello, {user.name.split(" ")[0]}!</span>
-            </Link>
-            <button onClick={() => logoutUser(setUser)} className="logout-btn">
-              Sign Out
-            </button>
+          <div className="menu-container">
+            {/* Profile Dropdown Menu */}
+            <div className="menu-trigger">
+              <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="profile-btn">
+                <img
+                  className="nav_profile_picture"
+                  src={user.photoURL}
+                  alt="Profile"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => (e.target.src = "/default-profile.png")}
+                />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="dropdown-menu absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                  
+                  <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    Profile
+                  </Link>
+                  <Link to="/settings" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    Settings
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logoutUser(setUser);
+                      setDropdownOpen(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <button onClick={() => loginWithGoogle(setUser)} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
