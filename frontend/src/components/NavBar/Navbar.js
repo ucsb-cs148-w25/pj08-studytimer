@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Squash as Hamburger } from "hamburger-react";
 import { loginWithGoogle, logoutUser } from "../../auth.js"; 
 import { auth } from "../../firebase.js";
@@ -10,6 +10,7 @@ function Navbar() {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null); // Reference for closing dropdown on outside click
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -17,7 +18,7 @@ function Navbar() {
         setUser({
           name: currentUser.displayName,
           email: currentUser.email,
-          photoURL: currentUser.photoURL,
+          photoURL: currentUser.photoURL || "/default-profile.png",
         });
       } else {
         setUser(null);
@@ -25,6 +26,17 @@ function Navbar() {
     });
 
     return () => unsubscribe();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -48,46 +60,45 @@ function Navbar() {
 
       <div className="nav-right">
         {user ? (
-          <div className="menu-container">
-            {/* Profile Dropdown Menu */}
-            <div className="menu-trigger">
-              <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="profile-btn">
-                <img
-                  className="nav_profile_picture"
-                  src={user.photoURL}
-                  alt="Profile"
-                  referrerPolicy="no-referrer"
-                  onError={(e) => (e.target.src = "/default-profile.png")}
-                />
-              </button>
+          <div className="menu-container" ref={dropdownRef}>
+            {/* Profile Image & Dropdown Button */}
+            <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="profile-btn">
+              <img
+                className="nav_profile_picture"
+                src={user.photoURL}
+                alt="Profile"
+                referrerPolicy="no-referrer"
+                onError={(e) => (e.target.src = "/default-profile.png")}
+              />
+            </button>
 
-              {isDropdownOpen && (
-                <div className="dropdown-menu absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
-                  
-                  <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                    Profile
-                  </Link>
-                  <Link to="/settings" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                    Settings
-                  </Link>
-                  <button
-                    onClick={() => {
-                      logoutUser(setUser);
-                      setDropdownOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="dropdown-menu absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
+                <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  Profile
+                </Link>
+                <Link to="/settings" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  Settings
+                </Link>
+                <button
+                  onClick={() => {
+                    logoutUser(setUser);
+                    setDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <button onClick={() => loginWithGoogle(setUser)} className={`sign-in ${isMenuOpen ? "mobile" : ""}`}>
             Sign In
           </button>
         )}
+        
         <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>
 
         <div className="hamburger-menu">
