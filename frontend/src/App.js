@@ -13,10 +13,25 @@ import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import unlockAchievement from "./components/Profile/unlockAchievement";
 import initializeAchievements from "./utils/initializeAchievements";
 import initializeStats from "./utils/initializeStats";
+import BreakTimer from './components/Home/BreakTimer';
 import './App.css'; // Import external styles
 
 // Example sound effect
 const freezeSound = new Audio('/sounds/freeze.mp3');
+
+// Break notification sound
+const breakAlertSound = new Audio('/sounds/breakNotification.mp3');
+
+// Encouraging Messages
+const breakMessages = [
+  "You're doing great! Keep it up! 💪",
+  "Breathe deeply and relax. 🌿",
+  "Nice work! Time to refresh yourself. ☕",
+  "Stay hydrated! Drink some water. 💧",
+  "Stretch a little! Your body will thank you. 🤸",
+  "You're making amazing progress! 🚀",
+];
+
 
 const App = () => {
   // ------------------------------------------------------------------
@@ -41,6 +56,11 @@ const App = () => {
 
   // Keep track of how many breaks have started
   const [breakIndex, setBreakIndex] = useState(0);
+
+  // Break Notifications
+  const [showBreakNotification, setShowBreakNotification] = useState(false);
+
+  const [encouragingMessage, setEncouragingMessage] = useState("");
 
   // ------------------------------------------------------------------
   // Modal state
@@ -127,12 +147,8 @@ const App = () => {
   // ------------------------------------------------------------------
   const breakPoints = useCallback(() => {
     if (numBreaks <= 0) return [];
-    const interval = totalTime / numBreaks; // e.g., 1800 / 3 = 600
-    const points = [];
-    for (let i = 1; i <= numBreaks; i++) {
-      points.push(Math.floor(totalTime - i * interval));
-    }
-    return points;
+    const interval = totalTime / (numBreaks + 1); // e.g., 1800 / 3 = 600
+    return Array.from({ length: numBreaks }, (_, i) => Math.floor(totalTime - (i + 1)* interval));
   }, [totalTime, numBreaks]);
 
   // ------------------------------------------------------------------
@@ -171,11 +187,13 @@ const App = () => {
     setBreakTimeLeft(0);
 
     // If we haven't reached the final break, increment breakIndex
-    setBreakIndex((prev) => prev + 1);
+    if (breakIndex < numBreaks - 1) {
+      setBreakIndex((prev) => prev + 1);
+    }
 
     // Record that a break was taken (study time not increased, but 1 break)
     updateUserStats(0, 1, false);
-  }, [updateUserStats]);
+  }, [updateUserStats, numBreaks, breakIndex]);
 
   // ------------------------------------------------------------------
   // Initialize Achievements and Stats on user login
@@ -209,7 +227,14 @@ const App = () => {
         const bPoints = breakPoints();
         if (breakIndex < bPoints.length) {
           const nextBreakThreshold = bPoints[breakIndex];
-          if (nextVal <= nextBreakThreshold) {
+
+          if (nextVal === nextBreakThreshold + 30 && nextVal > 30) {
+            setShowBreakNotification(true);
+            breakAlertSound.play().catch(error => console.error("Audio play error:", error));
+            setTimeout(() => setShowBreakNotification(false), 5000);  // hide after 5 seconds
+          }
+
+          if (nextVal === nextBreakThreshold) {
             clearInterval(timer);
             startBreak();
             return nextVal;
@@ -236,6 +261,10 @@ const App = () => {
   // ------------------------------------------------------------------
   useEffect(() => {
     if (!isRunning || !onBreak || sessionComplete) return;
+
+    // Randomly select encouraging message
+    const randomMessage = breakMessages[Math.floor(Math.random() * breakMessages.length)];
+    setEncouragingMessage(randomMessage);
 
     const timer = setInterval(() => {
       setBreakTimeLeft((prev) => {
@@ -334,6 +363,13 @@ const App = () => {
                 <div className="timer-page">
                   <div className={`icy-overlay ${onBreak ? 'visible' : ''}`}>
                     <div className="icy-text">Take a Break ❄️</div>
+                    {/* Circular Progress Break Timer */}
+                    <BreakTimer 
+                      breakTimeLeft={breakTimeLeft}
+                      totalBreakTime={breakTime}
+                      formattedTime={formatTime(breakTimeLeft)}
+                    />
+                    <div className='break-message'>{encouragingMessage}</div>
                   </div>
                   <div className="timer-display">
                     {sessionComplete
@@ -345,6 +381,11 @@ const App = () => {
                       {onBreak
                         ? `Break ${breakIndex + 1} of ${numBreaks}`
                         : `Study Time (breaks used: ${breakIndex}/${numBreaks})`}
+                    </div>
+                  )}
+                  {showBreakNotification && (
+                    <div className='floating-notification'>
+                      Break in 30 seconds! ⏳
                     </div>
                   )}
                   <div className="time-adjust-buttons">

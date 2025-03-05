@@ -37,6 +37,32 @@
   }
 }
 
+/* Break Timer */
+.break-timer {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-top: 20px;
+  color: #fff;
+}
+
+/* Encouraging Message */
+.break-message {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 90px;
+  margin-left: 20%;
+  color: #fff;
+  text-align: center;
+  max-width: 60%;
+}
+
+/* Progress Bar */
+.break-timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* Timer Page */
 .timer-page {
   display: flex;
@@ -172,4 +198,40 @@
 
 .skip-break-button:hover {
   background-color: #cc0000;
+}
+
+:root {
+  --text-color: black;
+}
+
+[data-theme="dark"] {
+  --text-color: white;
+}
+.segment-info {
+  color: var(--text-color);
+  background-color: var(--background-color);
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.floating-notification {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  animation: fadeInOut 5s ease-in-out;
+  z-index: 1000;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
 }
