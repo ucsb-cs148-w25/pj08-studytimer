@@ -107,7 +107,6 @@ a:hover {
 
 /* Ensure logout button is aligned properly */
 .logout-btn {
-    display: flex;
     align-items: center;
     justify-content: center;
     background-color: var(--faint-background);
@@ -123,6 +122,18 @@ a:hover {
 
 .logout-btn:hover {
     background-color: var(--accent-background);
+}
+.user-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent-background); 
+    color: var(--primary-background);
+    border: none;
+    padding: 8px 15px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .user-name {
@@ -153,6 +164,10 @@ a:hover {
     color: var(--hover-faint-change);
 }
 
+.user-menu-container {
+    align-items: center;
+}
+
 .dropdown-menu {
     position: absolute;
     top: 100px;
@@ -160,6 +175,7 @@ a:hover {
     background-color: #fff;
     padding: 10px 20px;
     width: 200px;
+    margin: auto
 }
 
 .dropdown-menu::before {
@@ -172,14 +188,16 @@ a:hover {
     transform: rotate(45deg)
 }
 
-.dropdown-menu ul li {
+.dropdown-menu ul {
+    text-align: center;
     padding: 10px 0;
     border-top: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 1 rem;
+    color: var(--primary-background);
 }
 
-.dropdown-menu ul li:hover a {
-    color: rgb(0, 0, 0);
-    cursor: pointer;
+.dropdown-menu ul:hover {
+    color: rgb(254, 62, 62);
 }
 .dropdownItem {
     display: flex;
@@ -195,8 +213,8 @@ h3 {
     width: 100%;
     text-align: center;
     font-size: 18px;
-    padding: 20px 0;
-    font-weight: 500;
+    padding: 2px 0;
+    font-weight: 300;
     font-size: 18px;
     line-height: 1.2rem;
 }

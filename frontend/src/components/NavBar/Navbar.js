@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Squash as Hamburger } from "hamburger-react";
 import { loginWithGoogle, logoutUser } from "../../auth.js"; 
 import { auth } from "../../firebase.js";
@@ -10,7 +10,6 @@ function Navbar() {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null); // Reference for closing dropdown on outside click
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -18,7 +17,6 @@ function Navbar() {
         setUser({
           name: currentUser.displayName,
           email: currentUser.email,
-          photoURL: currentUser.photoURL || "/default-profile.png",
         });
       } else {
         setUser(null);
@@ -26,17 +24,6 @@ function Navbar() {
     });
 
     return () => unsubscribe();
-  }, []);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -59,26 +46,23 @@ function Navbar() {
 
       <div className="nav-right">
         {user ? (
-          <div className="menu-container" ref={dropdownRef}>
-            {/* Profile Image & Dropdown Button */}
-            <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="profile-btn">
-              <img
-                className="nav_profile_picture"
-                src={user.photoURL}
-                alt="Profile"
-                referrerPolicy="no-referrer"
-                onError={(e) => (e.target.src = "/default-profile.png")}
-              />
+          <div className="user-menu-container">
+            <button className="user-btn" onClick={() => setDropdownOpen(!isDropdownOpen)}>
+              {user.name.split(" ")[0]} ▼
             </button>
-
-            {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div className="dropdown-menu">
+                <h3>{user.name}</h3>
                 <ul>
-                  <DropdownItem link="/profile" text="Profile" />
-                  <DropdownItem link="/settings" text="Settings" />
-                  <DropdownItem isLogout text="Sign Out" onClick={() => logoutUser(setUser)} />
+                <Link to="/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>
                 </ul>
+                <ul>
+                <Link to="/settings" onClick={() => setDropdownOpen(false)}>Settings</Link>
+                </ul>
+                <ul>
+                <button onClick={() => { logoutUser(setUser); setDropdownOpen(false); }} className="logout-btn">Sign Out</button>
+                </ul>
+    
               </div>
             )}
           </div>
@@ -87,7 +71,6 @@ function Navbar() {
             Sign In
           </button>
         )}
-        
         <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>
 
         <div className="hamburger-menu">
@@ -95,23 +78,6 @@ function Navbar() {
         </div>
       </div>
     </nav>
-  );
-}
-
-// Dropdown Item Component
-function DropdownItem({ link, text, isLogout, onClick }) {
-  return (
-    <li className="dropdownItem">
-      {isLogout ? (
-        <button onClick={onClick} className="logout-btn">
-          {text}
-        </button>
-      ) : (
-        <Link to={link} className="dropdown-link">
-          {text}
-        </Link>
-      )}
-    </li>
   );
 }
 
