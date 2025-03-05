@@ -184,12 +184,11 @@ a:hover {
     padding: 10px 0;
     border-top: 1px solid rgba(0, 0, 0, 0.05);
     font-size: 1 rem;
-    color: var(--primary-background);
     margin: 0px 0;
 }
 
 .dropdown-menu a {
-    color: var(--text); /* Change this to your desired color */
+    color: var(--accent-background);
     text-decoration: none;
     font-size: 1.1rem;
     display: block;
@@ -198,7 +197,7 @@ a:hover {
 }
 
 .dropdown-menu a:hover {
-    color: var(--accent-background); /* Change to your desired hover color */
+    color: var(--secondary-background);
 }
 
 
@@ -210,7 +209,7 @@ h3 {
     font-weight: 300;
     font-size: 18px;
     line-height: 1.2rem;
-    color: var(--accent-background);
+    color: var(--accent-rgb);
 }
 /* FOR MOBILE ONLY */
 @media (max-width: 768px) {

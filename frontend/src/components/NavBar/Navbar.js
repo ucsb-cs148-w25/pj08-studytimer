@@ -57,7 +57,8 @@ function Navbar() {
       </div>
 
       <div className="nav-right">
-        <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>{user ? (
+        <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>
+        {user ? (
           <div className="user-menu-container">
             <button className="user-btn" onClick={() => setDropdownOpen(!isDropdownOpen)}>
               User ▼
