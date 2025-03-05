@@ -45,10 +45,10 @@ function Navbar() {
       </div>
 
       <div className="nav-right">
-        {user ? (
+        <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>{user ? (
           <div className="user-menu-container">
             <button className="user-btn" onClick={() => setDropdownOpen(!isDropdownOpen)}>
-              {user.name.split(" ")[0]} ▼
+              User ▼
             </button>
             {isDropdownOpen && (
               <div className="dropdown-menu">
@@ -71,7 +71,7 @@ function Navbar() {
             Sign In
           </button>
         )}
-        <Link to="/about" className={`about ${isMenuOpen ? "mobile" : ""}`}>About</Link>
+        
 
         <div className="hamburger-menu">
           <Hamburger toggled={isMenuOpen} toggle={setMenuOpen} size={28} />
