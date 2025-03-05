@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Squash as Hamburger } from "hamburger-react";
 import { loginWithGoogle, logoutUser } from "../../auth.js"; 
 import { auth } from "../../firebase.js";
@@ -10,6 +10,7 @@ function Navbar() {
   const [user, setUser] = useState(null);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null); // Reference for closing dropdown on outside click
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -24,6 +25,17 @@ function Navbar() {
     });
 
     return () => unsubscribe();
+  }, []);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -51,7 +63,7 @@ function Navbar() {
               User ▼
             </button>
             {isDropdownOpen && (
-              <div className="dropdown-menu">
+              <div ref={dropdownRef} className="dropdown-menu">
                 <h3>{user.name}</h3>
                 <ul>
                 <Link to="/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>
