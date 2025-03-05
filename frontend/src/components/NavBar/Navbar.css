@@ -45,7 +45,7 @@ a:hover {
     gap: 20px;
     list-style: none;
     padding: 1px;
-    margin: 2px;
+    margin: 6px;
 }
 
 #navbar li a {
@@ -65,6 +65,15 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 16px;
+}
+
+.nav_profile_picture{
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
 }
 
 @keyframes pulseBorder {
@@ -98,7 +107,6 @@ a:hover {
 
 /* Ensure logout button is aligned properly */
 .logout-btn {
-    display: flex;
     align-items: center;
     justify-content: center;
     background-color: var(--faint-background);
@@ -114,6 +122,18 @@ a:hover {
 
 .logout-btn:hover {
     background-color: var(--accent-background);
+}
+.user-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent-background); 
+    color: var(--primary-background);
+    border: none;
+    padding: 8px 15px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .user-name {
@@ -144,6 +164,53 @@ a:hover {
     color: var(--hover-faint-change);
 }
 
+.user-menu-container {
+    align-items: center;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 66px;
+    right: 0px;
+    background-color: #fff;
+    padding: 10px 20px;
+    width: 200px;
+    margin: auto;
+}
+
+
+.dropdown-menu ul {
+    text-align: center;
+    padding: 10px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 1 rem;
+    margin: 0px 0;
+}
+
+.dropdown-menu a {
+    color: var(--accent-background);
+    text-decoration: none;
+    font-size: 1.1rem;
+    display: block;
+    padding: 1px 0;
+    text-align: center;
+}
+
+.dropdown-menu a:hover {
+    color: var(--secondary-background);
+}
+
+
+h3 {
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+    padding: 2px 0;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 1.2rem;
+    color: var(--accent-rgb);
+}
 /* FOR MOBILE ONLY */
 @media (max-width: 768px) {
     #navbar {
