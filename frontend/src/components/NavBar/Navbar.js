@@ -52,7 +52,6 @@ function Navbar() {
             <>
               <li><Link to="/calendar">Calendar</Link></li>
               <li><Link to="/taskpage">Tasks</Link></li>
-              <li><Link to="/settings">Settings</Link></li>
             </>
           )}
         </ul>
@@ -74,22 +73,12 @@ function Navbar() {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="dropdown-menu absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
-                <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                  Profile
-                </Link>
-                <Link to="/settings" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                  Settings
-                </Link>
-                <button
-                  onClick={() => {
-                    logoutUser(setUser);
-                    setDropdownOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                >
-                  Sign Out
-                </button>
+              <div className="dropdown-menu">
+                <ul>
+                  <DropdownItem link="/profile" text="Profile" />
+                  <DropdownItem link="/settings" text="Settings" />
+                  <DropdownItem isLogout text="Sign Out" onClick={() => logoutUser(setUser)} />
+                </ul>
               </div>
             )}
           </div>
@@ -106,6 +95,23 @@ function Navbar() {
         </div>
       </div>
     </nav>
+  );
+}
+
+// Dropdown Item Component
+function DropdownItem({ link, text, isLogout, onClick }) {
+  return (
+    <li className="dropdownItem">
+      {isLogout ? (
+        <button onClick={onClick} className="logout-btn">
+          {text}
+        </button>
+      ) : (
+        <Link to={link} className="dropdown-link">
+          {text}
+        </Link>
+      )}
+    </li>
   );
 }
 
