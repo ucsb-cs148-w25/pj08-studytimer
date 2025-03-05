@@ -13,18 +13,25 @@ import { getFirestore, doc, updateDoc, getDoc } from "firebase/firestore";
 import unlockAchievement from "./components/Profile/unlockAchievement";
 import initializeAchievements from "./utils/initializeAchievements";
 import initializeStats from "./utils/initializeStats";
+import BreakTimer from './components/Home/BreakTimer';
 import './App.css'; // Import external styles
-
-/* BREAK SUGGESTION FEATURES:
-2. Progress Bar ticking away with respect to break time user sets
-3. Show encouraging message when ice-overlay for break occurs
-4. If dismissing a break, show optional snooze “Remind me in 5 minutes” 
-(will need to reset timer to 5 minutes and not count the break count until 
-user chooses not to snooze break i.e. skip break or endure whole break duration)
-*/
 
 // Example sound effect
 const freezeSound = new Audio('/sounds/freeze.mp3');
+
+// Break notification sound
+const breakAlertSound = new Audio('/sounds/breakNotification.mp3');
+
+// Encouraging Messages
+const breakMessages = [
+  "You're doing great! Keep it up! 💪",
+  "Breathe deeply and relax. 🌿",
+  "Nice work! Time to refresh yourself. ☕",
+  "Stay hydrated! Drink some water. 💧",
+  "Stretch a little! Your body will thank you. 🤸",
+  "You're making amazing progress! 🚀",
+];
+
 
 const App = () => {
   // ------------------------------------------------------------------
@@ -52,6 +59,8 @@ const App = () => {
 
   // Break Notifications
   const [showBreakNotification, setShowBreakNotification] = useState(false);
+
+  const [encouragingMessage, setEncouragingMessage] = useState("");
 
   // ------------------------------------------------------------------
   // Modal state
@@ -204,8 +213,6 @@ const App = () => {
   useEffect(() => {
     if (!isRunning || onBreak || sessionComplete) return;
 
-    const breakAlertSound = new Audio('/sounds/breakNotification.mp3');
-
     const timer = setInterval(() => {
       setStudyTimeLeft((prev) => {
         const nextVal = prev - 1;
@@ -253,6 +260,10 @@ const App = () => {
   // ------------------------------------------------------------------
   useEffect(() => {
     if (!isRunning || !onBreak || sessionComplete) return;
+
+    // Randomly select encouraging message
+    const randomMessage = breakMessages[Math.floor(Math.random() * breakMessages.length)];
+    setEncouragingMessage(randomMessage);
 
     const timer = setInterval(() => {
       setBreakTimeLeft((prev) => {
@@ -351,6 +362,13 @@ const App = () => {
                 <div className="timer-page">
                   <div className={`icy-overlay ${onBreak ? 'visible' : ''}`}>
                     <div className="icy-text">Take a Break ❄️</div>
+                    {/* Circular Progress Break Timer */}
+                    <BreakTimer 
+                      breakTimeLeft={breakTimeLeft}
+                      totalBreakTime={breakTime}
+                      formattedTime={formatTime(breakTimeLeft)}
+                    />
+                    <div className='break-message'>{encouragingMessage}</div>
                   </div>
                   <div className="timer-display">
                     {sessionComplete

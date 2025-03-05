@@ -37,6 +37,32 @@
   }
 }
 
+/* Break Timer */
+.break-timer {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-top: 20px;
+  color: #fff;
+}
+
+/* Encouraging Message */
+.break-message {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 90px;
+  margin-left: 20%;
+  color: #fff;
+  text-align: center;
+  max-width: 60%;
+}
+
+/* Progress Bar */
+.break-timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 /* Timer Page */
 .timer-page {
   display: flex;
