@@ -60,12 +60,24 @@ public class CalendarController {
 
         List<Map<String, String>> userEvents = new ArrayList<>();
         for (Event event : allEvents) {
+            // Extract start time
             String eventStart = (event.getStart().getDateTime() != null)
                     ? event.getStart().getDateTime().toString()
                     : event.getStart().getDate().toString();
+            
             Map<String, String> eventData = new HashMap<>();
             eventData.put("title", event.getSummary());
             eventData.put("start", eventStart);
+            
+            // Only include the "end" property if it exists and is non-empty.
+            if (event.getEnd() != null) {
+                String eventEnd = (event.getEnd().getDateTime() != null)
+                        ? event.getEnd().getDateTime().toString()
+                        : event.getEnd().getDate().toString();
+                if (eventEnd != null && !eventEnd.trim().isEmpty()) {
+                    eventData.put("end", eventEnd);
+                }
+            }
             userEvents.add(eventData);
         }
         return userEvents;

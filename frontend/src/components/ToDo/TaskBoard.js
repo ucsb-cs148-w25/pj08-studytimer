@@ -7,7 +7,7 @@ import {
   PointerSensor,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
-import { addTaskToCalendar } from '../../services/CalendarService';
+import { addTaskToCalendar } from "../../services/CalendarService";
 import TaskColumn from "./TaskColumn";
 import "./TaskBoard.css";
 
@@ -22,23 +22,23 @@ const TaskBoard = () => {
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
 
+  // Adds a new task to the specified column
   const addTask = (columnId, task) => {
-    setColumns(
-      columns.map((col) => {
-        if (col.id === columnId) {
-          return {
-            ...col,
-            tasks: [
-              ...col.tasks,
-              { ...task, id: `task-${Date.now()}` },
-            ],
-          };
-        }
-        return col;
-      })
+    // Create a unique ID for the task
+    const newTask = { ...task, id: `task-${Date.now()}` };
+
+    // Update local state for immediate UI feedback
+    setColumns((prevColumns) =>
+      prevColumns.map((col) =>
+        col.id === columnId
+          ? { ...col, tasks: [...col.tasks, newTask] }
+          : col
+      )
     );
+    return newTask;
   };
 
+  // Moves a task between columns
   const moveTask = (taskId, targetColumnId) => {
     setColumns((prevColumns) => {
       let taskToMove = null;
@@ -46,7 +46,10 @@ const TaskBoard = () => {
       const updatedColumns = prevColumns.map((column) => {
         if (column.tasks.some((task) => task.id === taskId)) {
           taskToMove = column.tasks.find((task) => task.id === taskId);
-          return { ...column, tasks: column.tasks.filter((task) => task.id !== taskId) };
+          return {
+            ...column,
+            tasks: column.tasks.filter((task) => task.id !== taskId),
+          };
         }
         return column;
       });
@@ -58,16 +61,21 @@ const TaskBoard = () => {
             : column
         );
       }
-
       return prevColumns;
     });
   };
 
-  
-  const handleAddTask = async (taskData) => {
+  // Handler to add a task and sync it to Google Calendar
+  const handleAddTask = async (columnId, taskData) => {
     try {
-      // Save task to your Firestore or local state as needed
-      // Then sync to Google Calendar:
+      // Make sure taskData includes a valid 'date' property.
+      if (!taskData.date) {
+        console.error('Task must include a date.');
+        return;
+      }
+      // Add the task locally (update UI)
+      addTask(columnId, taskData);
+      // Sync to Google Calendar via your backend.
       const calendarResponse = await addTaskToCalendar(taskData);
       console.log("Task added to Google Calendar:", calendarResponse);
     } catch (error) {
@@ -75,7 +83,7 @@ const TaskBoard = () => {
     }
   };
   
-
+  // Handle drag-and-drop events
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -85,8 +93,9 @@ const TaskBoard = () => {
     if (!sourceColumnId || !targetColumnId) return;
 
     if (sourceColumnId === targetColumnId) {
-      setColumns(
-        columns.map((column) => {
+      // Reorder tasks within the same column
+      setColumns((prevColumns) =>
+        prevColumns.map((column) => {
           if (column.id === sourceColumnId) {
             const oldIndex = column.tasks.findIndex(
               (task) => task.id === active.id
@@ -94,7 +103,6 @@ const TaskBoard = () => {
             const newIndex = column.tasks.findIndex(
               (task) => task.id === over.id
             );
-
             if (oldIndex !== -1 && newIndex !== -1) {
               return {
                 ...column,
@@ -106,6 +114,7 @@ const TaskBoard = () => {
         })
       );
     } else {
+      // Move a task from one column to another
       let taskToMove;
       const updatedColumns = columns.map((column) => {
         if (column.id === sourceColumnId) {
@@ -117,7 +126,6 @@ const TaskBoard = () => {
         }
         return column;
       });
-
       if (taskToMove) {
         setColumns(
           updatedColumns.map((column) =>
@@ -131,12 +139,24 @@ const TaskBoard = () => {
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
       <div className="task-board">
         <div className="columns">
           {columns.map((column) => (
-            <SortableContext key={column.id} items={column.tasks.map((task) => task.id)}>
-              <TaskColumn column={column} addTask={addTask} moveTask={moveTask} />
+            <SortableContext
+              key={column.id}
+              items={column.tasks.map((task) => task.id)}
+            >
+              <TaskColumn
+                column={column}
+                // Pass a callback that handles both local state update and calendar sync
+                addTask={(task) => handleAddTask(column.id, task)}
+                moveTask={moveTask}
+              />
             </SortableContext>
           ))}
         </div>

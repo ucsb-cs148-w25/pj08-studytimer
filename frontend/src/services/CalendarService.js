@@ -29,7 +29,7 @@ const getNextDay = (dateStr) => {
 };
 
 /**
- * Creates an all-day event in the user's Google Calendar for the given task.
+ * Creates an all‑day event in the user's Google Calendar for the given task.
  * Expects taskData to have the following properties:
  * - title: The task title.
  * - description: (Optional) A description of the task.
@@ -41,8 +41,7 @@ export const addTaskToCalendar = async (taskData) => {
     throw new Error("No Google token found in localStorage");
   }
 
-  // Prepare the event data as an all-day event.
-  // Note: For all-day events, the 'end' date is exclusive, so we set it to the next day.
+  // For all‑day events, the 'end' date is exclusive, so we set it to the next day.
   const eventData = {
     summary: `Task: ${taskData.title}`,
     description: taskData.description || "",
@@ -51,6 +50,44 @@ export const addTaskToCalendar = async (taskData) => {
     },
     end: {
       date: getNextDay(taskData.date), // e.g., "2025-03-02"
+    },
+  };
+
+  try {
+    const response = await axios.post(
+      `${BACKEND_URL}/api/calendar/tasks`,
+      eventData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding task to calendar:", error);
+    throw error;
+  }
+};
+
+/**
+ * Creates a timed event in the user's Google Calendar for the given task.
+ * Expects taskData to have the following properties:
+ * - title: The task title.
+ * - description: (Optional) A description of the task.
+ * - dateTime: The start date/time for the task in ISO format (e.g., "2025-03-01T09:00:00-08:00").
+ */
+export const addTimedTaskToCalendar = async (taskData) => {
+  const token = localStorage.getItem("googleToken");
+  if (!token) {
+    throw new Error("No Google token found in localStorage");
+  }
+
+  const eventData = {
+    summary: `Task: ${taskData.title}`,
+    description: taskData.description || "",
+    start: {
+      dateTime: taskData.dateTime, // e.g., "2025-03-01T09:00:00-08:00"
     },
   };
 
