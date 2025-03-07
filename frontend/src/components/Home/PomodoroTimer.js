@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import SettingsModal from './SettingsModal';
 import './PomodoroTimer.css';
 
@@ -25,20 +25,18 @@ const PomodoroTimer = () => {
   const [isFlow, setIsFlow] = useState(true); 
   const [isRunning, setIsRunning] = useState(false);
 
-  // A new state variable for displaying the current mode label:
-  // "focus", "shortBreak", or "longBreak"
+  // Display current mode label: "focus", "shortBreak", or "longBreak"
   const [mode, setMode] = useState("focus");
 
   // --------------------------------
-  // MODAL
+  // MODAL STATE
   // --------------------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // --------------------------------
-  // SESSION COMPLETE HANDLER
+  // SESSION COMPLETE HANDLER (memoized)
   // --------------------------------
-  // The parameter `skip` indicates if the session is being ended manually.
-  const completeSession = (skip = false) => {
+  const completeSession = useCallback((skip = false) => {
     if (isFlow) {
       // Finished a Flow session
       if (currentCycle + 1 === cycle) {
@@ -75,7 +73,16 @@ const PomodoroTimer = () => {
         setIsRunning(false);
       }
     }
-  };
+  }, [
+    isFlow,
+    currentCycle,
+    cycle,
+    shortBreakDuration,
+    longBreakDuration,
+    flowDuration,
+    startBreaksAutomatically,
+    startFlowsAutomatically
+  ]);
 
   // --------------------------------
   // EFFECT: MAIN TIMER
@@ -97,14 +104,7 @@ const PomodoroTimer = () => {
     return () => clearInterval(timer);
   }, [
     isRunning,
-    isFlow,
-    flowDuration,
-    shortBreakDuration,
-    longBreakDuration,
-    cycle,
-    currentCycle,
-    startBreaksAutomatically,
-    startFlowsAutomatically
+    completeSession
   ]);
 
   // --------------------------------
@@ -139,19 +139,14 @@ const PomodoroTimer = () => {
     setTimeLeft(isFlow ? newFlow * 60 : newShort * 60);
     setIsRunning(false);
 
-    // If we were in flow, keep mode = "focus", else set mode = "shortBreak"
-    if (isFlow) {
-      setMode("focus");
-    } else {
-      setMode("shortBreak");
-    }
+    // Set mode accordingly.
+    setMode(isFlow ? "focus" : "shortBreak");
   };
 
   // --------------------------------
   // HANDLE SKIP BUTTON
   // --------------------------------
   const handleSkip = () => {
-    // Use the skip flag to trigger auto-start logic if toggles are enabled.
     completeSession(true);
   };
 
@@ -162,17 +157,13 @@ const PomodoroTimer = () => {
     <div className="pomodoro-timer-container">
       {/* Mode Label */}
       <div className="mode-label">
-        {mode === "focus"
-          ? "Focus"
-          : mode === "shortBreak"
-          ? "Break"
-          : "Long Break"}
+        {mode === "focus" ? "Focus" : mode === "shortBreak" ? "Break" : "Long Break"}
       </div>
 
       {/* TIME DISPLAY */}
       <div className="timer-display">{formatTime(timeLeft)}</div>
 
-      {/* BUTTONS: START, SKIP, GEAR */}
+      {/* BUTTONS: START, SKIP, SETTINGS */}
       <div className="controls-row">
         <button
           className="start-button"
