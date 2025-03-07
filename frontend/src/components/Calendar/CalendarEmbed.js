@@ -21,7 +21,6 @@ const CalendarEmbed = () => {
   const loadGoogleEvents = async () => {
     try {
       const data = await fetchGoogleCalendarEvents();
-      console.log("Google Calendar raw events:", data);
       const transformed = Object.values(data)
         .map((event, index) => {
           const start =
@@ -50,7 +49,6 @@ const CalendarEmbed = () => {
           return eventObj;
         })
         .filter((event) => event.start && event.start.trim() !== "");
-      console.log("Transformed Google events:", transformed);
       setGoogleEvents(transformed);
     } catch (error) {
       console.error("Error fetching Google Calendar events:", error);
@@ -64,7 +62,6 @@ const CalendarEmbed = () => {
     try {
       const listsSnapshot = await getDocs(collection(db, `users/${uid}/lists`));
       const listsData = listsSnapshot.docs.map((docSnap) => docSnap.id);
-      console.log("Firestore lists found:", listsData);
 
       let allTasks = [];
       for (const listId of listsData) {
@@ -78,7 +75,6 @@ const CalendarEmbed = () => {
         }));
         allTasks = allTasks.concat(tasksForList);
       }
-      console.log("All Firestore tasks:", allTasks);
 
       const eventsData = allTasks
         .filter((task) => task.deadline)
@@ -98,7 +94,6 @@ const CalendarEmbed = () => {
           };
         });
 
-      console.log("Transformed Firestore events:", eventsData);
       setFirestoreEvents(eventsData);
     } catch (error) {
       console.error("Error fetching Firestore tasks:", error);

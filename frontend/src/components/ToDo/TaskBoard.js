@@ -70,7 +70,7 @@ const TaskBoard = () => {
     try {
       // Make sure taskData includes a valid 'date' property.
       if (!taskData.date) {
-        console.error('Task must include a date.');
+        console.error("Task must include a date.");
         return;
       }
       // Add the task locally (update UI)
@@ -82,7 +82,7 @@ const TaskBoard = () => {
       console.error("Failed to sync task to Google Calendar:", error);
     }
   };
-  
+
   // Handle drag-and-drop events
   const handleDragEnd = (event) => {
     const { active, over } = event;

@@ -16,21 +16,20 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/calendar")
-@CrossOrigin(origins = {"http://localhost:3000", "https://pj-timewise.netlify.app"})
+@CrossOrigin(origins = { "http://localhost:3000", "https://pj-timewise.netlify.app" })
 public class CalendarController {
 
     private static final String APPLICATION_NAME = "Timewise Calendar";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-    @GetMapping("/events")
-    public List<Map<String, String>> getUserCalendarEvents(@RequestHeader("Authorization") String authHeader)
-            throws IOException, GeneralSecurityException {
-
+    /**
+     * Helper method to initialize the Calendar service using the OAuth token.
+     */
+    private Calendar initializeCalendarService(String authHeader) throws IOException, GeneralSecurityException {
         String oauthToken = authHeader.replace("Bearer ", "").trim();
         if (oauthToken == null || oauthToken.isEmpty()) {
             throw new RuntimeException("No OAuth token provided in Authorization header.");
         }
-
         // Set expiration time far in the future (1 year)
         Date expirationTime = new Date(System.currentTimeMillis() + 31536000000L);
         AccessToken accessToken = new AccessToken(oauthToken, expirationTime);
@@ -41,9 +40,16 @@ public class CalendarController {
 
         HttpCredentialsAdapter requestInitializer = new HttpCredentialsAdapter(credentials);
 
-        Calendar service = new Calendar.Builder(new NetHttpTransport(), JSON_FACTORY, requestInitializer)
+        return new Calendar.Builder(new NetHttpTransport(), JSON_FACTORY, requestInitializer)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
+    }
+
+    @GetMapping("/events")
+    public List<Map<String, String>> getUserCalendarEvents(@RequestHeader("Authorization") String authHeader)
+            throws IOException, GeneralSecurityException {
+
+        Calendar service = initializeCalendarService(authHeader);
 
         List<Event> allEvents = new ArrayList<>();
         String pageToken = null;
@@ -64,12 +70,17 @@ public class CalendarController {
             String eventStart = (event.getStart().getDateTime() != null)
                     ? event.getStart().getDateTime().toString()
                     : event.getStart().getDate().toString();
-            
+
             Map<String, String> eventData = new HashMap<>();
             eventData.put("title", event.getSummary());
             eventData.put("start", eventStart);
-            
-            // Only include the "end" property if it exists and is non-empty.
+
+            // Add description if available.
+            if (event.getDescription() != null && !event.getDescription().trim().isEmpty()) {
+                eventData.put("description", event.getDescription());
+            }
+
+            // Include the "end" property if it exists and is non-empty.
             if (event.getEnd() != null) {
                 String eventEnd = (event.getEnd().getDateTime() != null)
                         ? event.getEnd().getDateTime().toString()
@@ -81,5 +92,20 @@ public class CalendarController {
             userEvents.add(eventData);
         }
         return userEvents;
+    }
+
+    /**
+     * Creates a new event (task) in the user's Google Calendar.
+     * Expects the event data in the request body.
+     */
+    @PostMapping("/tasks")
+    public Event createCalendarTask(@RequestHeader("Authorization") String authHeader, @RequestBody Event eventData)
+            throws IOException, GeneralSecurityException {
+
+        Calendar service = initializeCalendarService(authHeader);
+
+        // Insert the new event into the primary calendar.
+        Event createdEvent = service.events().insert("primary", eventData).execute();
+        return createdEvent;
     }
 }
