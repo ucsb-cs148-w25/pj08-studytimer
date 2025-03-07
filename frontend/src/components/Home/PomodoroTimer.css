@@ -1,0 +1,61 @@
+.pomodoro-timer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary-background); 
+    min-height: 100vh;
+}
+
+/* Mode label (e.g. "Focus", "Short Break", "Long Break") */
+.mode-label {
+    font-size: 2.1rem;
+    margin-bottom: -1rem;
+    color: var(--text);
+}
+
+.timer-display {
+    font-size: 7rem !important;
+    margin-bottom: 2rem;
+}
+
+/* Start, Skip, Reset Row of Buttons */
+.controls-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Start/Pause button */
+.start-button {
+    background-color: var(--accent-background);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+    color: var(--secondary-background);
+    cursor: pointer;
+}
+
+/* Additional styling for Skip button */
+.skip-button {
+    background-color: var(--accent-background);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+    color: var(--secondary-background);
+    cursor: pointer;
+}
+
+/* Gear button for Settings */
+.gear-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.gear-button img {
+    width: 28px;
+    height: 28px;
+}
