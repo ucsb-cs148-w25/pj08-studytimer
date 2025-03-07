@@ -1,10 +1,11 @@
 /* src/components/CalendarPage.css */
 .calendar-page {
     display: flex;
-    flex-direction: column; 
-    height: 92.5vh;
+    flex-direction: column;
+    height: 90vh;       /* not full viewport height so there is only one scrollbar*/
+    overflow: hidden;    /* Prevent nested scrollbars */
     background-color: var(--secondary-background);
-}
+  }  
 
 .main-content {
     display: flex;

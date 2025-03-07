@@ -7,6 +7,7 @@ import {
   PointerSensor,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
+import { addTaskToCalendar } from '../../services/CalendarService';
 import TaskColumn from "./TaskColumn";
 import "./TaskBoard.css";
 
@@ -61,6 +62,19 @@ const TaskBoard = () => {
       return prevColumns;
     });
   };
+
+  
+  const handleAddTask = async (taskData) => {
+    try {
+      // Save task to your Firestore or local state as needed
+      // Then sync to Google Calendar:
+      const calendarResponse = await addTaskToCalendar(taskData);
+      console.log("Task added to Google Calendar:", calendarResponse);
+    } catch (error) {
+      console.error("Failed to sync task to Google Calendar:", error);
+    }
+  };
+  
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
