@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import FriendRequestsMenu from './FriendRequestsMenu';
-import CommunityWithFriends from './CommunityWithFriends'; // Import composite component
+import FriendsList from './FriendList';
+import LeaderboardMenu from './LeaderboardMenu';
 import './Community.css';
 
 const CommunityPage = () => {
@@ -27,11 +28,11 @@ const CommunityPage = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'community':
-        return <CommunityWithFriends />;  // Render composite component here
+        return <FriendsList />;  // Render composite component here
       case 'friendRequests':
         return <FriendRequestsMenu />;
       case 'leaderboards':
-        return <div>Leaderboards Content</div>;
+        return <LeaderboardMenu />;
       default:
         return <div>Welcome</div>;
     }
