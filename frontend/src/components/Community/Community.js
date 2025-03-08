@@ -59,8 +59,11 @@ const CommunityPage = () => {
         >
           Leaderboards
         </div>
-        <div className="menu-item user-id" onClick={handleCopy}>
-          {user ? `Share Your User ID: ${user.uid}` : 'Loading...'}
+        <div className="menu-item user-id">
+          Share Your User ID:{" "}
+          <span className="user-id-link" onClick={handleCopy}>
+            {user ? user.uid : 'Loading...'}
+          </span>
         </div>
       </div>
       <div className="content">{renderContent()}</div>

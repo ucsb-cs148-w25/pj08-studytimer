@@ -36,7 +36,21 @@
   margin-top: 20px;
   border-top: 1px solid #ddd;
   padding-top: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
 }
+
+.user-id-link {
+  color: #007bff;            /* blue color like a hyperlink */
+  text-decoration: underline; /* underline for a link look */
+  cursor: pointer;
+}
+
+.user-id-link:hover {
+  color: #0056b3;  /* slightly darker on hover */
+  text-decoration: none;
+}
+
 
 .content {
   flex-grow: 1;
