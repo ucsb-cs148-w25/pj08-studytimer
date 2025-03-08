@@ -1,8 +1,6 @@
 # Documented below are our team members' individual AI coding experiments.
-### Kevin:
-**Roles:** 
-
-original code owner, deployment person, backup strum master, retro 3 leader
+## Kevin:
+**Roles:** original code owner, deployment person, backup strum master, retro 3 leader
 
 - As the original code owner, I came up with the idea of the study timer. My intention was to build a study tool that suggests  study durations and break durations based on tasks given to the app. This follows the pomodoro technique, with the timer stuff automated.
       
@@ -30,3 +28,23 @@ original code owner, deployment person, backup strum master, retro 3 leader
 - documentations from lab tasks 
 - backup scrum master standup notes
 
+## Jennifer:
+
+Roles: 
+Retro 1 leader
+- As the team’s first retrospective leader, I decided to use the Stop/Continue/Start method, which we continued to use for the rest of the other team retros. 
+
+Testing/QA Coordinator
+- I was responsible for making sure that pull requests for Kanban Board issues properly met the acceptance criteria for their respective user stories
+
+
+Code Contributions:
+** My local git was not configured properly with my github ID/ucsb email up until week 9 so the Contributions graph is missing most of my local commits. Pull Requests/commit messages titled “JL” and commits made under the name “Jennifer Lopez” were done by me.
+
+- Google OAuth Setup (w/ Kevin): Set up the correct scopes on Google Developer Console for our app to be able to access user’s name, email, and calendar once they logged in through Google OAuth 
+- Firebase Setup (w/ Kevin): Setup Firebase in our project’s frontend to store user data storage
+- Backend Setup on Spring-Boot (w/ Kevin): Set up our project’s backend which is used for Google OAuth authentication and Google Calendar API calls
+- Created dynamic charts for users to view metrics on their total task completion and to display their remaining tasks for the current week
+- Created app’s original navigation bar and later on made UI modifications based on user feedback in order for navigation to be more intuitive for users
+- Implemented unit tests for individual app components
+- Documented lab deliverables
