@@ -146,12 +146,14 @@ public class CalendarController {
         eventData.setDescription(taskEventDTO.getDescription());
 
         // Build start and end times based on deadline
-        String startDateTimeStr = taskEventDTO.getDeadline() + "T00:00:00Z";
-        String endDateTimeStr = taskEventDTO.getDeadline() + "T01:00:00Z";
-        logger.debug("Constructed startDateTime: {} and endDateTime: {}", startDateTimeStr, endDateTimeStr);
-
-        EventDateTime start = new EventDateTime().setDateTime(new DateTime(startDateTimeStr));
-        EventDateTime end = new EventDateTime().setDateTime(new DateTime(endDateTimeStr));
+        String startDateTimeStr = taskEventDTO.getDeadline() + "T00:00:00-08:00";
+        String endDateTimeStr = taskEventDTO.getDeadline() + "T01:00:00-08:00";
+        EventDateTime start = new EventDateTime()
+            .setDateTime(new DateTime(startDateTimeStr))
+            .setTimeZone("America/Los_Angeles"); 
+        EventDateTime end = new EventDateTime()
+            .setDateTime(new DateTime(endDateTimeStr))
+            .setTimeZone("America/Los_Angeles");
         eventData.setStart(start);
         eventData.setEnd(end);
 
@@ -169,5 +171,5 @@ public class CalendarController {
         }
 
         return createdEvent;
-    }
+    }   
 }
