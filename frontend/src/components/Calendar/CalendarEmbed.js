@@ -40,7 +40,6 @@ const CalendarEmbed = () => {
             title: event.summary || event.title || "No Title",
             start,
             allDay: isAllDay,
-            description: event.description || "",
           };
           // For timed events, include the end property if available.
           if (!isAllDay && end && end.trim() !== "") {

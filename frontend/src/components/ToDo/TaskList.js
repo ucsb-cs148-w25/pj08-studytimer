@@ -4,6 +4,7 @@ import "./TaskList.css";
 
 import { db } from "../../firebase";
 import { query, where, writeBatch, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, orderBy } from "firebase/firestore";
+import { addDeadlineTaskToCalendar } from "../../services/CalendarService";
 
 function getOrdinalSuffix(day) {
   if (day > 3 && day < 21) return "th";
@@ -288,12 +289,29 @@ const TaskList = ({ uid, selectedView }) => {
   };
 
   const finishEditingDeadline = (id) => {
+    console.log("finishEditingDeadline called for task id:", id);
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id !== id) return task;
         let updated = { ...task, isEditingDeadline: false };
-        if (updated.deadline && !updated.timeValue) {
-          setTimeDropdownTaskId(updated.id);
+        if (updated.deadline) {
+          // Convert ISO deadline to "YYYY-MM-DD" format
+          const deadlineDate = new Date(updated.deadline);
+          const yyyy = deadlineDate.getFullYear();
+          const mm = (deadlineDate.getMonth() + 1).toString().padStart(2, "0");
+          const dd = deadlineDate.getDate().toString().padStart(2, "0");
+          const deadlineStr = `${yyyy}-${mm}-${dd}`;
+          // Sync to Google Calendar using the task's text (stored in 'text') as the event title.
+          addDeadlineTaskToCalendar({
+            text: updated.text || "Untitled Task",
+            deadline: deadlineStr,
+            description: ""
+          })
+            .then((response) => console.log("Synced to Google Calendar:", response))
+            .catch((err) => console.error("Calendar sync error:", err));
+          if (!updated.timeValue) {
+            setTimeDropdownTaskId(updated.id);
+          }
         }
         updateTaskDoc(id.toString(), { isEditingDeadline: false });
         return updated;
