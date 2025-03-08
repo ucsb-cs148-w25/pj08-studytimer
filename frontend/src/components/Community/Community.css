@@ -1,0 +1,344 @@
+/* Container for the entire app layout */
+.community-container {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  flex: 0 0 150px;
+  background-color: #f5f5f5;
+  padding: 10px;
+  box-sizing: border-box;
+  border-right: 1px solid #ddd;
+}
+
+.menu-item {
+  margin-bottom: 10px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.menu-item:hover {
+  background-color: #e0e0e0;
+}
+
+.menu-item.active {
+  background-color: #d0d0d0;
+  font-weight: bold;
+}
+
+.menu-item.user-id {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* FriendsList Styles */
+.friends-list {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.friends-search-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.friends-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.friend-card {
+  cursor: pointer;
+  width: 120px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 8px;
+  text-align: center;
+  transition: box-shadow 0.2s ease;
+}
+
+.friend-card:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.friend-card-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.friend-card-name {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* FriendProfile Styles */
+.friend-profile-page {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.friend-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.friend-profile-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.friend-posts .post-item {
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+
+/* Community Feed Styles */
+
+.community-with-friends {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;  /* Adjust spacing between FriendsList and CommunityFeed */
+}
+
+/* The container for the feed */
+.community-feed {
+  margin-left: 20px;   /* Moves the feed away from the left edge */
+  margin-right: auto;  /* Keep it from stretching full width if you set a max-width */
+  max-width: 800px;    /* Optional: widen the feed area */
+  /* remove "margin: 0 auto;" if you had it before */
+}
+
+/* The form for creating a post */
+.create-post-form {
+  display: flex;
+  flex-direction: column; /* stack textarea and button */
+  gap: 10px;              /* space between textarea and button */
+  margin-bottom: 20px;    /* space below the form */
+}
+
+/* The text area (post input) */
+.new-post-input {
+  width: 100%;       /* Fill the container's width */
+  height: 120px;     /* Increase height to make it bigger */
+  font-size: 1rem;   /* Increase font size if you want */
+  resize: vertical;  /* Let user resize vertically if desired */
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* The post button */
+.post-button {
+  align-self: flex-start; /* Keep button aligned to the left */
+  padding: 8px 16px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* The container for all posts */
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Each post item */
+.post-item {
+  display: flex;
+  gap: 10px;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: #fafafa;
+}
+
+/* Post author icon */
+.post-author-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Content of a single post */
+.post-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-author-name {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.post-text {
+  white-space: pre-wrap;
+}
+
+
+
+/* Friend Requests Menu Styles */
+
+/* Container for the entire friend requests menu */
+.friend-requests-menu {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* The form for searching friends */
+.friend-search-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* The input for searching */
+.friend-search-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* The search button */
+.friend-search-button {
+  padding: 8px 12px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Error or status messages */
+.error-message,
+.status-message {
+  color: red;
+  margin-top: 10px;
+}
+
+/* Profile row container */
+.searched-profile {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  gap: 10px;
+}
+
+/* The profile icon (avatar) */
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* Container for the name */
+.profile-details {
+  flex: 1; /* take remaining space */
+}
+
+/* The user's display name */
+.profile-name {
+  font-weight: bold;
+}
+
+/* Container for the button or status on the right side */
+.profile-action {
+  /* margin-left: auto; or other styling as needed */
+}
+
+/* The "Send Friend Request" button */
+.send-request-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* The 'blue badge' style for statuses like "Already Friends" */
+.status-badge {
+  background-color: #2196f3;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+/* Pending requests list */
+.pending-requests {
+  margin-top: 20px;
+}
+
+/* Each pending request item */
+.pending-request-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* Accept / deny buttons */
+.accept-button,
+.deny-button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.accept-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.deny-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.request-actions {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
