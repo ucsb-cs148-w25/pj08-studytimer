@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import TaskToggle from "./TaskLabelToggle";
 import "./TaskList.css";
 
 import { db } from "../../firebase";
 import { query, where, writeBatch, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, orderBy } from "firebase/firestore";
+import { addDeadlineTaskToCalendar } from "../../services/CalendarService";
 
 function getOrdinalSuffix(day) {
   if (day > 3 && day < 21) return "th";
@@ -107,7 +108,7 @@ const TaskList = ({ uid, selectedView }) => {
   const [timeDropdownTaskId, setTimeDropdownTaskId] = useState(null);
   const [hoveredLabelId, setHoveredLabelId] = useState(null);
   const [labelOptionsOpen, setLabelOptionsOpen] = useState(null);
-
+  const syncInProgressRef = useRef({});
   useEffect(() => {
     if (!uid || !selectedView?.id) return;
     const docRef = doc(db, `users/${uid}/lists`, selectedView.id);
@@ -134,10 +135,13 @@ const TaskList = ({ uid, selectedView }) => {
       return;
     }
     try {
-      const taskDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, id.toString());
+      const taskDocRef = doc(
+        db,
+        `users/${uid}/lists/${selectedView.id.toString()}/tasks`,
+        id.toString()
+      );
       await updateDoc(taskDocRef, data);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error updating task:", error);
     }
   };
@@ -177,7 +181,6 @@ const TaskList = ({ uid, selectedView }) => {
       isEditingDeadline: false,
     };
     try {
-      console.log("Adding task:", customID, " To list:", selectedView.id.toString());
       const taskDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, customID);
       await setDoc(taskDocRef, newTask);
     } catch (error) {
@@ -277,9 +280,9 @@ const TaskList = ({ uid, selectedView }) => {
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id === id) {
+          // Only update local state; remove Firestore update here.
           const dateObj = new Date(newDate + "T00:00:00");
           const iso = dateObj.toISOString();
-          updateTaskDoc(id.toString(), { deadline: iso });
           return { ...task, deadline: iso };
         }
         return task;
@@ -287,15 +290,62 @@ const TaskList = ({ uid, selectedView }) => {
     );
   };
 
+  const syncTaskToGoogleCalendar = (task) => {
+    if (!task.deadline) return;
+
+    // Format the deadline as "YYYY-MM-DD"
+    const deadlineDate = new Date(task.deadline);
+    const yyyy = deadlineDate.getFullYear();
+    const mm = (deadlineDate.getMonth() + 1).toString().padStart(2, "0");
+    const dd = deadlineDate.getDate().toString().padStart(2, "0");
+    const deadlineStr = `${yyyy}-${mm}-${dd}`;
+
+    // If the task is already synced for this deadline, don't sync again.
+    if (task.lastSyncedDeadline === deadlineStr) {
+      console.log("Task already synced for this deadline:", deadlineStr);
+      return;
+    }
+
+    // If a sync for this task is already in progress, skip further calls.
+    if (syncInProgressRef.current[task.id]) {
+      return;
+    }
+
+    // Mark this task as currently syncing.
+    syncInProgressRef.current[task.id] = true;
+    updateTaskDoc(task.id, { isSyncingCalendar: true });
+
+    addDeadlineTaskToCalendar({
+      text: task.text || "Untitled Task",
+      deadline: deadlineStr,
+      description: task.description || ""
+    })
+      .then((response) => {
+        // Mark the task as synced and clear the syncing flag.
+        updateTaskDoc(task.id, {
+          lastSyncedDeadline: deadlineStr,
+          isSyncingCalendar: false,
+          isEditingDeadline: false
+        });
+        delete syncInProgressRef.current[task.id];
+      })
+      .catch((err) => {
+        console.error("Calendar sync error:", err);
+        // Clear the syncing flag on error.
+        updateTaskDoc(task.id, { isSyncingCalendar: false });
+        delete syncInProgressRef.current[task.id];
+      });
+  };
+
   const finishEditingDeadline = (id) => {
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id !== id) return task;
-        let updated = { ...task, isEditingDeadline: false };
-        if (updated.deadline && !updated.timeValue) {
-          setTimeDropdownTaskId(updated.id);
-        }
-        updateTaskDoc(id.toString(), { isEditingDeadline: false });
+        const updated = { ...task, isEditingDeadline: false };
+        // Always update Firestore with the new deadline and editing state.
+        updateTaskDoc(task.id, { deadline: updated.deadline, isEditingDeadline: false });
+        // Now call our dedicated sync function
+        syncTaskToGoogleCalendar(updated);
         return updated;
       })
     );
@@ -523,7 +573,7 @@ const TaskList = ({ uid, selectedView }) => {
               {task.text || "Untitled Task"}
             </span>
           )}
-  
+
           {task.isEditingDeadline ? (
             <div className="deadline-edit-container">
               <input
@@ -540,8 +590,10 @@ const TaskList = ({ uid, selectedView }) => {
               </button>
             </div>
           ) : (
-            <div className={`deadline-btn ${deadlineClass}`} 
-                 onClick={() => startEditingDeadline(task.id)}>
+            <div
+              className={`deadline-btn ${deadlineClass}`}
+              onClick={() => startEditingDeadline(task.id)}
+            >
               {task.deadline ? formatDeadline(task.deadline) : "Provide Deadline"}
             </div>
           )}
