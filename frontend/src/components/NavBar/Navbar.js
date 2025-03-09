@@ -70,6 +70,9 @@ function Navbar() {
                 <Link to="/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>
                 </ul>
                 <ul>
+                <Link to="/community" onClick={() => setDropdownOpen(false)}>Community</Link>
+                </ul>
+                <ul>
                 <Link to="/settings" onClick={() => setDropdownOpen(false)}>Settings</Link>
                 </ul>
                 <ul>

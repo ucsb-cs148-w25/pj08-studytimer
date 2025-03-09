@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useParams } from "react-router-dom";
 import { getFirestore, doc, collection, onSnapshot } from "firebase/firestore";
-import resetAchievements from "../../utils/resetAchievements";
-import resetStats from "../../utils/resetStats";
-import HomeSidebar from "../Home/HomeSidebar";
 import "./Profile.css";
 
 const achievementDescriptions = {
@@ -21,16 +18,10 @@ const achievementDescriptions = {
   longest_3_hour: "Study for 3 hours in a single session.",
 };
 
-// Component for an individual achievement card with custom badge icons, dynamic descriptions, and pastel backgrounds.
 function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
-  // Map the group IDs to their achievement objects (if any)
   const groupAchievements = groupIds.map(id => achievements.find(a => a.id === id));
-  // Count how many achievements are unlocked in this group
   const unlockedCount = groupAchievements.filter(a => a && a.unlocked).length;
 
-  // Determine the card title:
-  // 0 unlocked => "Not Unlocked"
-  // 1 unlocked => use the first achievement’s name, 2 unlocked => second, etc.
   let title = "Not Unlocked";
   if (unlockedCount > 0) {
     const achievementObj = groupAchievements[unlockedCount - 1];
@@ -38,14 +29,8 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
       title = achievementObj.name;
     }
   }
-
-  // Determine which icon to show based on progress:
-  // If unlocked, use the corresponding badge icon; otherwise, show a locked icon.
   const iconToShow = unlockedCount > 0 ? badgeIcons[unlockedCount - 1] : "/badges/locked.png";
 
-  // Update description:
-  // If all three achievements are unlocked, display "Maxed Achievement"
-  // Otherwise, if at least one is unlocked, show the description for the next achievement.
   let dynamicDescription = description;
   if (unlockedCount === 3) {
     dynamicDescription = "Maxed Achievement";
@@ -54,12 +39,11 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
     dynamicDescription = achievementDescriptions[nextAchievementId] || description;
   }
 
-  // Define pastel background colors for different levels of unlocked achievements.
   const backgroundColors = [
-    "#ffffff",   // 0 stars: white
-    "#d1dff6",   // 1 star
-    "#b2cbf2",   // 2 stars
-    "#92b6f0",   // 3 stars
+    "#ffffff",   // 0 unlocked
+    "#d1dff6",   // 1 unlocked
+    "#b2cbf2",   // 2 unlocked
+    "#92b6f0",   // 3 unlocked
   ];
   const cardStyle = { backgroundColor: backgroundColors[unlockedCount] };
 
@@ -90,10 +74,13 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
   );
 }
 
-function Profile() {
-  const [userName, setUserName] = useState("User");
-  const [userPhoto, setUserPhoto] = useState(null);
-  const [userStats, setUserStats] = useState({
+function FriendProfile() {
+  const { friendId } = useParams();
+  const db = getFirestore();
+
+  const [friendName, setFriendName] = useState("User");
+  const [friendPhoto, setFriendPhoto] = useState("/default-profile.png");
+  const [friendStats, setFriendStats] = useState({
     totalStudyTime: 0,
     totalBreaksTaken: 0,
     studySessions: 0,
@@ -102,50 +89,39 @@ function Profile() {
   });
   const [achievements, setAchievements] = useState([]);
 
+  // Subscribe to the friend's user document for stats and profile info.
   useEffect(() => {
-    const auth = getAuth();
-    const db = getFirestore();
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserName(user.displayName || "User");
-        setUserPhoto(user.photoURL || "/default-profile.png");
-
-        // Listen to real-time changes in stats
-        const statsRef = doc(db, `users/${user.uid}`);
-        const unsubscribeStats = onSnapshot(statsRef, (docSnap) => {
-          if (docSnap.exists() && docSnap.data().stats) {
-            setUserStats(docSnap.data().stats);
-          }
-        });
-
-        // Listen to real-time changes in achievements
-        const achievementsRef = collection(db, `users/${user.uid}/achievements`);
-        const unsubscribeAchievements = onSnapshot(achievementsRef, (snapshot) => {
-          if (!snapshot.empty) {
-            const achievementsList = snapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-            setAchievements(achievementsList);
-          }
-        });
-
-        // Cleanup listeners when component unmounts or user changes
-        return () => {
-          unsubscribeStats();
-          unsubscribeAchievements();
-        };
-      } else {
-        setUserName("User");
-        setUserPhoto("/default-profile.png");
+    const friendDocRef = doc(db, "users", friendId);
+    const unsubscribeFriend = onSnapshot(friendDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setFriendName(data.displayName || "User");
+        setFriendPhoto(data.photoURL || "/default-profile.png");
+        if (data.stats) {
+          setFriendStats(data.stats);
+        }
       }
     });
 
-    return () => unsubscribeAuth();
-  }, []);
+    // Subscribe to the friend's achievements subcollection.
+    const achievementsRef = collection(db, `users/${friendId}/achievements`);
+    const unsubscribeAchievements = onSnapshot(achievementsRef, (snapshot) => {
+      if (!snapshot.empty) {
+        const achievementsList = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setAchievements(achievementsList);
+      }
+    });
 
-  // Format time (hh:mm:ss)
+    return () => {
+      unsubscribeFriend();
+      unsubscribeAchievements();
+    };
+  }, [friendId, db]);
+
+  // Helper function to format seconds as hh:mm:ss.
   const formatTime = (seconds) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -153,7 +129,7 @@ function Profile() {
     return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // Define the achievement groups along with their specific badge icons
+  // Define achievement groups as in your Profile.js.
   const achievementGroups = [
     {
       groupIds: ["study_5_sessions", "study_10_sessions", "study_20_sessions"],
@@ -194,102 +170,72 @@ function Profile() {
   ];
 
   return (
-    <div className="profile">
-      {/* User Info Section */}
-      <div className="profile__user-info">
+    <div className="friend-profile">
+      {/* Friend Info Section */}
+      <div className="friend-profile__user-info">
         <img
-          className="profile__picture"
-          src={userPhoto}
+          className="friend-profile__picture"
+          src={friendPhoto}
           alt="Profile"
           referrerPolicy="no-referrer"
           onError={(e) => (e.target.src = "/default-profile.png")}
         />
-        <h1 className="profile__user-name">{userName}</h1>
+        <h1 className="friend-profile__user-name">{friendName}</h1>
       </div>
 
-      {/* Container for Stats & Achievements */}
-      <div className="profile__content">
-        {/* Stats Box */}
+      {/* Stats & Achievements */}
+      <div className="friend-profile__content">
+        {/* Stats */}
         <div className="stats">
           <h2 className="stats__title">User Stats</h2>
           <div className="stats__container">
-            {/* Total Study Time */}
             <div className="stats__item">
               <div className="stats__icon">
-                {/* Replace Font Awesome with your PNG icon */}
-                <img
-                  src="/icons/clock.png"
-                  alt="Clock Icon"
-                  className="stats__icon-img"
-                />
+                <img src="/icons/clock.png" alt="Clock Icon" className="stats__icon-img" />
               </div>
               <h3 className="stats__item-title">Total Study Time</h3>
-              <p className="stats__item-value">{formatTime(userStats.totalStudyTime)}</p>
+              <p className="stats__item-value">{formatTime(friendStats.totalStudyTime)}</p>
             </div>
 
-            {/* Study Sessions */}
             <div className="stats__item">
               <div className="stats__icon">
-                <img
-                  src="/icons/play.png"
-                  alt="Play Icon"
-                  className="stats__icon-img"
-                />
+                <img src="/icons/play.png" alt="Play Icon" className="stats__icon-img" />
               </div>
               <h3 className="stats__item-title">Study Sessions</h3>
-              <p className="stats__item-value">{userStats.studySessions}</p>
+              <p className="stats__item-value">{friendStats.studySessions}</p>
             </div>
 
-            {/* Breaks Taken */}
             <div className="stats__item">
               <div className="stats__icon">
-                <img
-                  src="/icons/coffee.png"
-                  alt="Coffee Icon"
-                  className="stats__icon-img"
-                />
+                <img src="/icons/coffee.png" alt="Coffee Icon" className="stats__icon-img" />
               </div>
               <h3 className="stats__item-title">Breaks Taken</h3>
-              <p className="stats__item-value">{userStats.totalBreaksTaken}</p>
+              <p className="stats__item-value">{friendStats.totalBreaksTaken}</p>
             </div>
 
-            {/* Longest Study Session */}
             <div className="stats__item">
               <div className="stats__icon">
-                <img
-                  src="/icons/stopwatch.png"
-                  alt="Stopwatch Icon"
-                  className="stats__icon-img"
-                />
+                <img src="/icons/stopwatch.png" alt="Stopwatch Icon" className="stats__icon-img" />
               </div>
               <h3 className="stats__item-title">Longest Study Session</h3>
-              <p className="stats__item-value">{formatTime(userStats.longestSession)}</p>
+              <p className="stats__item-value">{formatTime(friendStats.longestSession)}</p>
             </div>
 
-            {/* Last Study Session */}
             <div className="stats__item">
               <div className="stats__icon">
-                <img
-                  src="/icons/calendar.png"
-                  alt="Calendar Icon"
-                  className="stats__icon-img"
-                />
+                <img src="/icons/calendar.png" alt="Calendar Icon" className="stats__icon-img" />
               </div>
               <h3 className="stats__item-title">Last Study Session</h3>
               <p className="stats__item-value">
-                {userStats.lastSessionDate !== "N/A"
-                  ? new Date(userStats.lastSessionDate).toLocaleString()
+                {friendStats.lastSessionDate !== "N/A"
+                  ? new Date(friendStats.lastSessionDate).toLocaleString()
                   : "N/A"}
               </p>
             </div>
           </div>
-
-          <button className="button-reset button-reset--stats" onClick={resetStats}>
-            Reset Stats
-          </button>
         </div>
 
-        {/* Achievements Cards Section */}
+        {/* Achievements */}
         <div className="achievements">
           <h2>User Achievements</h2>
           <div className="achievement-cards-container">
@@ -303,18 +249,10 @@ function Profile() {
               />
             ))}
           </div>
-          <button className="button-reset button-reset--achievements" onClick={resetAchievements}>
-            Reset Achievements
-          </button>
         </div>
-      </div>
-
-      {/* Sidebar Section */}
-      <div className="profile__sidebar">
-        <HomeSidebar />
       </div>
     </div>
   );
 }
 
-export default Profile;
+export default FriendProfile;
