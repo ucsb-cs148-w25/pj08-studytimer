@@ -4,7 +4,7 @@ import "./TaskList.css";
 
 import { db } from "../../firebase";
 import { query, where, writeBatch, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, orderBy } from "firebase/firestore";
-import { addDeadlineTaskToCalendar } from "../../services/CalendarService";
+import { addDeadlineTaskToCalendar, deleteCalendarEvent, updateCalendarEvent, fetchEvents } from "../../services/CalendarService";
 
 function getOrdinalSuffix(day) {
   if (day > 3 && day < 21) return "th";
@@ -193,14 +193,73 @@ const TaskList = ({ uid, selectedView }) => {
       console.error("User not signed in, cannot delete the task");
       return;
     }
+  
+    // Find the task to delete from the current state.
+    const taskToDelete = tasks.find((task) => task.id.toString() === id.toString());
+    if (!taskToDelete) {
+      console.error("Task not found");
+      return;
+    }
+  
     try {
+      // If the task has a stored Google Calendar event ID, attempt to delete it.
+      if (taskToDelete.googleEventId) {
+        try {
+          await deleteCalendarEvent(taskToDelete.googleEventId);
+        } catch (err) {
+          // If the event is already deleted, ignore the error.
+          if (err.response && err.response.status === 410) {
+            console.log("Calendar event already deleted (410), proceeding with Firestore deletion.");
+          } else {
+            console.error("Error deleting calendar event:", err);
+            throw err; // rethrow if it's a different error
+          }
+        }
+      } else {
+        console.log("No googleEventId found for task, skipping calendar deletion.");
+      }
+  
+      // Now delete the task from Firestore.
       await deleteDoc(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, id.toString()));
       setTasks((prev) => prev.filter((task) => task.id.toString() !== id.toString()));
-      console.log("Task deleted successfully!");
+      console.log("Task deleted successfully from Firestore!");
     } catch (error) {
       console.error("Error deleting task:", error);
     }
   };
+
+  async function syncDeletedCalendarEvents(uid, selectedView) {
+    console.log("Polling Google Calendar events...");
+    try {
+      const calendarEvents = await fetchEvents();
+      console.log("Fetched events:", calendarEvents);
+      const eventIds = calendarEvents.map((event) => event.id);
+  
+      // Get all tasks that might have a googleEventId.
+      const tasksRef = collection(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`);
+      const tasksSnapshot = await getDocs(tasksRef);
+  
+      tasksSnapshot.forEach(async (docSnap) => {
+        const taskData = docSnap.data();
+        if (taskData.googleEventId && taskData.syncedFromTaskList) {
+          if (!eventIds.includes(taskData.googleEventId)) {
+            console.log(`Deleting task ${docSnap.id} because its calendar event is missing.`);
+            await deleteDoc(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, docSnap.id));
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error syncing deleted calendar events:", error);
+    }
+  }  
+  
+  // Set an interval to run the polling function every 5 minutes.
+  setInterval(() => {
+    // Ensure you have uid and selectedView defined in your scope.
+    if (uid && selectedView) {
+      syncDeletedCalendarEvents(uid, selectedView);
+    }
+  }, 5 * 60 * 1000);
 
   const startTaskEditing = (id) => {
     setTasks((prev) =>
@@ -227,7 +286,14 @@ const TaskList = ({ uid, selectedView }) => {
       prev.map((task) => {
         if (task.id !== id) return task;
         let updated = { ...task, isTitleEditing: false };
+        // Update Firestore with the new title
         updateTaskDoc(id.toString(), { text: updated.text, isTitleEditing: false });
+        
+        // Force a calendar sync even if the deadline hasn't changed
+        if (updated.googleEventId) {
+          syncTaskToGoogleCalendar(updated, true);
+        }
+  
         if (pressedKey === "Enter" || pressedKey === "Tab") {
           if (!updated.deadline) {
             updated = { ...updated, isEditingDeadline: true };
@@ -289,62 +355,67 @@ const TaskList = ({ uid, selectedView }) => {
       })
     );
   };
-
-  const syncTaskToGoogleCalendar = (task) => {
+  
+  const syncTaskToGoogleCalendar = (task, forceSync = false) => {
     if (!task.deadline) return;
-
+  
     // Format the deadline as "YYYY-MM-DD"
     const deadlineDate = new Date(task.deadline);
     const yyyy = deadlineDate.getFullYear();
     const mm = (deadlineDate.getMonth() + 1).toString().padStart(2, "0");
     const dd = deadlineDate.getDate().toString().padStart(2, "0");
     const deadlineStr = `${yyyy}-${mm}-${dd}`;
-
-    // If the task is already synced for this deadline, don't sync again.
-    if (task.lastSyncedDeadline === deadlineStr) {
-      console.log("Task already synced for this deadline:", deadlineStr);
+  
+    // If not forcing sync and the deadline hasn't changed, skip syncing.
+    if (!forceSync && task.lastSyncedDeadline === deadlineStr) {
       return;
     }
-
-    // If a sync for this task is already in progress, skip further calls.
-    if (syncInProgressRef.current[task.id]) {
-      return;
-    }
-
-    // Mark this task as currently syncing.
+  
+    // Prevent multiple syncs for the same task.
+    if (syncInProgressRef.current[task.id]) return;
     syncInProgressRef.current[task.id] = true;
     updateTaskDoc(task.id, { isSyncingCalendar: true });
-
-    addDeadlineTaskToCalendar({
-      text: task.text || "Untitled Task",
-      deadline: deadlineStr,
-      description: task.description || ""
-    })
+  
+    const calendarSyncPromise = task.googleEventId
+      ? updateCalendarEvent(task.googleEventId, {
+          text: task.text || "Untitled Task",
+          deadline: deadlineStr,
+          description: task.description || ""
+        })
+      : addDeadlineTaskToCalendar({
+          text: task.text || "Untitled Task",
+          deadline: deadlineStr,
+          description: task.description || ""
+        });
+  
+    calendarSyncPromise
       .then((response) => {
-        // Mark the task as synced and clear the syncing flag.
+        // Update the task document with the new synced deadline, event ID,
+        // and mark it as a TaskList-synced task.
         updateTaskDoc(task.id, {
           lastSyncedDeadline: deadlineStr,
           isSyncingCalendar: false,
-          isEditingDeadline: false
+          isEditingDeadline: false,
+          googleEventId: response.id,
+          syncedFromTaskList: true
         });
         delete syncInProgressRef.current[task.id];
       })
       .catch((err) => {
         console.error("Calendar sync error:", err);
-        // Clear the syncing flag on error.
         updateTaskDoc(task.id, { isSyncingCalendar: false });
         delete syncInProgressRef.current[task.id];
       });
   };
 
-  const finishEditingDeadline = (id) => {
+  const finishEditingDeadline = (id, pressedKey) => {
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id !== id) return task;
         const updated = { ...task, isEditingDeadline: false };
         // Always update Firestore with the new deadline and editing state.
         updateTaskDoc(task.id, { deadline: updated.deadline, isEditingDeadline: false });
-        // Now call our dedicated sync function
+        // Now call our dedicated sync function.
         syncTaskToGoogleCalendar(updated);
         return updated;
       })
@@ -409,28 +480,41 @@ const TaskList = ({ uid, selectedView }) => {
       return;
     }
     try {
+      // Delete the label document from Firestore.
       await deleteDoc(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, id.toString()));
-
-      // gather all tasks with this label
+  
+      // Gather all tasks with this label.
       const taskQuery = query(
         collection(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`), 
         where("labelId", "==", id.toString())
       );
       const tasksSnapshot = await getDocs(taskQuery);
-
-      // to thennn, delete them all!
+  
+      // Create an array of promises for calendar deletion.
+      const deletionPromises = [];
+      tasksSnapshot.forEach((taskSnap) => {
+        const taskData = taskSnap.data();
+        if (taskData.googleEventId) {
+          deletionPromises.push(deleteCalendarEvent(taskData.googleEventId));
+        }
+      });
+      // Wait for all calendar event deletions to complete.
+      await Promise.all(deletionPromises);
+  
+      // Use a batch to delete all tasks from Firestore.
       const batch = writeBatch(db);
       tasksSnapshot.forEach((taskSnap) => {
         batch.delete(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, taskSnap.id.toString()));
-        console.log("Task deleted successfully!");
+        console.log("Task deleted from Firestore:", taskSnap.id);
       });
       await batch.commit();
-
+  
+      // Update local state.
       setLabels((prev) => prev.filter((label) => label.id.toString() !== id.toString()));
       setTasks((prev) => prev.filter((task) => task.labelId !== id));
-      console.log("Label deleted and associated tasks successfully!");
-    }
-    catch (error) {
+  
+      console.log("Label and all associated tasks (and their Google Calendar events) deleted successfully!");
+    } catch (error) {
       console.error("Error deleting label:", error);
     }
   };
@@ -560,7 +644,9 @@ const TaskList = ({ uid, selectedView }) => {
               autoFocus
               value={task.text}
               onChange={(e) => handleTaskChange(task.id, e.target.value)}
-              onBlur={() => finishTaskEditing(task.id)}
+              onBlur={() => {
+                finishTaskEditing(task.id);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === "Tab") {
                   e.preventDefault();
