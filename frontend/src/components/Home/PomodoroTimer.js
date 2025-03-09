@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import SettingsModal from './SettingsModal';
 import './PomodoroTimer.css';
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const PomodoroTimer = () => {
   // --------------------------------
@@ -28,21 +30,84 @@ const PomodoroTimer = () => {
   // Display current mode label: "focus", "shortBreak", or "longBreak"
   const [mode, setMode] = useState("focus");
 
+  // Store the full duration (in seconds) of the current session for calculating elapsed time.
+  const [currentSessionDuration, setCurrentSessionDuration] = useState(flowDuration * 60);
+
+  // --------------------------------
+  // STATS STATE (stored in seconds)
+  // --------------------------------
+  const [stats, setStats] = useState(null);
+
   // --------------------------------
   // MODAL STATE
   // --------------------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // --------------------------------
+  // FETCH STATS FROM FIREBASE ON MOUNT
+  // --------------------------------
+  useEffect(() => {
+    const fetchStats = async () => {
+      const auth = getAuth();
+      if (!auth.currentUser) {
+        console.error("User is not authenticated.");
+        return;
+      }
+      const db = getFirestore();
+      const statsRef = doc(db, `users/${auth.currentUser.uid}`);
+      try {
+        const statsSnap = await getDoc(statsRef);
+        if (statsSnap.exists() && statsSnap.data().stats) {
+          setStats(statsSnap.data().stats);
+        } else {
+          // If stats do not exist, initialize with defaults.
+          setStats({
+            totalStudyTime: 0,    // in seconds
+            totalBreaksTaken: 0,
+            studySessions: 0,
+            longestSession: 0,    // in seconds
+            lastSessionDate: "N/A",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  // --------------------------------
   // SESSION COMPLETE HANDLER (memoized)
   // --------------------------------
   const completeSession = useCallback((skip = false) => {
+    if (isFlow) {
+      // Calculate elapsed time in seconds for the current study session.
+      const elapsedSeconds = currentSessionDuration - timeLeft;
+
+      // Update study stats with elapsed seconds
+      setStats(prev => ({
+        ...prev,
+        totalStudyTime: prev.totalStudyTime + elapsedSeconds,
+        studySessions: prev.studySessions + 1,
+        longestSession: Math.max(prev.longestSession, elapsedSeconds),
+        lastSessionDate: new Date().toLocaleString(),
+      }));
+    } else {
+      // For break sessions, simply increment the break counter.
+      setStats(prev => ({
+        ...prev,
+        totalBreaksTaken: prev.totalBreaksTaken + 1,
+      }));
+    }
+
     if (isFlow) {
       // Finished a Flow session
       if (currentCycle + 1 === cycle) {
         // Completed a full cycle → Long Break
         setIsFlow(false);
         setTimeLeft(longBreakDuration * 60);
+        setCurrentSessionDuration(longBreakDuration * 60);
         setCurrentCycle(0);
         setMode("longBreak");
         if (skip && startBreaksAutomatically) {
@@ -54,6 +119,7 @@ const PomodoroTimer = () => {
         // Otherwise, use a Short Break
         setIsFlow(false);
         setTimeLeft(shortBreakDuration * 60);
+        setCurrentSessionDuration(shortBreakDuration * 60);
         setCurrentCycle(currentCycle + 1);
         setMode("shortBreak");
         if (skip && startBreaksAutomatically) {
@@ -66,6 +132,7 @@ const PomodoroTimer = () => {
       // Finished a Break session → Start a new Flow
       setIsFlow(true);
       setTimeLeft(flowDuration * 60);
+      setCurrentSessionDuration(flowDuration * 60);
       setMode("focus");
       if (skip && startFlowsAutomatically) {
         setIsRunning(true);
@@ -81,7 +148,9 @@ const PomodoroTimer = () => {
     longBreakDuration,
     flowDuration,
     startBreaksAutomatically,
-    startFlowsAutomatically
+    startFlowsAutomatically,
+    currentSessionDuration,
+    timeLeft
   ]);
 
   // --------------------------------
@@ -102,10 +171,31 @@ const PomodoroTimer = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [
-    isRunning,
-    completeSession
-  ]);
+  }, [isRunning, completeSession]);
+
+  // --------------------------------
+  // UPDATE FIREBASE STATS WHEN LOCAL STATS CHANGE
+  // --------------------------------
+  useEffect(() => {
+    if (!stats) return; // Wait until stats are loaded
+    const updateFirebaseStats = async () => {
+      const auth = getAuth();
+      if (!auth.currentUser) {
+        console.error("User is not authenticated.");
+        return;
+      }
+      const db = getFirestore();
+      const statsRef = doc(db, `users/${auth.currentUser.uid}`);
+      try {
+        await setDoc(statsRef, { stats }, { merge: true });
+        console.log("Stats updated successfully on firebase");
+      } catch (error) {
+        console.error("Error updating stats on firebase:", error);
+      }
+    };
+
+    updateFirebaseStats();
+  }, [stats]);
 
   // --------------------------------
   // FORMAT TIME FOR DISPLAY
@@ -136,11 +226,22 @@ const PomodoroTimer = () => {
 
     // Reset current cycle count and update timeLeft based on current mode.
     setCurrentCycle(0);
-    setTimeLeft(isFlow ? newFlow * 60 : newShort * 60);
-    setIsRunning(false);
 
-    // Set mode accordingly.
-    setMode(isFlow ? "focus" : "shortBreak");
+    if (isFlow) {
+      setTimeLeft(newFlow * 60);
+      setCurrentSessionDuration(newFlow * 60);
+      setMode("focus");
+    } else {
+      if (mode === "longBreak") {
+        setTimeLeft(newLong * 60);
+        setCurrentSessionDuration(newLong * 60);
+      } else {
+        setTimeLeft(newShort * 60);
+        setCurrentSessionDuration(newShort * 60);
+      }
+    }
+
+    setIsRunning(false);
   };
 
   // --------------------------------

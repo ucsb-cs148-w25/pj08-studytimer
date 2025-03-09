@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -12,8 +12,8 @@ const FriendsList = () => {
   const currentUser = auth.currentUser;
   const navigate = useNavigate();
 
-  // Fetch friends from the current user's friends subcollection.
-  const fetchFriends = async () => {
+  // Memoize fetchFriends so that its reference doesn't change on every render.
+  const fetchFriends = useCallback(async () => {
     if (!currentUser) return;
     try {
       const friendsCol = collection(db, 'users', currentUser.uid, 'friends');
@@ -34,11 +34,11 @@ const FriendsList = () => {
     } catch (error) {
       console.error("Error fetching friends:", error);
     }
-  };
+  }, [currentUser, db]);
 
   useEffect(() => {
     fetchFriends();
-  }, [currentUser]);
+  }, [fetchFriends]);
 
   // Filter friends based on the search term.
   useEffect(() => {

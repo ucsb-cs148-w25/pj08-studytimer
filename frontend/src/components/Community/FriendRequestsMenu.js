@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   getFirestore,
   doc,
@@ -38,8 +38,8 @@ const FriendRequestsMenu = () => {
   const currentUser = auth.currentUser;
   const db = getFirestore();
 
-  // Fetch pending friend requests from the current user's "pendingRequests" subcollection.
-  const fetchPendingRequests = async () => {
+  // Wrap fetchPendingRequests in useCallback to memoize its reference.
+  const fetchPendingRequests = useCallback(async () => {
     if (!currentUser) return;
     const pendingRequestsCol = collection(db, 'users', currentUser.uid, 'pendingRequests');
     const querySnapshot = await getDocs(pendingRequestsCol);
@@ -48,11 +48,11 @@ const FriendRequestsMenu = () => {
       requests.push({ firebaseId: doc.id, ...doc.data() });
     });
     setPendingRequests(requests);
-  };
+  }, [currentUser, db]);
 
   useEffect(() => {
     fetchPendingRequests();
-  }, [currentUser]);
+  }, [fetchPendingRequests]);
 
   // Handle search for a friend profile by Firebase ID.
   const handleSearch = async (e) => {
