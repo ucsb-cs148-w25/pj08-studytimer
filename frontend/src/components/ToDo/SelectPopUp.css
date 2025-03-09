@@ -1,0 +1,97 @@
+.select-popup-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  transform: translateY(35%);
+}
+
+.select-popup-container {
+  pointer-events: auto; 
+  background-color: #fff;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.6rem 0.6rem;
+  border-radius: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  position: relative;
+}
+
+.select-popup-option {
+  display: flex;
+  align-items: center;
+  padding: 0 0.8rem;
+  cursor: pointer;
+}
+
+.select-popup-option.unselect-option {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+  
+.unselect-icon-container {
+  position: relative;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-right: 0.5rem;
+}
+
+.unselect-icon-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.35s ease;
+}
+
+.unselect-icon-container .filled {
+  opacity: 1;
+}
+
+.unselect-icon-container .empty {
+  opacity: 0;
+}
+
+.select-popup-option.unselect-option:hover .unselect-icon-container .filled {
+  opacity: 0;
+}
+
+.select-popup-option.unselect-option:hover .unselect-icon-container .empty {
+  opacity: 1;
+}
+
+.select-popup-option.delete-option {
+  display: flex;
+  align-items: center;
+}
+
+.select-popup-option.delete-option:hover {
+  background-color: #ffe2e2;
+}
+
+.select-popup-option:hover {
+  background-color: #f9f9f9;
+}
+
+.select-popup-option span {
+  font-size: 0.925rem;
+  font-weight: 450;
+  white-space: nowrap;
+}
+
+.select-popup-divider {
+  width: 0.5px;
+  height: 1.75rem;
+  background-color: #dcdcdc;
+}
+
+.delete-option span {
+  color: #d11;
+}
+  

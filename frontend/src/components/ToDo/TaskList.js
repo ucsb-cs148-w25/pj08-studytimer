@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TaskToggle from "./TaskLabelToggle";
+import SelectPopUp from "./SelectPopUp";
 import "./TaskList.css";
 
 import { db } from "../../firebase";
@@ -107,6 +108,7 @@ const TaskList = ({ uid, selectedView }) => {
   const [timeDropdownTaskId, setTimeDropdownTaskId] = useState(null);
   const [hoveredLabelId, setHoveredLabelId] = useState(null);
   const [labelOptionsOpen, setLabelOptionsOpen] = useState(null);
+  const [isSelectMode, setIsSelectMode] = useState(false);
 
   useEffect(() => {
     if (!uid || !selectedView?.id) return;
@@ -191,8 +193,8 @@ const TaskList = ({ uid, selectedView }) => {
       return;
     }
     try {
-      await deleteDoc(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, id.toString()));
       setTasks((prev) => prev.filter((task) => task.id.toString() !== id.toString()));
+      await deleteDoc(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, id.toString()));
       console.log("Task deleted successfully!");
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -250,6 +252,26 @@ const TaskList = ({ uid, selectedView }) => {
       })
     );
   };
+
+  const toggleTaskSelected = (id) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => {
+        if (task.id === id) {
+          return { ...task, selected: !task.selected };
+        }
+        return task;
+      })
+    );
+  };
+
+  function handleToggleClick(option) {
+    setActiveOption(option);
+    if (option === "task") {
+      addTask();
+    } else if (option === "label") {
+      addLabel();
+    }
+  }
 
   const toggleTaskCompleted = (id) => {
     setTasks((prev) =>
@@ -343,10 +365,10 @@ const TaskList = ({ uid, selectedView }) => {
       order: labels.length,
     };
     try {
-      const labelDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, customID);
-      await setDoc(labelDocRef, newLabel);
       setLabels((prev) => [...prev, { ...newLabel, id: customID }]);
       setActiveLabelId(customID);
+      const labelDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, customID);
+      await setDoc(labelDocRef, newLabel);
     }
     catch (error) {
       console.error("Error adding label:", error);
@@ -359,16 +381,16 @@ const TaskList = ({ uid, selectedView }) => {
       return;
     }
     try {
+      setLabels((prev) => prev.filter((label) => label.id.toString() !== id.toString()));
+      setTasks((prev) => prev.filter((task) => task.labelId !== id));
       await deleteDoc(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/labels`, id.toString()));
 
-      // gather all tasks with this label
       const taskQuery = query(
         collection(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`), 
         where("labelId", "==", id.toString())
       );
       const tasksSnapshot = await getDocs(taskQuery);
 
-      // to thennn, delete them all!
       const batch = writeBatch(db);
       tasksSnapshot.forEach((taskSnap) => {
         batch.delete(doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, taskSnap.id.toString()));
@@ -376,8 +398,6 @@ const TaskList = ({ uid, selectedView }) => {
       });
       await batch.commit();
 
-      setLabels((prev) => prev.filter((label) => label.id.toString() !== id.toString()));
-      setTasks((prev) => prev.filter((task) => task.labelId !== id));
       console.log("Label deleted and associated tasks successfully!");
     }
     catch (error) {
@@ -433,15 +453,6 @@ const TaskList = ({ uid, selectedView }) => {
     }
   };
 
-  const handleToggleClick = (option) => {
-    setActiveOption(option);
-    if (option === "task") {
-      addTask();
-    } else if (option === "label") {
-      addLabel();
-    }
-  };
-
   const moveLabelUp = (index) => {
     if (index <= 0) return;
     const newLabel = [...labels];
@@ -480,29 +491,42 @@ const TaskList = ({ uid, selectedView }) => {
     });
   };
 
-  const getTasksForLabel = (labelId) => tasks.filter((t) => t.labelId === labelId);
   const generalTasks = tasks.filter((t) => t.labelId === null);
 
   const renderTaskItem = (task) => {
     const isEditingAnyField =
-      task.isTitleEditing ||
-      task.isEditingDeadline ||
-      timeDropdownTaskId === task.id;
-
+      task.isTitleEditing || task.isEditingDeadline || timeDropdownTaskId === task.id;
     const deadlineClass = getDeadlineClass(task.deadline);
 
     return (
       <div
         key={task.id}
         id={task.id}
-        className={`task-item ${task.completed ? "task-done" : ""}`}
+        className={`task-item ${
+          task.completed ? "task-done" : ""
+        } ${task.selected ? "task-selected" : ""}`}
       >
         <img
-          src={task.completed ? "/filledCheckBox.svg" : "/emptyCheckBox.svg"}
-          alt="checkbox"
-          className="checkbox-icon"
-          onClick={() => toggleTaskCompleted(task.id)}/>
-  
+          src={
+            isSelectMode
+              ? task.selected
+                ? "/filledSelectCircle.svg"
+                : "/emptySelectCircle.svg"
+              : task.completed
+              ? "/filledCheckBox.svg"
+              : "/emptyCheckBox.svg"
+          }
+          alt={isSelectMode ? "Select Circle" : "Checkbox"}
+          className={isSelectMode ? "select-icon" : "checkbox-icon"}
+          onClick={() => {
+            if (isSelectMode) {
+              toggleTaskSelected(task.id);
+            } else {
+              toggleTaskCompleted(task.id);
+            }
+          }}
+        />
+
         <div className="task-title-container">
           {task.isTitleEditing ? (
             <input
@@ -519,18 +543,20 @@ const TaskList = ({ uid, selectedView }) => {
               }}
             />
           ) : (
-            <span onClick={() => startTaskEditing(task.id)}>
+            <span onClick={() => !isSelectMode && startTaskEditing(task.id)}>
               {task.text || "Untitled Task"}
             </span>
           )}
-  
+
           {task.isEditingDeadline ? (
             <div className="deadline-edit-container">
               <input
                 type="date"
                 autoFocus
                 value={task.deadline ? formatInputDate(task.deadline) : ""}
-                onChange={(e) => handleDeadlineDateChange(task.id, e.target.value)}
+                onChange={(e) =>
+                  handleDeadlineDateChange(task.id, e.target.value)
+                }
               />
               <button
                 className="deadline-close-btn"
@@ -540,17 +566,23 @@ const TaskList = ({ uid, selectedView }) => {
               </button>
             </div>
           ) : (
-            <div className={`deadline-btn ${deadlineClass}`} 
-                 onClick={() => startEditingDeadline(task.id)}>
-              {task.deadline ? formatDeadline(task.deadline) : "Provide Deadline"}
+            <div
+              className={`deadline-btn ${deadlineClass}`}
+              onClick={() => !isSelectMode && startEditingDeadline(task.id)}
+            >
+              {task.deadline
+                ? formatDeadline(task.deadline)
+                : "Provide Deadline"}
             </div>
           )}
-  
+
           <div
             className="time-estimate-btn"
-            onClick={() => setTimeDropdownTaskId(task.id)}
+            onClick={() => !isSelectMode && setTimeDropdownTaskId(task.id)}
           >
-            {task.timeValue ? `${task.timeValue} ${task.timeUnit}` : "Provide Estimated Time"}
+            {task.timeValue
+              ? `${task.timeValue} ${task.timeUnit}`
+              : "Provide Estimated Time"}
           </div>
           {timeDropdownTaskId === task.id && (
             <div className="time-estimate-dropdown">
@@ -575,7 +607,7 @@ const TaskList = ({ uid, selectedView }) => {
             </div>
           )}
         </div>
-  
+
         <img
           src="/trash.svg"
           alt="Delete Task"
@@ -584,94 +616,86 @@ const TaskList = ({ uid, selectedView }) => {
         />
       </div>
     );
-  };  
+  };
 
-  const renderLabelHeader = (label, index) => {
+  const getTasksForLabel = (labelId) => tasks.filter((t) => t.labelId === labelId);
+  const labelElements = labels.map((label, index) => {
     const labelTasks = getTasksForLabel(label.id);
     const completedCount = labelTasks.filter((t) => t.completed).length;
     return (
       <div
-        className={`label-header ${activeLabelId === label.id ? "active-label" : ""}`}
-        onDoubleClick={() => startLabelEditing(label.id)}
-        onClick={() => handleLabelHeaderClick(label)}
-        onMouseEnter={() => setHoveredLabelId(label.id)}
-        onMouseLeave={() => {
-          setHoveredLabelId(null);
-          setLabelOptionsOpen(null);
-        }}
-      >
-        <img
-          src="/dropdown.svg"
-          alt="Expand/Collapse"
-          className={`dropdown-icon-list ${label.isExpanded ? "open" : ""}`}
-        />
-        {label.isEditing ? (
-          <input
-            type="text"
-            autoFocus
-            value={label.title}
-            onChange={(e) => handleLabelChange(label.id, e.target.value)}
-            onBlur={() => finishLabelEditing(label.id)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") finishLabelEditing(label.id);
-            }}
-          />
-        ) : (
-          <h3>{label.title || "Untitled Label"}</h3>
-        )}
-        <span className="label-count">
-          {completedCount}/{labelTasks.length} tasks done
-        </span>
-        {hoveredLabelId === label.id && (
-          <div
-            className="label-options-icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              setLabelOptionsOpen(labelOptionsOpen === label.id ? null : label.id);
-            }}
-          >
-            <img
-              src={labelOptionsOpen === label.id ? "/closedOptions.svg" : "/openOptions.svg"}
-              alt="Label Options"
-            />
-            {labelOptionsOpen === label.id && (
-              <div className="label-options-menu" onClick={(e) => e.stopPropagation()}>
-                {index > 0 && (
-                  <div className="label-options-item" onClick={() => moveLabelUp(index)}>
-                    Move Up
-                  </div>
-                )}
-                {index < labels.length - 1 && (
-                  <div className="label-options-item" onClick={() => moveLabelDown(index)}>
-                    Move Down
-                  </div>
-                )}
-                <div
-                  className="label-options-item delete-item"
-                  onClick={() => deleteLabel(label.id)}
-                >
-                  <img src="/trash.svg" alt="Delete" />
-                  Delete
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const labelElements = labels.map((label, index) => {
-    const labelTasks = getTasksForLabel(label.id);
-    const isActiveLabel = activeLabelId === label.id;
-    return (
-      <div
         key={label.id}
         className={`label-section ${
-          isActiveLabel ? "active-label-section" : ""
+          activeLabelId === label.id ? "active-label-section" : ""
         }`}
       >
-        {renderLabelHeader(label, index)}
+        <div
+          className={`label-header ${
+            activeLabelId === label.id ? "active-label" : ""
+          }`}
+          onDoubleClick={() => startLabelEditing(label.id)}
+          onClick={() => handleLabelHeaderClick(label)}
+          onMouseEnter={() => setHoveredLabelId(label.id)}
+          onMouseLeave={() => {
+            setHoveredLabelId(null);
+            setLabelOptionsOpen(null);
+          }}
+        >
+          <img
+            src="/dropdown.svg"
+            alt="Expand/Collapse"
+            className={`dropdown-icon-list ${label.isExpanded ? "open" : ""}`}
+          />
+          {label.isEditing ? (
+            <input
+              type="text"
+              autoFocus
+              value={label.title}
+              onChange={(e) => handleLabelChange(label.id, e.target.value)}
+              onBlur={() => finishLabelEditing(label.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") finishLabelEditing(label.id);
+              }}
+            />
+          ) : (
+            <h3>{label.title || "Untitled Category"}</h3>
+          )}
+          <span className="label-count">
+            {completedCount}/{labelTasks.length} tasks done
+          </span>
+          {hoveredLabelId === label.id && (
+            <div
+              className="label-options-icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                setLabelOptionsOpen(labelOptionsOpen === label.id ? null : label.id);
+              }}
+            >
+              <img
+                src={labelOptionsOpen === label.id ? "/closedOptions.svg" : "/openOptions.svg"}
+                alt="Label Options"
+              />
+              {labelOptionsOpen === label.id && (
+                <div className="label-options-menu" onClick={(e) => e.stopPropagation()}>
+                  {index > 0 && (
+                    <div className="label-options-item" onClick={() => moveLabelUp(index)}>
+                      Move Up
+                    </div>
+                  )}
+                  {index < labels.length - 1 && (
+                    <div className="label-options-item" onClick={() => moveLabelDown(index)}>
+                      Move Down
+                    </div>
+                  )}
+                  <div className="label-options-item delete-item" onClick={() => deleteLabel(label.id)}>
+                    <img src="/trash.svg" alt="Delete" />
+                    Delete
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         {label.isExpanded && !label.isEditing && (
           <div className="label-tasks">
             {labelTasks.length === 0 ? (
@@ -685,20 +709,86 @@ const TaskList = ({ uid, selectedView }) => {
     );
   });
 
+  const selectedCount = tasks.filter((t) => t.selected).length;
+
+  const handleUnselectAll = () => {
+    setTasks((prev) => prev.map((t) => ({ ...t, selected: false })));
+  };
+
+  const handleDeleteAllSelected = async () => {
+    const selectedTaskIds = tasks.filter((t) => t.selected).map((t) => t.id);
+    if (selectedTaskIds.length === 0) return;
+    try {
+      const batch = writeBatch(db);
+      selectedTaskIds.forEach((taskId) => {
+        const ref = doc(
+          db,
+          `users/${uid}/lists/${selectedView.id.toString()}/tasks`,
+          taskId.toString()
+        );
+        batch.delete(ref);
+      });
+      await batch.commit();
+      setTasks((prev) => prev.filter((t) => !t.selected));
+      console.log("All selected tasks deleted!");
+    } catch (error) {
+      console.error("Error deleting selected tasks:", error);
+    }
+    setIsSelectMode(false);
+  };
+
+  const handleStartFocusSession = async () => {
+    if (selectedCount === 0) {
+      alert("No tasks selected to start a focus session!");
+      return;
+    }
+    for (const task of tasks) {
+      if (task.selected) {
+        await updateTaskDoc(task.id, { selected: true });
+      }
+    }
+    console.log("Focus session started with", selectedCount, "tasks!");
+    setIsSelectMode(false);
+    window.location.href = "/";
+  };
+
   return (
     <div className="task-list-container">
       <div className="task-list-header">
         <h2>{listTitle}</h2>
-      <TaskToggle onToggle={handleToggleClick} activeOption={activeOption} />
+        <div className="task-list-header-controls">
+        <button 
+          className={`select-button ${isSelectMode ? "active" : ""}`} 
+          onClick={() => {
+            if (isSelectMode) {
+              setTasks(prev => prev.map(t => ({ ...t, selected: false})));
+            }
+            setIsSelectMode(!isSelectMode)
+          }}
+        >
+          {isSelectMode ? "Cancel" : "Select"}
+        </button>
+        <TaskToggle onToggle={handleToggleClick} activeOption={activeOption} />
+        </div>
       </div>
+
       <div className="task-list-content">
-        {generalTasks.length > 0 && (
-          <div className="general-section">
-            {generalTasks.map((task) => renderTaskItem(task))}
-          </div>
-        )}
+        <div className="general-section">
+          {generalTasks.map((task) => renderTaskItem(task))}
+        </div>
         {labelElements}
       </div>
+
+      {isSelectMode && (
+        <div className="select-popup-wrapper">
+          <SelectPopUp
+            selectedCount={selectedCount}
+            onUnselectAll={handleUnselectAll}
+            onDeleteAll={handleDeleteAllSelected}
+            onStartFocusSession={handleStartFocusSession}
+          />
+        </div>
+      )}
     </div>
   );
 };
