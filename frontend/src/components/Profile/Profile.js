@@ -4,6 +4,7 @@ import { getFirestore, doc, collection, onSnapshot } from "firebase/firestore";
 import resetAchievements from "../../utils/resetAchievements";
 import resetStats from "../../utils/resetStats";
 import MetricsSidebar from "./MetricsSidebar";
+import unlockAchievement from "../../utils/unlockAchievement";
 import "./Profile.css";
 
 const achievementDescriptions = {
@@ -24,9 +25,13 @@ const achievementDescriptions = {
 // Component for an individual achievement card with custom badge icons, dynamic descriptions, and pastel backgrounds.
 function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
   // Map the group IDs to their achievement objects (if any)
-  const groupAchievements = groupIds.map(id => achievements.find(a => a.id === id));
+  const groupAchievements = groupIds.map((id) =>
+    achievements.find((a) => a.id === id)
+  );
   // Count how many achievements are unlocked in this group
-  const unlockedCount = groupAchievements.filter(a => a && a.unlocked).length;
+  const unlockedCount = groupAchievements.filter(
+    (a) => a && a.unlocked
+  ).length;
 
   // Determine the card title:
   // 0 unlocked => "Not Unlocked"
@@ -41,7 +46,8 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
 
   // Determine which icon to show based on progress:
   // If unlocked, use the corresponding badge icon; otherwise, show a locked icon.
-  const iconToShow = unlockedCount > 0 ? badgeIcons[unlockedCount - 1] : "/badges/locked.png";
+  const iconToShow =
+    unlockedCount > 0 ? badgeIcons[unlockedCount - 1] : "/badges/locked.png";
 
   // Update description:
   // If all three achievements are unlocked, display "Maxed Achievement"
@@ -51,15 +57,16 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
     dynamicDescription = "Maxed Achievement";
   } else if (unlockedCount > 0 && unlockedCount < groupIds.length) {
     const nextAchievementId = groupIds[unlockedCount];
-    dynamicDescription = achievementDescriptions[nextAchievementId] || description;
+    dynamicDescription =
+      achievementDescriptions[nextAchievementId] || description;
   }
 
   // Define pastel background colors for different levels of unlocked achievements.
   const backgroundColors = [
-    "#ffffff",   // 0 stars: white
-    "#d1dff6",   // 1 star
-    "#b2cbf2",   // 2 stars
-    "#92b6f0",   // 3 stars
+    "#ffffff", // 0 stars: white
+    "#d1dff6", // 1 star
+    "#b2cbf2", // 2 stars
+    "#92b6f0", // 3 stars
   ];
   const cardStyle = { backgroundColor: backgroundColors[unlockedCount] };
 
@@ -123,7 +130,7 @@ function Profile() {
         const achievementsRef = collection(db, `users/${user.uid}/achievements`);
         const unsubscribeAchievements = onSnapshot(achievementsRef, (snapshot) => {
           if (!snapshot.empty) {
-            const achievementsList = snapshot.docs.map(doc => ({
+            const achievementsList = snapshot.docs.map((doc) => ({
               id: doc.id,
               ...doc.data(),
             }));
@@ -145,12 +152,38 @@ function Profile() {
     return () => unsubscribeAuth();
   }, []);
 
+  // Auto-check for achievement updates whenever userStats changes
+  useEffect(() => {
+    if (!userStats) return;
+
+    const achievementIds = [
+      "study_5_sessions",
+      "study_10_sessions",
+      "study_20_sessions",
+      "study_1_hour",
+      "study_5_hours",
+      "study_10_hours",
+      "break_10_taken",
+      "break_25_taken",
+      "break_50_taken",
+      "longest_30_min",
+      "longest_1_hour",
+      "longest_3_hour",
+    ];
+
+    achievementIds.forEach((id) => {
+      unlockAchievement(id);
+    });
+  }, [userStats]);
+
   // Format time (hh:mm:ss)
   const formatTime = (seconds) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(
+      secs
+    ).padStart(2, "0")}`;
   };
 
   // Define the achievement groups along with their specific badge icons
@@ -207,111 +240,123 @@ function Profile() {
         <h1 className="profile__user-name">{userName}</h1>
       </div>
 
-      {/* Container for Stats & Achievements */}
-      <div className="profile__content">
-        {/* Stats Box */}
-        <div className="stats">
-          <h2 className="stats__title">User Stats</h2>
-          <div className="stats__container">
-            {/* Total Study Time */}
-            <div className="stats__item">
-              <div className="stats__icon">
-                {/* Replace Font Awesome with your PNG icon */}
-                <img
-                  src="/icons/clock.png"
-                  alt="Clock Icon"
-                  className="stats__icon-img"
-                />
+      {/* Main container: stats/achievements on the left, sidebar on the right */}
+      <div className="profile__main">
+        {/* Stats & Achievements */}
+        <div className="profile__content">
+          {/* Stats Box */}
+          <div className="stats">
+            <h2 className="stats__title">User Stats</h2>
+            <div className="stats__container">
+              {/* Total Study Time */}
+              <div className="stats__item">
+                <div className="stats__icon">
+                  <img
+                    src="/icons/clock.png"
+                    alt="Clock Icon"
+                    className="stats__icon-img"
+                  />
+                </div>
+                <h3 className="stats__item-title">Total Study Time</h3>
+                <p className="stats__item-value">
+                  {formatTime(userStats.totalStudyTime)}
+                </p>
               </div>
-              <h3 className="stats__item-title">Total Study Time</h3>
-              <p className="stats__item-value">{formatTime(userStats.totalStudyTime)}</p>
+
+              {/* Study Sessions */}
+              <div className="stats__item">
+                <div className="stats__icon">
+                  <img
+                    src="/icons/play.png"
+                    alt="Play Icon"
+                    className="stats__icon-img"
+                  />
+                </div>
+                <h3 className="stats__item-title">Study Sessions</h3>
+                <p className="stats__item-value">{userStats.studySessions}</p>
+              </div>
+
+              {/* Breaks Taken */}
+              <div className="stats__item">
+                <div className="stats__icon">
+                  <img
+                    src="/icons/coffee.png"
+                    alt="Coffee Icon"
+                    className="stats__icon-img"
+                  />
+                </div>
+                <h3 className="stats__item-title">Breaks Taken</h3>
+                <p className="stats__item-value">{userStats.totalBreaksTaken}</p>
+              </div>
+
+              {/* Longest Study Session */}
+              <div className="stats__item">
+                <div className="stats__icon">
+                  <img
+                    src="/icons/stopwatch.png"
+                    alt="Stopwatch Icon"
+                    className="stats__icon-img"
+                  />
+                </div>
+                <h3 className="stats__item-title">Longest Study Session</h3>
+                <p className="stats__item-value">
+                  {formatTime(userStats.longestSession)}
+                </p>
+              </div>
+
+              {/* Last Study Session */}
+              <div className="stats__item">
+                <div className="stats__icon">
+                  <img
+                    src="/icons/calendar.png"
+                    alt="Calendar Icon"
+                    className="stats__icon-img"
+                  />
+                </div>
+                <h3 className="stats__item-title">Last Study Session</h3>
+                <p className="stats__item-value">
+                  {userStats.lastSessionDate !== "N/A"
+                    ? new Date(userStats.lastSessionDate).toLocaleString()
+                    : "N/A"}
+                </p>
+              </div>
             </div>
 
-            {/* Study Sessions */}
-            <div className="stats__item">
-              <div className="stats__icon">
-                <img
-                  src="/icons/play.png"
-                  alt="Play Icon"
-                  className="stats__icon-img"
-                />
-              </div>
-              <h3 className="stats__item-title">Study Sessions</h3>
-              <p className="stats__item-value">{userStats.studySessions}</p>
-            </div>
-
-            {/* Breaks Taken */}
-            <div className="stats__item">
-              <div className="stats__icon">
-                <img
-                  src="/icons/coffee.png"
-                  alt="Coffee Icon"
-                  className="stats__icon-img"
-                />
-              </div>
-              <h3 className="stats__item-title">Breaks Taken</h3>
-              <p className="stats__item-value">{userStats.totalBreaksTaken}</p>
-            </div>
-
-            {/* Longest Study Session */}
-            <div className="stats__item">
-              <div className="stats__icon">
-                <img
-                  src="/icons/stopwatch.png"
-                  alt="Stopwatch Icon"
-                  className="stats__icon-img"
-                />
-              </div>
-              <h3 className="stats__item-title">Longest Study Session</h3>
-              <p className="stats__item-value">{formatTime(userStats.longestSession)}</p>
-            </div>
-
-            {/* Last Study Session */}
-            <div className="stats__item">
-              <div className="stats__icon">
-                <img
-                  src="/icons/calendar.png"
-                  alt="Calendar Icon"
-                  className="stats__icon-img"
-                />
-              </div>
-              <h3 className="stats__item-title">Last Study Session</h3>
-              <p className="stats__item-value">
-                {userStats.lastSessionDate !== "N/A"
-                  ? new Date(userStats.lastSessionDate).toLocaleString()
-                  : "N/A"}
-              </p>
-            </div>
+            <button
+              className="button-reset button-reset--stats"
+              onClick={resetStats}
+            >
+              Reset Stats
+            </button>
           </div>
 
-          <button className="button-reset button-reset--stats" onClick={resetStats}>
-            Reset Stats
-          </button>
-        </div>
-
-        {/* Achievements Cards Section */}
-        <div className="achievements">
-          <h2 className="achievement__title">User Achievements</h2>
-          <div className="achievement-cards-container">
-            {achievementGroups.map((group, idx) => (
-              <AchievementCard
-                key={idx}
-                groupIds={group.groupIds}
-                achievements={achievements}
-                description={group.description}
-                badgeIcons={group.badgeIcons}
-              />
-            ))}
+          {/* Achievements Cards Section */}
+          <div className="achievements">
+            <h2 className="achievement__title">User Achievements</h2>
+            <div className="achievement-cards-container">
+              {achievementGroups.map((group, idx) => (
+                <AchievementCard
+                  key={idx}
+                  groupIds={group.groupIds}
+                  achievements={achievements}
+                  description={group.description}
+                  badgeIcons={group.badgeIcons}
+                />
+              ))}
+            </div>
+            <button
+              className="button-reset button-reset--achievements"
+              onClick={resetAchievements}
+            >
+              Reset Achievements
+            </button>
           </div>
-          <button className="button-reset button-reset--achievements" onClick={resetAchievements}>
-            Reset Achievements
-          </button>
         </div>
-      </div>
 
-      {/* Sidebar Section */}
-      <div className="profile__sidebar">
-        <MetricsSidebar />
+        {/* Sidebar on the right */}
+        <div className="profile__sidebar">
+          <MetricsSidebar />
+        </div>
       </div>
     </div>
   );
