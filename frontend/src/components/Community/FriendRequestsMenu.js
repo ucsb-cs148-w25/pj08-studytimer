@@ -60,9 +60,16 @@ const FriendRequestsMenu = () => {
     setSearchStatus('');
     setSearchedProfile(null);
 
-    if (searchInput.trim() === '') return;
+    const trimmedInput = searchInput.trim();
+    if (trimmedInput === '') return;
 
-    const profile = await fetchUserProfile(searchInput.trim());
+    // Prevent searching for your own ID.
+    if (currentUser && trimmedInput === currentUser.uid) {
+      setSearchStatus("Can't Send Request To Yourself");
+      return;
+    }
+
+    const profile = await fetchUserProfile(trimmedInput);
     if (!profile) {
       // If the user doc doesn't exist
       setSearchStatus('User does not exist');
@@ -87,7 +94,7 @@ const FriendRequestsMenu = () => {
       return;
     }
 
-    // All checks passed: set the searched profile with no status
+    // All checks passed: set the searched profile with no status.
     setSearchedProfile(profile);
   };
 
@@ -157,7 +164,7 @@ const FriendRequestsMenu = () => {
         </button>
       </form>
 
-      {/* If there's no profile but we have a status (like "User does not exist"), show it as an error */}
+      {/* If there's no profile but we have a status (like an error), show it as an error message */}
       {!searchedProfile && searchStatus && (
         <p className="error-message">{searchStatus}</p>
       )}
@@ -175,7 +182,7 @@ const FriendRequestsMenu = () => {
 
           <div className="profile-action">
             {searchStatus ? (
-              // Show status as a 'blue badge' style
+              // Show status as a badge style.
               <span className="status-badge">{searchStatus}</span>
             ) : (
               <button onClick={handleSendFriendRequest} className="send-request-button">
