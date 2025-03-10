@@ -1,24 +1,22 @@
-.homesidebar p {
+.metricssidebar p {
     color: var(--accent-background);
     text-align: center;
  }
  
  
- .homesidebar h1 {
+ .metricssidebar h1 {
     color: var(--faint-text);
     font-size: 1.3rem;
     font-weight: 400;
  }
  
  
- .homesidebar {
+ .metricssidebar {
     display: flex;
     flex-direction: column;
     justify-content: top;
-    height: 93vh;
-    width: 250px; /* Adjust as needed */
-    position: fixed;
-    right: 0;
+    height: 110vh;
+    width: 250px;
     top: 50px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
