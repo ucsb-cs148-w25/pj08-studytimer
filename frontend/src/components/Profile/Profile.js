@@ -3,7 +3,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, collection, onSnapshot } from "firebase/firestore";
 import resetAchievements from "../../utils/resetAchievements";
 import resetStats from "../../utils/resetStats";
-import HomeSidebar from "../Home/HomeSidebar";
+import MetricsSidebar from "./MetricsSidebar";
 import "./Profile.css";
 
 const achievementDescriptions = {
@@ -291,7 +291,7 @@ function Profile() {
 
         {/* Achievements Cards Section */}
         <div className="achievements">
-          <h2>User Achievements</h2>
+          <h2 className="achievement__title">User Achievements</h2>
           <div className="achievement-cards-container">
             {achievementGroups.map((group, idx) => (
               <AchievementCard
@@ -311,7 +311,7 @@ function Profile() {
 
       {/* Sidebar Section */}
       <div className="profile__sidebar">
-        <HomeSidebar />
+        <MetricsSidebar />
       </div>
     </div>
   );

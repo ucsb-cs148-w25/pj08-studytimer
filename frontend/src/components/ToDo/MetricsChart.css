@@ -3,16 +3,15 @@
     color: var(--text-color);
     display: flex;
     flex-direction: column;
-    margin-left: 15px;
     margin-top: 50px;
   /* Ensure text like legend labels uses theme */
 }
 
 /* CSS Variables for Theming */
 :root {
-    --in-progress-color: var(--in-progress-area);
-    --completed-color: var(--done-area);
-    --in-progress-hover: var(--hover-in-progress);
-    --completed-hover: var(--hover-done);
+    --in-progress-color: var(--red);
+    --completed-color: var(--blue);
+    --in-progress-hover: var(--dark-red);
+    --completed-hover: var(--dark-blue);
     --text-color: var(--faint-background);
 }
