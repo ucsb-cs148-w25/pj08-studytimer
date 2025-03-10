@@ -24,8 +24,14 @@
   font-family: 'Google Sans', Roboto, Arial, sans-serif;
   font-size: 16px;
   border-bottom: 1px solid #dadce0;
-  postion: relative;
+  position: relative;
+  width: 100%;
   display: flex;
+}
+
+.fc .fc-scrollgrid .fc-scrollgrid-liquid {
+  height: 100%;
+  overflow: auto;
 }
 
 .fc .fc-toolbar-title {
@@ -50,13 +56,13 @@
 }
 
 .fc-daygrid-day-frame {
-  height: 120px;   
+  height: 1rem;   
   width: 100%;
   overflow: hidden;
 }
 
 .fc-daygrid-day-events {
-  max-height: 80px; 
+  max-height: 0.8rem; 
   width: 100%;
   overflow: hidden;
 }
