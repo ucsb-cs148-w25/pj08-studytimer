@@ -62,10 +62,8 @@ const TasksCalendarChart = () => {
   // Filter out only pending (not completed) tasks
   const pendingTasks = tasks.filter((task) => task.completed !== true);
 
-  // daysOfWeek used for labeling
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Create an array of 7 arrays, each storing tasks for that day.
   const tasksByDay = Array.from({ length: 7 }, () => []);
 
   pendingTasks.forEach((task) => {
@@ -93,7 +91,7 @@ const TasksCalendarChart = () => {
     ],
   };
 
-  // Custom tooltip callbacks
+
   const options = {
     responsive: true,
     maintainAspectRatio: false,
@@ -121,7 +119,7 @@ const TasksCalendarChart = () => {
               return "No pending tasks";
             }
 
-            // First line: total tasks
+            // Display number of pending tasks
             const lines = [`${tasksForThisDay.length} pending tasks:`];
 
             // Show at most five tasks due to chart's dimensions
