@@ -31,14 +31,23 @@ const fetchUserProfile = async (firebaseId) => {
 const FriendRequestsMenu = () => {
   const [searchInput, setSearchInput] = useState('');
   const [searchedProfile, setSearchedProfile] = useState(null);
-  const [searchStatus, setSearchStatus] = useState(''); 
+  const [searchStatus, setSearchStatus] = useState('');
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [notification, setNotification] = useState(null);
 
   const auth = getAuth();
   const currentUser = auth.currentUser;
   const db = getFirestore();
 
-  // Wrap fetchPendingRequests in useCallback to memoize its reference.
+  // Helper function to show a notification message that auto-clears after 3 seconds.
+  const showNotification = (message, type = 'info') => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  };
+
+  // Memoize fetchPendingRequests so that its reference remains stable.
   const fetchPendingRequests = useCallback(async () => {
     if (!currentUser) return;
     const pendingRequestsCol = collection(db, 'users', currentUser.uid, 'pendingRequests');
@@ -60,11 +69,17 @@ const FriendRequestsMenu = () => {
     setSearchStatus('');
     setSearchedProfile(null);
 
-    if (searchInput.trim() === '') return;
+    const trimmedInput = searchInput.trim();
+    if (trimmedInput === '') return;
 
-    const profile = await fetchUserProfile(searchInput.trim());
+    // Prevent searching for your own ID.
+    if (currentUser && trimmedInput === currentUser.uid) {
+      setSearchStatus("Can't Send Request To Yourself");
+      return;
+    }
+
+    const profile = await fetchUserProfile(trimmedInput);
     if (!profile) {
-      // If the user doc doesn't exist
       setSearchStatus('User does not exist');
       return;
     }
@@ -87,7 +102,7 @@ const FriendRequestsMenu = () => {
       return;
     }
 
-    // All checks passed: set the searched profile with no status
+    // All checks passed: set the searched profile.
     setSearchedProfile(profile);
   };
 
@@ -106,7 +121,7 @@ const FriendRequestsMenu = () => {
         displayName: currentUser.displayName || 'Anonymous',
         photoURL: currentUser.photoURL || 'https://via.placeholder.com/40'
       });
-      alert(`Friend request sent to ${searchedProfile.displayName}`);
+      showNotification(`Friend request sent to ${searchedProfile.displayName}`, 'success');
       setSearchedProfile(null);
       setSearchInput('');
       setSearchStatus('');
@@ -128,7 +143,9 @@ const FriendRequestsMenu = () => {
     } catch (error) {
       console.error("Error adding friend to sender's collection:", error);
     }
-    alert(`Friend request from ${senderId} accepted!`);
+    const pendingRequest = pendingRequests.find(request => request.firebaseId === senderId);
+    const senderName = pendingRequest ? pendingRequest.displayName : senderId;
+    showNotification(`Friend request from ${senderName} accepted!`, 'success');
     fetchPendingRequests();
   };
 
@@ -137,7 +154,9 @@ const FriendRequestsMenu = () => {
     if (!currentUser) return;
     const pendingRequestRef = doc(db, 'users', currentUser.uid, 'pendingRequests', senderId);
     await deleteDoc(pendingRequestRef);
-    alert(`Friend request from ${senderId} denied!`);
+    const pendingRequest = pendingRequests.find(request => request.firebaseId === senderId);
+    const senderName = pendingRequest ? pendingRequest.displayName : senderId;
+    showNotification(`Friend request from ${senderName} denied!`, 'error');
     fetchPendingRequests();
   };
 
@@ -157,7 +176,7 @@ const FriendRequestsMenu = () => {
         </button>
       </form>
 
-      {/* If there's no profile but we have a status (like "User does not exist"), show it as an error */}
+      {/* Display error status if applicable */}
       {!searchedProfile && searchStatus && (
         <p className="error-message">{searchStatus}</p>
       )}
@@ -172,10 +191,8 @@ const FriendRequestsMenu = () => {
           <div className="profile-details">
             <span className="profile-name">{searchedProfile.displayName}</span>
           </div>
-
           <div className="profile-action">
             {searchStatus ? (
-              // Show status as a 'blue badge' style
               <span className="status-badge">{searchStatus}</span>
             ) : (
               <button onClick={handleSendFriendRequest} className="send-request-button">
@@ -216,6 +233,13 @@ const FriendRequestsMenu = () => {
           </div>
         ))}
       </div>
+
+      {/* Render notification popup if one is set */}
+      {notification && (
+        <div className={`notification ${notification.type}`}>
+          {notification.message}
+        </div>
+      )}
     </div>
   );
 };
