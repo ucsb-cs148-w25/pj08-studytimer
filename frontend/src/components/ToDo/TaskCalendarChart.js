@@ -142,7 +142,7 @@ const TasksCalendarChart = () => {
 
   return (
     <div>
-      <p>This Week's Tasks</p>
+      <p>This Week's Pending Tasks</p>
       <div style={{ backgroundColor: "#fff", padding: "10px", borderRadius: "10px", overflow: "visible" }}>
       <Bar data={data} options={options} />
       </div>
