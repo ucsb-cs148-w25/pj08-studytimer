@@ -135,7 +135,10 @@ const FriendRequestsMenu = () => {
     } catch (error) {
       console.error("Error adding friend to sender's collection:", error);
     }
-    alert(`Friend request from ${senderId} accepted!`);
+    // Find the pending request to get the displayName
+    const pendingRequest = pendingRequests.find(request => request.firebaseId === senderId);
+    const senderName = pendingRequest ? pendingRequest.displayName : senderId;
+    alert(`Friend request from ${senderName} accepted!`);
     fetchPendingRequests();
   };
 
@@ -144,7 +147,10 @@ const FriendRequestsMenu = () => {
     if (!currentUser) return;
     const pendingRequestRef = doc(db, 'users', currentUser.uid, 'pendingRequests', senderId);
     await deleteDoc(pendingRequestRef);
-    alert(`Friend request from ${senderId} denied!`);
+    // Find the pending request to get the displayName
+    const pendingRequest = pendingRequests.find(request => request.firebaseId === senderId);
+    const senderName = pendingRequest ? pendingRequest.displayName : senderId;
+    alert(`Friend request from ${senderName} denied!`);
     fetchPendingRequests();
   };
 
