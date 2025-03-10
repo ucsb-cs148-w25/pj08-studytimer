@@ -14,7 +14,7 @@ export const BACKEND_URL =
 
 export const loginWithGoogle = async (setUser) => {
   try {
-    // Set authentication persistence to in-memory
+    // Set Firebase auth persistence to in-memory so that authentication state isn't cached across sessions.
     await setPersistence(auth, inMemoryPersistence);
 
     const result = await signInWithPopup(auth, provider);
@@ -35,10 +35,10 @@ export const loginWithGoogle = async (setUser) => {
       googleAccessToken 
     };
 
-    // Do not store credentials in localStorage
-    // localStorage.setItem("user", JSON.stringify(loggedInUser));
-    // localStorage.setItem("token", firebaseIdToken); 
-    // localStorage.setItem("googleToken", googleAccessToken);
+    // Continue to store tokens in localStorage for other app features.
+    localStorage.setItem("user", JSON.stringify(loggedInUser));
+    localStorage.setItem("token", firebaseIdToken); 
+    localStorage.setItem("googleToken", googleAccessToken);
 
     setUser(loggedInUser);
 
@@ -66,6 +66,9 @@ export const loginWithGoogle = async (setUser) => {
 export const logoutUser = (setUser) => {
   signOut(auth)
     .then(() => {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("googleToken");
       setUser(null);
     })
     .catch((error) => {
