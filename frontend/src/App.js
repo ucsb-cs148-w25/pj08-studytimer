@@ -12,7 +12,6 @@ import Settings from './components/AppSettings/Settings';
 import PrivateRoute from './privateRoute';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
-
 // Import the PomodoroTimer (Flow Timer) as a separate component
 import PomodoroTimer from './components/Home/PomodoroTimer';
 
@@ -32,6 +31,19 @@ const App = () => {
   const [user, setUser] = useState(null);
   const auth = getAuth();
 
+  // New useEffect: Force sign out on app load to clear any persisted Firebase auth state.
+  useEffect(() => {
+    if (auth.currentUser) {
+      auth.signOut().catch((error) => {
+        console.error("Sign out error on app load:", error);
+      });
+    }
+    // Optionally clear your stored tokens if necessary:
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("googleToken");
+  }, [auth]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsubscribe();
@@ -41,14 +53,8 @@ const App = () => {
     <Router>
       <div className="app-container" data-theme="dark">
         <Navbar />
-
         <Routes>
-          <Route
-            path="/"
-            element={
-              <PomodoroTimer />
-            }
-          />
+          <Route path="/" element={<PomodoroTimer />} />
           <Route
             path="/profile"
             element={
