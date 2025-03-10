@@ -1,4 +1,4 @@
-import { setPersistence, inMemoryPersistence, signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
+import { setPersistence, browserSessionPersistence, signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
 import { auth, provider } from "./firebase";
 
 provider.setCustomParameters({
@@ -14,8 +14,9 @@ export const BACKEND_URL =
 
 export const loginWithGoogle = async (setUser) => {
   try {
-    // Set Firebase auth persistence to in-memory so that authentication state isn't cached across sessions.
-    await setPersistence(auth, inMemoryPersistence);
+    // Set Firebase auth persistence to session storage so that authentication state persists on refresh,
+    // but is cleared when the browser/tab is closed.
+    await setPersistence(auth, browserSessionPersistence);
 
     const result = await signInWithPopup(auth, provider);
     const user = result.user;

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
 import Navbar from './components/NavBar/Navbar';
 import Profile from './components/Profile/Profile';
 import useSyncUserProfile from './components/Profile/useSyncUserProfile';
@@ -10,44 +12,38 @@ import TaskPage from './components/ToDo/TaskPage';
 import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import PrivateRoute from './privateRoute';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-
-// Import the PomodoroTimer (Flow Timer) as a separate component
 import PomodoroTimer from './components/Home/PomodoroTimer';
 
 import './App.css'; // your global styles
 
 const App = () => {
-  // This hook keeps the Firestore user document in sync with the latest auth profile.
+  // Keeps the Firestore user document in sync with the latest auth profile.
   useSyncUserProfile();
 
   const [theme] = useState(localStorage.getItem("theme") || "dark");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const auth = getAuth();
 
+  // Set theme attributes.
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  const [user, setUser] = useState(null);
-  const auth = getAuth();
-
-  // New useEffect: Force sign out on app load to clear any persisted Firebase auth state.
+  // Listen for Firebase auth state changes.
   useEffect(() => {
-    if (auth.currentUser) {
-      auth.signOut().catch((error) => {
-        console.error("Sign out error on app load:", error);
-      });
-    }
-    // Optionally clear your stored tokens if necessary:
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("googleToken");
-  }, [auth]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
     return () => unsubscribe();
   }, [auth]);
+
+  // Render a loading state until Firebase finishes restoring the auth state.
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Router>
