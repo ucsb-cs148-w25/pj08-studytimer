@@ -1,4 +1,4 @@
-import { signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
+import { setPersistence, inMemoryPersistence, signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
 import { auth, provider } from "./firebase";
 
 provider.setCustomParameters({
@@ -14,6 +14,9 @@ export const BACKEND_URL =
 
 export const loginWithGoogle = async (setUser) => {
   try {
+    // Set authentication persistence to in-memory
+    await setPersistence(auth, inMemoryPersistence);
+
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
@@ -32,9 +35,10 @@ export const loginWithGoogle = async (setUser) => {
       googleAccessToken 
     };
 
-    localStorage.setItem("user", JSON.stringify(loggedInUser));
-    localStorage.setItem("token", firebaseIdToken); 
-    localStorage.setItem("googleToken", googleAccessToken);
+    // Do not store credentials in localStorage
+    // localStorage.setItem("user", JSON.stringify(loggedInUser));
+    // localStorage.setItem("token", firebaseIdToken); 
+    // localStorage.setItem("googleToken", googleAccessToken);
 
     setUser(loggedInUser);
 
@@ -62,9 +66,6 @@ export const loginWithGoogle = async (setUser) => {
 export const logoutUser = (setUser) => {
   signOut(auth)
     .then(() => {
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-      localStorage.removeItem("googleToken");
       setUser(null);
     })
     .catch((error) => {
