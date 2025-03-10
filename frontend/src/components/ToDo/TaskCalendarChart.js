@@ -48,6 +48,11 @@ const TasksCalendarChart = () => {
   const today = new Date();
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
 
   
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -61,7 +66,7 @@ const TasksCalendarChart = () => {
     const taskDate = new Date(task.deadline);
     const dayIndex = taskDate.getDay(); 
     
-    if (taskDate >= startOfWeek && taskDate < new Date(startOfWeek).setDate(startOfWeek.getDate() + 7)) {
+    if (taskDate >= startOfWeek && taskDate < endOfWeek) {
       tasksPerDay[dayIndex]++;
     }
   });
@@ -98,7 +103,7 @@ const TasksCalendarChart = () => {
 
   return (
     <div>
-      <p>Tasks Remaining This Week</p>
+      <p>This Week's Tasks</p>
       <div style={{ backgroundColor: "#fff", padding: "10px", borderRadius: "10px" }}>
       <Bar data={data} options={options} />
       </div>
