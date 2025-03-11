@@ -82,3 +82,12 @@
   color: var(--calendar-day-text);
 }
 
+.fc-popover .fc-popover-header {
+  background-color: var(--calendar-header-bg); 
+}
+
+.fc-popover .fc-popover-body {
+  background-color: var(--calendar-bg); 
+}
+
+

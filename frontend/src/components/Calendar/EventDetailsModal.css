@@ -4,30 +4,29 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
   }
   
-  .modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 4px;
-    max-width: 500px;
-    width: 90%;
-    position: relative;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  }
-  
-  .modal-close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border: none;
-    background: transparent;
-    font-size: 24px;
-    cursor: pointer;
-  }
-  
+.modal-content {
+  background: var(--calendar-bg);
+  padding: 20px;
+  border-radius: 4px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+}
