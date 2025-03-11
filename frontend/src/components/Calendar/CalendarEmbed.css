@@ -8,13 +8,15 @@
   height: 100vh;
   padding: 0;
   box-sizing: border-box;
-  overflow: auto;
 }
 
 .fc {
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .fc .fc-header-toolbar {
@@ -28,11 +30,7 @@
   position: relative;
   width: 100%;
   display: flex;
-}
-
-.fc .fc-scrollgrid .fc-scrollgrid-liquid {
-  height: 100%;
-  overflow: auto;
+  flex-direction: row;
 }
 
 .fc .fc-toolbar-title {
@@ -40,6 +38,10 @@
   font-weight: 500;
   color: var(--calendar-header-text);
   text-transform: capitalize;
+}
+
+.fc-scroller.fc-scroller-liquid-absolute {
+  height: 75vh;
 }
 
 /* Navigation buttons (prev, next) */
@@ -63,7 +65,7 @@
 }
 
 .fc-daygrid-day-events {
-  max-height: 0.8rem; 
+  max-height: 80px; 
   width: 100%;
   overflow: hidden;
 }

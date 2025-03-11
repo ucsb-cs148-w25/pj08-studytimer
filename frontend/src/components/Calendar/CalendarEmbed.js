@@ -78,7 +78,7 @@ const CalendarEmbed = () => {
           center: "title",
           right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
         }}
-        dayMaxEvents={3}
+        dayMaxEvents={2}
         moreLinkContent="..."
       />
       {modalOpen && (

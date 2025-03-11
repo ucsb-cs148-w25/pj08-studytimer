@@ -47,60 +47,64 @@ const App = () => {
 
   return (
     <Router>
-      <div className="app-container" data-theme="dark">
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<PomodoroTimer />} />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute>
-                <Profile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/community"
-            element={
-              <PrivateRoute>
-                <Community />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/friend/:friendId"
-            element={
-              <PrivateRoute>
-                <FriendProfile />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/calendar"
-            element={
-              <PrivateRoute>
-                <CalendarPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/taskpage"
-            element={
-              <PrivateRoute>
-                <TaskPage uid={user ? user.uid : null} />
-              </PrivateRoute>
-            }
-          />
-          <Route path="/about" element={<About />} />
-          <Route
-            path="/settings"
-            element={
-              <PrivateRoute>
-                <Settings />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
+      <div className='page'>
+        <div>
+          <Navbar />
+        </div>
+        <div className="app-container" data-theme="dark">
+          <Routes>
+            <Route path="/" element={<PomodoroTimer />} />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/community"
+              element={
+                <PrivateRoute>
+                  <Community />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/friend/:friendId"
+              element={
+                <PrivateRoute>
+                  <FriendProfile />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <PrivateRoute>
+                  <CalendarPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/taskpage"
+              element={
+                <PrivateRoute>
+                  <TaskPage uid={user ? user.uid : null} />
+                </PrivateRoute>
+              }
+            />
+            <Route path="/about" element={<About />} />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </div>
       </div>
     </Router>
   );

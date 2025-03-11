@@ -4,7 +4,9 @@ nav {
     justify-content: space-between;
     background: var(--primary-background); /* Navbar color was previously #0000006b and #000000ed */
     padding: 14px 40px;
-    position: sticky;
+    /* position: initial; */
+    position: fixed;
+    width: 100%;
     top: 0;
     z-index: 10;
     flex-wrap: nowrap;
