@@ -214,15 +214,15 @@ const PomodoroTimer = () => {
       if (updatedTimeLeft > 0) {
         setIsRunning(true);
       } else {
-        completeSession();
+        completeSession(true);
       }
     }
-  }, []);
+  }, [completeSession]);
 
   // --------------------------------
   // RESET TIMER WHEN USER SIGNS OUT
   // --------------------------------
-  const resetTimerOnAuthChange = () => {
+  const resetTimerOnAuthChange = useCallback(() => {
     localStorage.removeItem("timerStart");
     localStorage.removeItem("timeLeft");
     localStorage.removeItem("isFlow");
@@ -233,22 +233,22 @@ const PomodoroTimer = () => {
     setIsFlow(true);
     setMode("focus");
     setCurrentCycle(0);
-  };
+  }, [flowDuration]);
 
   useEffect(() => {
     const auth = getAuth();
-    let initialLoad = true; // Prevent resetting on initial mount
+    let initialLoad = true;
   
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!initialLoad) {
         // Only reset if auth state changes after the initial page load
         resetTimerOnAuthChange();
       }
-      initialLoad = false; // Set to false after the first run
+      initialLoad = false;
     });
   
     return () => unsubscribe();
-  }, []);
+  }, [resetTimerOnAuthChange]);
 
   // --------------------------------
   // UPDATE FIREBASE STATS WHEN LOCAL STATS CHANGE
