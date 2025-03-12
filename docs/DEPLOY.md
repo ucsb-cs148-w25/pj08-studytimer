@@ -20,11 +20,20 @@ Other Frontend Utilities:
 
 - @dnd-kit/utilities (v3.2.2) - a part of dnd-kit, a lightweight drag-and-drop library for React. Helps manage drag-and-drop interactions for reordering planner entries or moving tasks.
 
+- @fullcalendar (v6.1.15) - Used to display task deadlines in the calendar via monthly/weekly/day view
+
 - chart.js (v4.4.7) - a flexible and powerful charting library for JavaScript. Used for rendering visual data representations, such as time tracking or productivity statistics.
 
 - react-chartjs-2 (v5.3.0) - a React wrapper for chart.js to integrate with React components.
 
 - hamburger-react (v2.5.2) - a customizable hamburger menu component for React, which is used for a mobile-friendly navigation menu.
+
+- axios (v.1.7.9) - used on the frontend to send HTTP requests to the backend API
+
+Core Backend Technologies:
+
+- Spring Boot (version 3.2.2) - simplifies Java application development. It provides dependency management with Maven, built-in support with RESTful APIs and easy integration with databases i.e. Firebase
+- Maven (version 3.9.3 or above) - used to manage Java dependencies and build the project
 
 ## Installation Steps
 
