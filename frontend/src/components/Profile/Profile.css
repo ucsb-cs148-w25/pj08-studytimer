@@ -109,7 +109,7 @@ body {
 .stats__item {
   flex: 1;
   min-width: 180px;     /* Ensures a reasonable width before wrapping */
-  background-color: var(--accent-background);
+  background-color: #fff;
   border-radius: 8px;
   padding: 20px;
   text-align: center;
