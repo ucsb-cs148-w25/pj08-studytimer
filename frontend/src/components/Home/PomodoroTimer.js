@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import SettingsModal from './SettingsModal';
 import './PomodoroTimer.css';
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const PomodoroTimer = () => {
   // --------------------------------
@@ -173,6 +173,12 @@ const PomodoroTimer = () => {
   useEffect(() => {
     if (!isRunning) return;
 
+    const startTime = Date.now();
+    localStorage.setItem("timerStart", startTime);
+    localStorage.setItem("timeLeft", timeLeft);
+    localStorage.setItem("isFlow", isFlow);
+    localStorage.setItem("mode", mode);
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -180,12 +186,69 @@ const PomodoroTimer = () => {
           completeSession();
           return 0;
         }
+        localStorage.setItem("timeLeft", prev - 1);
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isRunning, completeSession]);
+  }, [isRunning, completeSession, timeLeft, isFlow, mode]);
+
+  // --------------------------------
+  // TIMER PERSISTENCE AFTER NAVIGATING TABS
+  // --------------------------------
+  useEffect(() => {
+    const savedTimeLeft = localStorage.getItem("timeLeft");
+    const savedStartTime = localStorage.getItem("timerStart");
+    const savedIsFlow = localStorage.getItem("isFlow");
+    const savedMode = localStorage.getItem("mode");
+  
+    if (savedTimeLeft && savedStartTime) {
+      const elapsedTime = Math.floor((Date.now() - parseInt(savedStartTime)) / 1000);
+      const updatedTimeLeft = Math.max(0, parseInt(savedTimeLeft) - elapsedTime);
+  
+      setTimeLeft(updatedTimeLeft);
+      setIsFlow(savedIsFlow === "true");
+      setMode(savedMode || "focus");
+  
+      if (updatedTimeLeft > 0) {
+        setIsRunning(true);
+      } else {
+        completeSession(true);
+      }
+    }
+  }, [completeSession]);
+
+  // --------------------------------
+  // RESET TIMER WHEN USER SIGNS OUT
+  // --------------------------------
+  const resetTimerOnAuthChange = useCallback(() => {
+    localStorage.removeItem("timerStart");
+    localStorage.removeItem("timeLeft");
+    localStorage.removeItem("isFlow");
+    localStorage.removeItem("mode");
+
+    setIsRunning(false);
+    setTimeLeft(flowDuration * 60);
+    setIsFlow(true);
+    setMode("focus");
+    setCurrentCycle(0);
+  }, [flowDuration]);
+
+  useEffect(() => {
+    const auth = getAuth();
+    let initialLoad = true;
+  
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!initialLoad) {
+        // Only reset if auth state changes after the initial page load
+        resetTimerOnAuthChange();
+      }
+      initialLoad = false;
+    });
+  
+    return () => unsubscribe();
+  }, [resetTimerOnAuthChange]);
 
   // --------------------------------
   // UPDATE FIREBASE STATS WHEN LOCAL STATS CHANGE

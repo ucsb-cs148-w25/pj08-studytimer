@@ -64,26 +64,26 @@ mv serviceAccountKey.example.json backend/src/main/resources/serviceAccountKey.j
 
 ```
 
-### Frontend
-
-5. To access frontend functionality, which will pop up on `localhost:3000`, run the following first:
-
-```
-
-cd frontend
-npm install
-npm start
-
-```
-
 ### Backend
 
-6. To access backend features, run the following first:
+5. To access backend features, run the following first:
 
 ```
 
 cd backend
 mvn install
 mvn spring-boot:run
+
+```
+
+### Frontend
+
+6. To access frontend functionality, which will pop up on `localhost:3000`, run the following first:
+
+```
+
+cd frontend
+npm install
+npm start
 
 ```
