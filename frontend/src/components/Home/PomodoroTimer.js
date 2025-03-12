@@ -43,6 +43,20 @@ const PomodoroTimer = () => {
   // --------------------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+
+  // --------------------------------
+  // BACKGROUND THEME
+  // --------------------------------
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setTheme(localStorage.getItem("theme") || "dark");
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+  
   // --------------------------------
   // FETCH STATS FROM FIREBASE ON MOUNT
   // --------------------------------
@@ -282,7 +296,7 @@ const PomodoroTimer = () => {
           onClick={() => setIsModalOpen(true)}
           aria-label="Settings"
         >
-          <img src="/settingsGear.svg" alt="Settings" />
+          <img src="/settingsGear.svg" alt="Settings" className={theme === "dark" ? "gear-icon dark-mode" : "gear-icon"}/>
         </button>
       </div>
 

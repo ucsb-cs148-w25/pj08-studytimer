@@ -55,7 +55,12 @@
     cursor: pointer;
 }
 
-.gear-button img {
+.gear-button-img {
     width: 28px;
     height: 28px;
+    transition: filter 0.3s ease-in-out;
+}
+
+.dark-mode {
+    filter: invert(1);
 }
