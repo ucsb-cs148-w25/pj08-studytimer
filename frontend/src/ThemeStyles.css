@@ -37,6 +37,21 @@
     --edit-button: #9bc9fa;
     --delete-button: #fd4444f7;
     --cancel-button: var(--faint-background);
+
+    /* calendar page */
+    --calendar-bg: #f8f9fa;
+    --calendar-header-bg: #ffffff;
+    --calendar-header-text: #202124;
+    --calendar-header-border: #dadce0;
+    --calendar-button-bg: #ffffff;
+    --calendar-button-text: #202124;
+    --calendar-button-border: #dadce0;
+    --calendar-button-hover-bg: #f1f3f4;
+    --calendar-day-bg: #ffffff;
+    --calendar-day-text: #202124;
+    --calendar-day-border: #dadce0;
+    --calendar-today-bg: #e8eaed;
+    --calendar-today-text: #202124;
 }
 
 [data-theme="light"] {
@@ -73,6 +88,20 @@
     --edit-button: #81b8f2;  
     --delete-button: #dc3636; 
     --cancel-button: rgba(0, 0, 0, 0.1);
+
+    --calendar-bg: #f8f9fa;
+    --calendar-header-bg: #ffffff;
+    --calendar-header-text: #202124;
+    --calendar-header-border: #dadce0;
+    --calendar-button-bg: #ffffff;
+    --calendar-button-text: #202124;
+    --calendar-button-border: #dadce0;
+    --calendar-button-hover-bg: #f1f3f4;
+    --calendar-day-bg: #ffffff;
+    --calendar-day-text: #202124;
+    --calendar-day-border: #dadce0;
+    --calendar-today-bg: #e8eaed;
+    --calendar-today-text: #202124;
 }
 
 [data-theme="forest"] {
@@ -109,6 +138,20 @@
     --edit-button: #88c999;  
     --delete-button: #d9534f;  
     --cancel-button: rgba(34, 85, 55, 0.2);  
+
+    --calendar-bg: #f2f9f1;
+    --calendar-header-bg: #e8f3e4;
+    --calendar-header-text: #2d4d3a;
+    --calendar-header-border: #d3e8d1;
+    --calendar-button-bg: #e8f3e4;
+    --calendar-button-text: #2d4d3a;
+    --calendar-button-border: #d3e8d1;
+    --calendar-button-hover-bg: #d3e8d1;
+    --calendar-day-bg: #f2f9f1;
+    --calendar-day-text: #2d4d3a;
+    --calendar-day-border: #d3e8d1;
+    --calendar-today-bg: #cce4cc;
+    --calendar-today-text: #2d4d3a;
 }
 
 body {
