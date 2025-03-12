@@ -1,4 +1,8 @@
-# Installation
+## Timewise Deployed Link
+
+https://pj-timewise.netlify.app/
+
+# Installation (For local testing/contributions)
 
 ## Prerequisites
 
@@ -21,10 +25,6 @@ Other Frontend Utilities:
 - react-chartjs-2 (v5.3.0) - a React wrapper for chart.js to integrate with React components.
 
 - hamburger-react (v2.5.2) - a customizable hamburger menu component for React, which is used for a mobile-friendly navigation menu.
-
-## Web Application Link
-
-https://pj-timewise.netlify.app/
 
 ## Installation Steps
 
