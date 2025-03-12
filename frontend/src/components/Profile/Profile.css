@@ -4,6 +4,8 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
   box-sizing: border-box;
 }
 
@@ -26,13 +28,15 @@ body {
 
 /* Profile Container */
 .profile {
-  display: relative;
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
   padding: 20px;
-  
+  position: relative;
+  min-height: 100vh; /* Ensures the container is at least as tall as the viewport */
 }
+
 
 /* User Info Section */
 .profile__user-info {
@@ -59,15 +63,27 @@ body {
   color: var(--text);
 }
 
-/* Content Section for Stats & Achievements */
 .profile__content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-top: var(--gap-size);
-  width: 100%;
-  max-width: 1200px;
+  /* Use a flexible width with a max-width for larger screens */
+  width: 90%;
+  max-width: 1500px;
+  margin: 0 auto;
+  /* Base padding on both sides */
+  padding: 20px;
+  /* Add extra right padding to account for the 250px sidebar on the left */
+  padding-right: calc(20px + 250px);
 }
+
+/* Adjust for smaller screens where the sidebar may collapse or reposition */
+@media (max-width: 768px) {
+  .profile__content {
+    width: 95%;
+    max-width: none;
+    /* Remove extra right padding when the sidebar isn’t an issue */
+    padding-right: 20px;
+  }
+}
+
 
 /* ==================== */
 /*      USER STATS      */
@@ -256,9 +272,8 @@ body {
 /*    SIDEBAR       */
 /* ================= */
 .profile__sidebar {
-  padding-top: 45px;
   position: absolute;
-  top: 0;
+  top: -20px;
   right: -950px;
   width: 100%;
   max-width: 1200px;

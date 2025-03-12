@@ -4,6 +4,7 @@ import { getFirestore, doc, collection, onSnapshot } from "firebase/firestore";
 import resetAchievements from "../../utils/resetAchievements";
 import resetStats from "../../utils/resetStats";
 import MetricsSidebar from "./MetricsSidebar";
+import unlockAchievement from "../../utils/unlockAchievement";
 import "./Profile.css";
 
 const achievementDescriptions = {
@@ -93,6 +94,17 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
 function Profile() {
   const [userName, setUserName] = useState("User");
   const [userPhoto, setUserPhoto] = useState(null);
+
+  // Additional fields for extra user details
+  const [major, setMajor] = useState("Undeclared");
+  const [classYear, setClassYear] = useState("Freshman");
+  const [bio, setBio] = useState("Hello! I love studying with Pomodoro!");
+  
+  // Editing toggles for inline editing
+  const [editingMajor, setEditingMajor] = useState(false);
+  const [editingClassYear, setEditingClassYear] = useState(false);
+  const [editingBio, setEditingBio] = useState(false);
+
   const [userStats, setUserStats] = useState({
     totalStudyTime: 0,
     totalBreaksTaken: 0,
@@ -144,6 +156,30 @@ function Profile() {
 
     return () => unsubscribeAuth();
   }, []);
+
+  // Auto-check for achievement updates whenever userStats changes
+  useEffect(() => {
+    if (!userStats) return;
+
+    const achievementIds = [
+      "study_5_sessions",
+      "study_10_sessions",
+      "study_20_sessions",
+      "study_1_hour",
+      "study_5_hours",
+      "study_10_hours",
+      "break_10_taken",
+      "break_25_taken",
+      "break_50_taken",
+      "longest_30_min",
+      "longest_1_hour",
+      "longest_3_hour",
+    ];
+
+    achievementIds.forEach((id) => {
+      unlockAchievement(id);
+    });
+  }, [userStats]);
 
   // Format time (hh:mm:ss)
   const formatTime = (seconds) => {
@@ -206,7 +242,7 @@ function Profile() {
         />
         <h1 className="profile__user-name">{userName}</h1>
       </div>
-
+      
       {/* Container for Stats & Achievements */}
       <div className="profile__content">
         {/* Stats Box */}
@@ -309,10 +345,9 @@ function Profile() {
         </div>
       </div>
 
-      {/* Sidebar Section */}
-      <div className="profile__sidebar">
+      <aside class="profile__sidebar">
         <MetricsSidebar />
-      </div>
+      </aside>
     </div>
   );
 }
