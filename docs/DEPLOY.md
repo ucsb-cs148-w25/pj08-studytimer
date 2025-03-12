@@ -37,28 +37,48 @@ git clone <repository-url>
 cd <repository-name>
 ```
 
-2. Then, install all the frontend utilities using the following command:
+2. Fill out this form to gain access to the API/private keys (required to gain full accessibility of frontend and backend): https://shorturl.at/E5GMu
+
+3. Fill out the `.env.example` file with the correct API keys and rename it to `.env`:
 
 ```
-npm install @dnd-kit/utilities chart.js react-chartjs-2 hamburger-react
+
+mv .env.example frontend/.env
+
+```
+
+4. Fill out the `serviceAccountKey.example.json` file with the correct private keys and rename it to `.serviceAccountKey.json`:
+
+```
+
+mv serviceAccountKey.example.json backend/src/main/resources/serviceAccountKey.json
+
 ```
 
 ### Frontend
 
-3. To access frontend functionality, which will pop up on `localhost:3000`, run the following first:
+5. To access frontend functionality, which will pop up on `localhost:3000`, run the following first:
 
 ```
+
 cd frontend
 npm install
 npm start
+
 ```
 
 ### Backend
 
-4. To access backend features, run the following first:
+6. To access backend features, run the following first:
 
 ```
+
 cd backend
 mvn install
 mvn spring-boot:run
+
+```
+
+```
+
 ```
