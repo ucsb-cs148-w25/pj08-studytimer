@@ -98,25 +98,28 @@ const PomodoroTimer = () => {
     if (isFlow) {
       // Calculate elapsed time in seconds for the current study session.
       const elapsedSeconds = currentSessionDuration - timeLeft;
-
-      // Update study stats with elapsed seconds
-      setStats(prev => ({
-        ...prev,
-        totalStudyTime: prev.totalStudyTime + elapsedSeconds,
-        studySessions: prev.studySessions + 1,
-        longestSession: Math.max(prev.longestSession, elapsedSeconds),
-        lastSessionDate: new Date().toLocaleString(),
-      }));
+  
+      // Only update stats if they exist (usr logged in)
+      if (stats) {
+        setStats(prev => ({
+          ...prev,
+          totalStudyTime: prev.totalStudyTime + elapsedSeconds,
+          studySessions: prev.studySessions + 1,
+          longestSession: Math.max(prev.longestSession, elapsedSeconds),
+          lastSessionDate: new Date().toLocaleString(),
+        }));
+      }
     } else {
-      // For break sessions, simply increment the break counter.
-      setStats(prev => ({
-        ...prev,
-        totalBreaksTaken: prev.totalBreaksTaken + 1,
-      }));
+      // For break sessions, only update the break count if stats exists.
+      if (stats) {
+        setStats(prev => ({
+          ...prev,
+          totalBreaksTaken: prev.totalBreaksTaken + 1,
+        }));
+      }
     }
-
+  
     if (isFlow) {
-      // Finished a Flow session
       if (currentCycle + 1 === cycle) {
         // Completed a full cycle → Long Break
         setIsFlow(false);
@@ -164,8 +167,9 @@ const PomodoroTimer = () => {
     startBreaksAutomatically,
     startFlowsAutomatically,
     currentSessionDuration,
-    timeLeft
-  ]);
+    timeLeft,
+    stats 
+  ]);  
 
   // --------------------------------
   // EFFECT: MAIN TIMER
