@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// CalendarEmbed.js
+import React, { useState, useLayoutEffect, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import listPlugin from "@fullcalendar/list";
@@ -8,9 +9,23 @@ import "./CalendarEmbed.css";
 import EventDetailsModal from "./EventDetailsModal";
 
 const CalendarEmbed = () => {
-  const { events, loading } = useCalendar();
+  const { events, loading, loadEvents } = useCalendar();
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  useLayoutEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Reset initialLoad when calendar page mounts
+  useEffect(() => {
+    if (initialLoad) {
+      loadEvents();
+      setInitialLoad(false);
+    }
+  }, [initialLoad, loadEvents]);
 
   const handleEventClick = (clickInfo) => {
     setSelectedEvent({
@@ -22,35 +37,61 @@ const CalendarEmbed = () => {
     setModalOpen(true);
   };
 
-  if (loading) return <p>Loading calendar...</p>;
+  const handleCalendarClick = () => {
+    loadEvents();
+  };
+
+  if (!isClient) {
+    return (
+      <div
+        suppressHydrationWarning
+        style={{
+          width: "100vw",
+          height: "100vh",
+          backgroundColor: "#f0f0f0",
+        }}
+      />
+    );
+  }
 
   return (
-    <div className="calendar-wrapper">
-      <FullCalendar
-        timeZone="local"
-        plugins={[dayGridPlugin, listPlugin, timeGridPlugin]}
-        eventClick={handleEventClick}
-        initialView="dayGridMonth"
-        initialDate={new Date()}
-        events={events} // Now using cached context events
-        headerToolbar={{
-          left: "prev,next",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-        }}
-        dayMaxEvents={3}
-        moreLinkContent="..."
-      />
-      {modalOpen && (
-        <EventDetailsModal
-          event={selectedEvent}
-          onClose={() => {
-            setModalOpen(false);
-            setSelectedEvent(null);
-          }}
-        />
+    <>
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loading-spinner"></div>
+          <p>Loading Calendar...</p>
+        </div>
       )}
-    </div>
+
+      <div className="calendar-wrapper">
+        <FullCalendar
+          timeZone="local"
+          plugins={[dayGridPlugin, listPlugin, timeGridPlugin]}
+          eventClick={handleEventClick}
+          initialView="dayGridMonth"
+          initialDate={new Date()}
+          events={events}
+          headerToolbar={{
+            left: "prev,next",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+          }}
+          dayMaxEvents={3}
+          moreLinkContent="..."
+          dateClick={handleCalendarClick}
+        />
+
+        {modalOpen && (
+          <EventDetailsModal
+            event={selectedEvent}
+            onClose={() => {
+              setModalOpen(false);
+              setSelectedEvent(null);
+            }}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

@@ -52,6 +52,7 @@
     --calendar-day-border: #dadce0;
     --calendar-today-bg: #e8eaed;
     --calendar-today-text: #202124;
+    --calendar-loading-bg: rgba(255, 255, 255, 0.6);
 }
 
 [data-theme="light"] {
@@ -102,6 +103,7 @@
     --calendar-day-border: #dadce0;
     --calendar-today-bg: #e8eaed;
     --calendar-today-text: #202124;
+    --calendar-loading-bg: rgba(255, 255, 255, 0.6);
 }
 
 [data-theme="forest"] {
@@ -152,6 +154,7 @@
     --calendar-day-border: #d3e8d1;
     --calendar-today-bg: #cce4cc;
     --calendar-today-text: #2d4d3a;
+    --calendar-loading-bg: rgba(242, 249, 241, 0.6);
 }
 
 body {
