@@ -7,7 +7,7 @@ function About() {
       <h1>Our Mission</h1>
       <p className="about-paragraph">
         Our project, <strong>timewise</strong>, is a web app that hopes to help users manage their time wisely and effectively, with a timer! 
-        Our app allows users to input their tasks and schedule(s) to determine their only study plan. 
+        Our app allows users to input their tasks and schedule(s) to determine their own study plan. 
         
       </p>
 
