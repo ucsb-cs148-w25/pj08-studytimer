@@ -4,7 +4,6 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { db, auth } from "../../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import "./MetricsChart.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
