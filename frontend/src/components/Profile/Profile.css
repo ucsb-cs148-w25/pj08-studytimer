@@ -1,26 +1,254 @@
-/* Reset default margins/padding and prevent horizontal scrolling */
-html,
-body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
+/* Main container: horizontal layout with full viewport height */
+.profile-page {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  height: 100vh;
+  padding: 20px;
   box-sizing: border-box;
+  background: #f5f5f5;
+  font-family: Arial, sans-serif;
 }
 
-/* Apply box-sizing to all elements */
-* {
-  box-sizing: inherit;
+/* Panels */
+.left-panel, .middle-panel, .right-panel {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+  height: 92%;       /* Ensures the left panel fills the parent's height */
+  align-self: stretch; /* Optional: Forces the flex item to stretch vertically */
 }
 
-/* Custom Properties */
-:root {
-  --primary-color: #333;
-  --secondary-color: gray;
-  --blue: #007bff;
-  --dark-blue: #0056b3;
-  --red: #dc3545;
-  --dark-red: #a71d2a;
-  --gap-size: 20px;
-  --padding: 15px;
+/* Left Panel (Profile Info) */
+.left-panel {
+  flex: 1;
+  max-width: 250px;
+  text-align: center;
 }
 
+.profile-page-icon {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid #007bff;
+  margin-bottom: 10px;
+}
+
+.username {
+  font-size: 1.8em;
+  color: #007bff;
+  margin: 10px 0;
+  margin-bottom: 40px;
+}
+
+.bio {
+  font-size: 1em;
+  color: #666;
+}
+
+/* Inline Major Editing Styling */
+.major-inline {
+  margin-top: 40px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.major-inline input {
+  font-size: 1em;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+/* Inline editing for Class Year */
+.class-year-inline {
+  margin-top: 20px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.class-year-inline input {
+  font-size: 1em;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+/* Inline editing for Bio */
+.bio-inline {
+  margin-top: 20px;
+  font-size: 1em;
+  cursor: pointer;
+  
+}
+
+.bio-inline textarea {
+  font-size: 1em;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+}
+
+/* Skills/Interests Section styling */
+.skills-section {
+  margin-top: 40px; /* Adjust gap above the section as needed */
+}
+
+.skills-section strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.skills-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px; /* Add extra bottom margin if needed */
+}
+
+/* Chip styling */
+.chip {
+  display: inline-block;
+  position: relative;
+  background-color: #007bff;
+  color: #fff;
+  padding: 5px 8px;
+  border-radius: 15px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Wrap the text in its own span */
+.chip .chip-text {
+  transition: opacity 0.2s ease;
+}
+
+/* The remove icon, initially hidden and centered absolutely */
+.chip .remove-chip {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chip:hover {
+  background-color: gray;
+}
+
+/* On hover, hide the chip text and show the remove icon */
+.chip:hover .chip-text {
+  opacity: 0;
+}
+
+.chip:hover .remove-chip {
+  opacity: 1;
+}
+
+/* Adjust the input margin for adding a new skill */
+.skills-section input {
+  margin-top: 10px;
+  padding: 5px;
+  font-size: 0.9em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* Middle Panel (Stats & Achievements) */
+.middle-panel {
+  flex: 2;
+  margin: 0 20px;
+  text-align: center;
+}
+
+.stats-section, .achievements-section {
+  margin-bottom: 20px;
+}
+
+.stats, .achievements {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 1.5em;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.stat-label {
+  font-size: 0.9em;
+  color: #333;
+}
+
+/* Achievements styling */
+.achievement {
+  display: flex;
+  align-items: center;
+}
+
+.achievement-icon {
+  font-size: 1.8em;
+  margin-right: 10px;
+}
+
+.achievement-info h3 {
+  margin: 0;
+  font-size: 1em;
+  color: #007bff;
+}
+
+.achievement-info p {
+  margin: 2px 0 0;
+  font-size: 0.8em;
+  color: #666;
+}
+
+/* Right Panel (Metrics & Activity) */
+.right-panel {
+  flex: 1.5;
+  max-width: 300px;
+  text-align: center;
+}
+
+.metrics-section p {
+  text-align: center;
+}
+
+
+.metrics-section h1 {
+  color: var(--text);
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+
+.metrics-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  width: 250px;
+  top: 50px;
+  padding: 10px;
+}
+
+.chartContainer {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 50px;
+}
