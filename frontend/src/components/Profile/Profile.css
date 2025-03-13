@@ -20,18 +20,19 @@
   height: 100vh;
   padding: 20px;
   box-sizing: border-box;
-  background: #f5f5f5;
+  background: var(--primary-background);
   font-family: Arial, sans-serif;
 }
 
 /* Panels */
 .left-panel, .middle-panel, .right-panel {
-  background: #fff;
+  background: var(--secondary-accent-background);
   border-radius: 10px;
   padding: 20px;
   box-sizing: border-box;
-  height: 92%;       /* Ensures the left panel fills the parent's height */
-  align-self: stretch; /* Optional: Forces the flex item to stretch vertically */
+  height: 92%;
+  align-self: stretch; 
+  color: var(--text);
 }
 
 /* Left Panel (Profile Info) */
@@ -45,20 +46,15 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 3px solid #007bff;
+  border: 3px solid var(--profile-user-photo);
   margin-bottom: 10px;
 }
 
 .username {
   font-size: 1.8em;
-  color: #007bff;
+  color: var(--profile-user-name);
   margin: 10px 0;
   margin-bottom: 40px;
-}
-
-.bio {
-  font-size: 1em;
-  color: #666;
 }
 
 /* Inline Major Editing Styling */
@@ -190,7 +186,7 @@
   font-size: 1.5rem;
   font-weight: bold;
   margin: 0 0 10px 0;
-  color: var(--primary-color);
+  color: var(--text);
   text-align: center;
 }
 
@@ -230,9 +226,9 @@
   margin: 0;
 }
 
-/* ======================= */
-/* ACHIEVEMENTS CONTAINER  */
-/* ======================= */
+/* ============ */
+/* ACHIEVEMENTS */
+/* ============ */
 
 .achievements {
   text-align: center;
@@ -243,7 +239,7 @@
   font-size: 1.5rem;
   font-weight: bold;
   margin: 0 0 10px 0;
-  color: var(--primary-color);
+  color: var(--text);
   text-align: center;
 }
 

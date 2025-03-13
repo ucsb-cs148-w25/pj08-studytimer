@@ -52,6 +52,10 @@
     --calendar-day-border: #dadce0;
     --calendar-today-bg: #e8eaed;
     --calendar-today-text: #202124;
+
+    /* Profile Page */
+    --profile-user-photo: #eef7ed;
+    --profile-user-name: #9bc9fa;
 }
 
 [data-theme="light"] {
