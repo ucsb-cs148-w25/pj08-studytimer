@@ -1,6 +1,7 @@
 /* Container for the entire app layout */
 .community-container {
   color: var(--text);
+  background: var(--secondary-accent-background);
   display: flex;
   height: 100vh;
   font-family: Arial, sans-serif;
@@ -8,7 +9,7 @@
 
 .sidebar {
   flex: 0 0 150px;
-  background: var(--secondary-accent-background);
+  background: var(--secondary-background);
   padding: 10px;
   box-sizing: border-box;
 }
@@ -24,11 +25,11 @@
 }
 
 .menu-item:hover {
-  background-color: var(--secondary-background);
+  background-color: var(--secondary-accent-background);
 }
 
 .menu-item.active {
-  background-color: var(--secondary-background);
+  background-color: var(--secondary-accent-background);
   font-weight: bold;
 }
 
