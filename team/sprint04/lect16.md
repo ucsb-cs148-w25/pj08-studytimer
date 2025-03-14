@@ -1,7 +1,7 @@
 # Project: Study Timer
 Mentor: Leo, Yilin, Sam
 
-Meeting Time: lab09
+Meeting Time: lect16
 
 Meeting Date: 03/10/25
 
