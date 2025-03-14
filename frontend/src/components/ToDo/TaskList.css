@@ -272,6 +272,7 @@
 }
 
 .general-section {
+  margin-top: -0.1rem;
   margin-bottom: 0.8rem;
 }
 
@@ -295,6 +296,7 @@
 .label-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   padding: 0.5rem;
   margin-bottom: 0rem;
@@ -302,10 +304,14 @@
   transition: background-color 0.3s;
 }
 .label-header h3 {
+  text-align: left;
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.175rem;
+  font-weight: 650;
 }
 .label-count {
+  display: flex;
+  align-items: left;
   font-size: 0.8rem;
   color: #777;
 }

@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useFocusSession } from "../../focusSessionContext";
 import TaskToggle from "./TaskLabelToggle";
 import SelectPopUp from "./SelectPopUp";
 import "./TaskList.css";
 
 import { db } from "../../firebase";
 import { query, where, writeBatch, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc, orderBy } from "firebase/firestore";
+import { addDeadlineTaskToCalendar } from "../../services/CalendarService";
 
 function getOrdinalSuffix(day) {
   if (day > 3 && day < 21) return "th";
@@ -99,7 +102,7 @@ const getDeadlineClass = (deadline) => {
   return "";
 };
 
-const TaskList = ({ uid, selectedView }) => {
+const TaskList = ({ uid }) => {
   const [listTitle, setListTitle] = useState("");
   const [tasks, setTasks] = useState([]);
   const [labels, setLabels] = useState([]);
@@ -109,10 +112,15 @@ const TaskList = ({ uid, selectedView }) => {
   const [hoveredLabelId, setHoveredLabelId] = useState(null);
   const [labelOptionsOpen, setLabelOptionsOpen] = useState(null);
   const [isSelectMode, setIsSelectMode] = useState(false);
+  const { setInFocusSession, selectedView } = useFocusSession();
+  const navigate = useNavigate();
 
+  console.log("the current uid is:", uid);
+
+  const syncInProgressRef = useRef({});
   useEffect(() => {
     if (!uid || !selectedView?.id) return;
-    const docRef = doc(db, `users/${uid}/lists`, selectedView.id);
+    const docRef = doc(db, `users/${uid}/lists`, selectedView.id.toString());
     const unsubscribe = onSnapshot(
       docRef,
       (docSnap) => {
@@ -136,10 +144,13 @@ const TaskList = ({ uid, selectedView }) => {
       return;
     }
     try {
-      const taskDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, id.toString());
+      const taskDocRef = doc(
+        db,
+        `users/${uid}/lists/${selectedView.id.toString()}/tasks`,
+        id.toString()
+      );
       await updateDoc(taskDocRef, data);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error updating task:", error);
     }
   };
@@ -174,12 +185,14 @@ const TaskList = ({ uid, selectedView }) => {
       timeUnit: "minutes",
       labelId: activeLabelId || null,
       completed: false,
+      selected: false,
+      focusingOn: false,
+      currentlyFocusedOn: false,
       isTitleEditing: true,
       deadline: null,
       isEditingDeadline: false,
     };
     try {
-      console.log("Adding task:", customID, " To list:", selectedView.id.toString());
       const taskDocRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, customID);
       await setDoc(taskDocRef, newTask);
     } catch (error) {
@@ -301,7 +314,6 @@ const TaskList = ({ uid, selectedView }) => {
         if (task.id === id) {
           const dateObj = new Date(newDate + "T00:00:00");
           const iso = dateObj.toISOString();
-          updateTaskDoc(id.toString(), { deadline: iso });
           return { ...task, deadline: iso };
         }
         return task;
@@ -309,15 +321,52 @@ const TaskList = ({ uid, selectedView }) => {
     );
   };
 
+  const syncTaskToGoogleCalendar = (task) => {
+    if (!task.deadline) return;
+    const deadlineDate = new Date(task.deadline);
+    const yyyy = deadlineDate.getFullYear();
+    const mm = (deadlineDate.getMonth() + 1).toString().padStart(2, "0");
+    const dd = deadlineDate.getDate().toString().padStart(2, "0");
+    const deadlineStr = `${yyyy}-${mm}-${dd}`;
+
+    if (task.lastSyncedDeadline === deadlineStr) {
+      console.log("Task already synced for this deadline:", deadlineStr);
+      return;
+    }
+    if (syncInProgressRef.current[task.id]) {
+      return;
+    }
+
+    syncInProgressRef.current[task.id] = true;
+    updateTaskDoc(task.id, { isSyncingCalendar: true });
+
+    addDeadlineTaskToCalendar({
+      text: task.text || "Untitled Task",
+      deadline: deadlineStr,
+      description: task.description || ""
+    })
+      .then((response) => {
+        updateTaskDoc(task.id, {
+          lastSyncedDeadline: deadlineStr,
+          isSyncingCalendar: false,
+          isEditingDeadline: false
+        });
+        delete syncInProgressRef.current[task.id];
+      })
+      .catch((err) => {
+        console.error("Calendar sync error:", err);
+        updateTaskDoc(task.id, { isSyncingCalendar: false });
+        delete syncInProgressRef.current[task.id];
+      });
+  };
+
   const finishEditingDeadline = (id) => {
     setTasks((prev) =>
       prev.map((task) => {
         if (task.id !== id) return task;
-        let updated = { ...task, isEditingDeadline: false };
-        if (updated.deadline && !updated.timeValue) {
-          setTimeDropdownTaskId(updated.id);
-        }
-        updateTaskDoc(id.toString(), { isEditingDeadline: false });
+        const updated = { ...task, isEditingDeadline: false };
+        updateTaskDoc(task.id, { deadline: updated.deadline, isEditingDeadline: false });
+        syncTaskToGoogleCalendar(updated);
         return updated;
       })
     );
@@ -568,11 +617,9 @@ const TaskList = ({ uid, selectedView }) => {
           ) : (
             <div
               className={`deadline-btn ${deadlineClass}`}
-              onClick={() => !isSelectMode && startEditingDeadline(task.id)}
+              onClick={() => startEditingDeadline(task.id)}
             >
-              {task.deadline
-                ? formatDeadline(task.deadline)
-                : "Provide Deadline"}
+              {task.deadline ? formatDeadline(task.deadline) : "Provide Deadline"}
             </div>
           )}
 
@@ -580,7 +627,7 @@ const TaskList = ({ uid, selectedView }) => {
             className="time-estimate-btn"
             onClick={() => !isSelectMode && setTimeDropdownTaskId(task.id)}
           >
-            {task.timeValue
+            {(task.timeValue !== undefined && task.timeValue !== null)
               ? `${task.timeValue} ${task.timeUnit}`
               : "Provide Estimated Time"}
           </div>
@@ -744,12 +791,13 @@ const TaskList = ({ uid, selectedView }) => {
     }
     for (const task of tasks) {
       if (task.selected) {
-        await updateTaskDoc(task.id, { selected: true });
+        await updateTaskDoc(task.id, { focusingOn: true });
       }
     }
     console.log("Focus session started with", selectedCount, "tasks!");
+    setInFocusSession(true);
     setIsSelectMode(false);
-    window.location.href = "/";
+    navigate("/");
   };
 
   return (

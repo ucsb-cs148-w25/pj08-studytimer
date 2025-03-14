@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from "react";
-import "./TaskNav.css";
-
 import { db } from "../../firebase";
 import { doc, setDoc, getDocs, updateDoc, deleteDoc, collection, writeBatch } from "firebase/firestore";
+import { useFocusSession } from "../../focusSessionContext";
+import "./TaskNav.css";
 
-const TaskNav = ({ uid, setSelectedTaskView }) => {
-  // const [boards, setBoards] = useState([]);
+const TaskNav = ({ uid }) => {
   const [lists, setLists] = useState([]);
   const [deletedItems, setDeletedItems] = useState([]); 
   const [deletedExpanded, setDeletedExpanded] = useState(true);
   const [activeListId, setActiveListId] = useState(null);
-
-  // const createNewBoard = () => {
-  //   const newBoard = {
-  //     id: Date.now().toString(),
-  //     title: "Untitled Board",
-  //     isEditing: false,
-  //   };
-  //   setBoards((prev) => [...prev, newBoard]);
-  // };
+  const { setSelectedView } = useFocusSession();
 
   const updateListDoc = async (listId, data) => {
     console.log("Updating list", listId, data)
@@ -59,9 +50,9 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
       isEditing: true,
     };
     try {
+      setLists((prev) => [...prev, { id: customID, ...newList }]);
       const listDocRef = doc(db, `users/${uid}/lists`, customID);
       await setDoc(listDocRef, newList);
-      setLists((prev) => [...prev, { id: customID, ...newList }]);
     }
     catch (error) {
       console.error("Error creating new list: ", error);
@@ -69,63 +60,39 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
   };
 
   const handleDoubleClick = (id, type) => {
-    // if (type === "board") {
-    //   setBoards((prev) =>
-    //     prev.map((board) =>
-    //       board.id === id ? { ...board, isEditing: true } : board
-    //     )
-    //   );
-    // } else {
-      setLists((prev) =>
-        prev.map((list) =>
-          list.id === id ? { ...list, isEditing: true } : list
-        )
-      );
-    // }
+    setLists((prev) =>
+      prev.map((list) =>
+        list.id === id ? { ...list, isEditing: true } : list
+      )
+    );
   };
 
   const handleTitleChange = (e, id, type) => {
     const newTitle = e.target.value;
-    // if (type === "board") {
-    //   setBoards((prev) =>
-    //     prev.map((board) =>
-    //       board.id === id ? { ...board, title: newTitle } : board
-    //     )
-    //   );
-    // } else {
-      setLists((prev) =>
-        prev.map((list) =>
-          list.id === id ? { ...list, title: newTitle } : list
-        )
-      );
-    // }
+    setLists((prev) =>
+      prev.map((list) =>
+        list.id === id ? { ...list, title: newTitle } : list
+      )
+    );
   };
 
   const handleBlur = (id, type) => {
-    // if (type === "board") {
-    //   setBoards((prev) =>
-    //     prev.map((board) =>
-    //       board.id === id ? { ...board, isEditing: false } : board
-    //     )
-    //   );
-    // } else {
-      setLists((prev) => {
-        const updatedLists = prev.map((list) =>
-          list.id === id ? { ...list, isEditing: false } : list
-        );
+    setLists((prev) => {
+      const updatedLists = prev.map((list) =>
+        list.id === id ? { ...list, isEditing: false } : list
+      );
 
-        const updatedList = updatedLists.find((list) => list.id === id);
-        if (updatedList) {
-          updateListDoc(id.toString(), { title: updatedList.title, isEditing: false });
-        }
-        console.log("Updated lists: ", updatedLists, updatedList.title);
-        return updatedLists;
-      });
-    // }
+      const updatedList = updatedLists.find((list) => list.id === id);
+      if (updatedList) {
+        updateListDoc(id.toString(), { title: updatedList.title, isEditing: false });
+      }
+      console.log("Updated lists: ", updatedLists, updatedList.title);
+      return updatedLists;
+    });
   };
 
   const handleSelect = (id, type, title) => {
-    setSelectedTaskView({ id, type: "list", title });
+    setSelectedView({ id, type: "list", title });
     setActiveListId(id);
   };
 
@@ -135,23 +102,13 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
     }
   };
 
-  const handleDelete = async (id) => { // there was a delete here!
-    // if (type === "board") {
-    //   const boardToDelete = boards.find((board) => board.id === id);
-    //   if (boardToDelete) {
-    //     setBoards(boards.filter((board) => board.id !== id));
-    //     setDeletedItems((prev) =>
-    //       prev.some((item) => item.id === id && item.type === "board")
-    //        ? prev
-    //         : [...prev, { ...boardToDelete, type: "board" }]
-    //     );
-    //   }
-    // }
+  const handleDelete = async (id) => {
     if (!uid) {
       console.error("User not signed in, cannot delete list");
       return;
     }
     try {
+      setLists((prev) => prev.filter((list) => list.id.toString() !== id.toString()));
       await deleteDoc(doc(db, `users/${uid}/lists`, id.toString()));
       const batch = writeBatch(db);
 
@@ -168,7 +125,6 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
       });
 
       await batch.commit();
-      setLists((prev) => prev.filter((list) => list.id.toString() !== id.toString()));
       console.log("List deleted and associated tasks and labels successfully!");
     }
     catch (error) {
@@ -207,10 +163,8 @@ const TaskNav = ({ uid, setSelectedTaskView }) => {
           {lists.map((list) => (
             <li
               key={list.id}
-              // MODIFIED: onClick now calls handleSelect to update activeListId locally
               onClick={() => handleSelect(list.id, "list", list.title)}
               onDoubleClick={() => handleDoubleClick(list.id, "list")}
-              // MODIFIED: Add "active" class if this list is the currently active list
               className={`nav-item ${activeListId === list.id ? "active" : ""}`}
             >
               {list.isEditing ? (

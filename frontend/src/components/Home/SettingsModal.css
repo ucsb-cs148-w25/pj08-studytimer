@@ -1,94 +1,237 @@
-.settings-overlay {
+/* ============================= */
+/* Overlay for the main settings */
+/* ============================= */
+.settings-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(var(--screen-overlay-rgb), 0.1);
+    background: rgba(0,0,0,0.6);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+/* Main modal content */
+.settings-modal-content {
+    background: #111;
+    color: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    width: 320px;
+    max-width: 90%;
+}
+
+/* Each settings row with faint dividing line */
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #333;
+}
+.settings-row:last-of-type {
+    border-bottom: none;
+}
+
+/* Labels */
+.settings-label {
+    font-size: 1rem;
+    color: #ccc;
+}
+
+/* Always-highlighted clickable values */
+.clickable-value {
+    cursor: pointer;
+    background-color: rgba(255,255,255,0.15);  /* Constant highlight */
+    color: #fff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+}
+
+/* Standard value (for non-clickable rows) */
+.settings-value {
+    font-size: 1rem;
+    background-color: rgba(255,255,255,0.15);
+    color: #fff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+}
+
+/* iOS-style toggle switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 22px;
+}
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider.round {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #555; /* default background when OFF */
+    transition: 0.4s;
+    border-radius: 34px;
+}
+.slider.round:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+.switch input:checked + .slider.round {
+    background-color: #4caf50; /* or any other color you prefer */
+}
+.switch input:checked + .slider.round:before {
+    transform: translateX(20px);
+}
+
+/* Footer buttons (if you ever need them) */
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.cancel-btn,
+.save-btn {
+    background: #444;
+    border: none;
+    padding: 0.5rem 1rem;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.save-btn {
+    background: #4caf50;
+}
+
+/* ============================= */
+/* Overlay for pickers (sub-modals) */
+/* ============================= */
+.picker-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 1000;
 }
 
-.settings-modal {
-    background-color: var(--secondary-background);
-    color: var(--text);
-    padding: 23px;
-    border-radius: 15px;
+/* Picker modal container */
+.picker-modal {
+    background: #222;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 8px;
+    width: 260px;
     text-align: center;
-    width: 280px;
-    box-shadow: var(--modal-shadow);
-    transform: scale(0.95);
-    animation: modalFadeIn 0.2s ease-out forwards;  /* Trigger animation */
 }
 
-@keyframes modalFadeIn {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+/* Picker items */
+.picker-item {
+    padding: 0.5rem 0;
+    cursor: pointer;
+}
+.picker-item:hover {
+    background: #333;
+}
+.picker-item.selected {
+    background-color: #444; /* highlight color for the selected item */
+    border-radius: 4px;
 }
 
-.settings-modal h2 {
-    font-size: 1.7rem;
-    margin-top: 10px;
-    margin-bottom: 24px;
+/* ============================= */
+/* Custom screen (second page)   */
+/* ============================= */
+.custom-screen {
+    background: #222;
+    color: #fff;
+    padding: 1.25rem;
+    border-radius: 8px;
+    width: 260px;
+    text-align: center;
 }
 
-.timer-label {
-    font-size: 1.3rem;
-    margin-bottom: 10px;
-    display: block;
-    font-weight: 400;
+/* Grouping for hour/minute dropdowns or text input */
+.custom-input-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
 }
 
-.timer-input-container {
+/* If you want a horizontal layout for hours/minutes, use .dropdown-group */
+.dropdown-group {
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin: 12px 0;
+    gap: 0.5rem;
 }
 
-.timer-input {
-    font-size: 1.3rem;
-    text-align: center;
-    border: 1.5px solid var(--accent-background);
-    border-radius: 7px;
-    padding: 7px;
-    width: 125px;
-    background: var(--secondary-background);
-    color: var(--text);
-}
-
-.buttons-container {
+.custom-screen-buttons {
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 18px 0;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+.custom-screen-buttons button {
+    background: #444;
+    border: none;
+    padding: 0.5rem 1rem;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.custom-screen-buttons button:hover {
+    background: #555;
 }
 
-.break-label {
-    margin-top: 10px;
-    display: block;
-    margin: 12px 0;
-    margin-top: 20px;
-    font-size: 1.3rem;
-    font-weight: 400;
-}
-
-.break-input {
-    width: 125px;
-    padding: 7px;
-    font-size: 1.25rem;
-    border-radius: 7px;
-    border: 1.5px solid var(--accent-background);
+/* Style for the number input group on the custom screen */
+.number-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .number-input-group label {
+    font-size: 0.9rem;
+  }
+  
+  .number-input-group input[type="number"] {
+    width: 60px;
+    padding: 0.25rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background: #333;
+    color: #fff;
     text-align: center;
-    background: var(--secondary-background);
-    color: var(--text);
-    margin-bottom: 10px;
+  }
+
+.cycle-input {
+    width: 40px;            /* narrow width */
+    padding: 0.25rem;       /* small padding */
+    border: 1px solid #555; /* subtle border */
+    border-radius: 4px;
+    background-color: #222; /* dark background to match your modal */
+    color: #fff;            /* white text */
+    text-align: center;     /* center text */
+    font-size: 1rem;
 }
+

@@ -20,7 +20,6 @@ const unlockAchievement = async (achievementId) => {
 
     // Achievement Conditions Based on Stats
     const achievementConditions = {
-      "first_timer": () => true, // Always unlock when first timer starts
       "study_5_sessions": () => stats.studySessions >= 5,
       "study_10_sessions": () => stats.studySessions >= 10,
       "study_20_sessions": () => stats.studySessions >= 20,
@@ -29,17 +28,10 @@ const unlockAchievement = async (achievementId) => {
       "study_10_hours": () => stats.totalStudyTime >= 36000,
       "break_10_taken": () => stats.totalBreaksTaken >= 10,
       "break_25_taken": () => stats.totalBreaksTaken >= 25,
+      "break_50_taken": () => stats.totalBreaksTaken >= 50,
       "longest_30_min": () => stats.longestSession >= 1800,
       "longest_1_hour": () => stats.longestSession >= 3600,
-      "consistency_week": () => {
-        const lastSevenDays = new Set();
-        for (let i = 6; i >= 0; i--) {
-          const date = new Date();
-          date.setDate(date.getDate() - i);
-          lastSevenDays.add(date.toDateString());
-        }
-        return lastSevenDays.has(new Date(stats.lastSessionDate).toDateString());
-      }
+      "longest_3_hour": () => stats.longestSession >= 10800,
     };
 
     // Check if the achievement should be unlocked

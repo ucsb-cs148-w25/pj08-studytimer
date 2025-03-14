@@ -1,0 +1,128 @@
+.focus-session-queue-container {
+  border-radius: 8px;
+  margin-right: 7rem;
+  width: 17rem;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.3rem;
+}
+
+.focus-session-queue-header {
+  font-size: 1.2rem;
+  font-weight: 550;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.focus-session-queue-tasks {
+  max-height: 25rem; 
+  overflow-y: overlay;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  border-radius: 8px;
+
+  margin-bottom: -0.1rem;
+  background-color: #ffffff;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.focus-session-queue-tasks::-webkit-scrollbar {
+  width: 8px;
+}
+
+.focus-session-queue-tasks::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.focus-session-queue-tasks:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.focus-session-queue-tasks::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.focus-session-queue-task {
+  position: relative;
+  background-color: #fcfcfc;
+  border: 0.1rem solid #eee;
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  font-size: 1rem;
+  color: #666;
+  text-overflow: ellipsis;
+
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.focus-session-queue-task:hover {
+  background-color: #f0f0f0;
+  border-color: #ddd;
+}
+
+.focus-session-queue-task.task-selected::before {
+  content: "";
+  position: absolute;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  background: #9bc9fa;
+  opacity: 0.2;
+  pointer-events: none;
+  border-radius: 4px;
+  border: 0.05rem solid #5b9bdf;
+}
+
+.remove-button-container {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+}
+
+.remove-button-container.removing {
+  opacity: 0;
+}
+
+.remove-button {
+  padding: 0.6rem 1.25rem;
+  background-color: #cacaca;
+  color: #5f5f5f;
+  border: 1px solid #5f5f5f;
+  font-size: 0.9rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.remove-button:hover {
+  transform: scale(1.05);
+}
+
+.queue-empty-card {
+  width: 17rem;
+  min-height: 10rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.queue-empty-text {
+  font-size: 1rem;
+  color: #999;
+}

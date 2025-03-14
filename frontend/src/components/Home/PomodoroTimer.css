@@ -1,0 +1,125 @@
+/* Outer container: now a row flex so the queue sits to the left, timer to the right */
+.pomodoro-timer-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary-background);
+    min-height: 92.5vh;
+  }
+  
+  /* The main timer section */
+  .pomodoro-timer-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Mode label (e.g. "Focus", "Short Break", "Long Break") */
+  .mode-label {
+    margin-bottom: 0.35rem !important;
+    color: var(--text);
+    text-align: center; /* Adjust if you want it centered in its own column */
+  }
+  
+  .mode-text {
+    font-size: 2rem;
+    text-align: center;
+  }
+  
+  .flow-session-row {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    font-size: 1rem;         /* slightly smaller than main label */
+    margin-top: 0.25rem;     /* small spacing below the main label */
+    color: var(--text);
+    gap: 0.5rem;
+  }
+  
+  .exit-flow-session-icon {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    opacity: 0.5;
+    margin-top: 0.2rem;
+    margin-left: -0.3rem;
+    transition: opacity 0.3s ease;
+  }
+  
+  .exit-flow-session-icon:hover {
+    opacity: 0.95;
+  }
+  
+  .timer-display {
+    font-size: 7rem !important;
+    margin-bottom: 2rem;
+  }
+  
+  /* Row of buttons: Start/Pause, Skip, Settings */
+  .timer-controls {
+    margin-top: -0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .start-button {
+    background-color: var(--accent-background);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+    color: var(--secondary-background);
+    cursor: pointer;
+  }
+  
+  .timer-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.75rem 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent-background);
+    border-radius: 1rem;
+  }
+  
+  .skip-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.7rem 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent-background);
+    border-radius: 1rem;
+  }
+  
+  .play-pause-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .skip-icon {
+    width: 40px;
+    height: 25px;
+    margin-bottom: -0.2rem;
+  }
+  
+  /* Gear button for Settings */
+  .settings-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .settings-button img {
+    width: 28px;
+    height: 28px;
+  }
+
+  

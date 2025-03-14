@@ -7,7 +7,6 @@ export default function TaskToggle({ onToggle, activeOption }) {
   const labelBtnRef = useRef(null);
   const slideBgRef = useRef(null);
 
-  // Measure button widths after mount/update
   useEffect(() => {
     if (taskBtnRef.current && labelBtnRef.current) {
       const taskWidth = taskBtnRef.current.offsetWidth;
@@ -16,14 +15,13 @@ export default function TaskToggle({ onToggle, activeOption }) {
     }
   }, [activeOption]);
 
-  // Decide how to position the sliding background
   let slideLeft = 0;
   let slideWidth = 0;
   if (activeOption === "task") {
     slideLeft = 0;
     slideWidth = dimensions.taskWidth
   } else if (activeOption === "label") {
-    slideLeft = dimensions.taskWidth;    // move it to the right of the first button
+    slideLeft = dimensions.taskWidth;
     slideWidth = dimensions.labelWidth;
   }
 

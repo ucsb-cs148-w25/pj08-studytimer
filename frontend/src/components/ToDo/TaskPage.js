@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
+import { useFocusSession } from "../../focusSessionContext";
 import TaskNav from "./TaskNav";
 import TaskList from "./TaskList";
 import "./TaskPage.css";
 
 const TaskPage = ({ uid }) => {
-  const [selectedView, setSelectedTaskView] = useState(null);
+  const { selectedView } = useFocusSession();
 
   return (
     <div className="task-page">
-      <TaskNav uid={uid} setSelectedTaskView={setSelectedTaskView} />
+      <TaskNav uid={uid} />
 
       <div className="task-content">
-        {/* {selectedView?.type === "board" && <TaskBoard />} */}
         {selectedView?.type === "list" && uid && (
-            <TaskList uid={uid} selectedView={selectedView} />
+            <TaskList uid={uid} />
         )}
       </div>
     </div>
