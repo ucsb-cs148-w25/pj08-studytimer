@@ -221,7 +221,7 @@ const PomodoroTimer = () => {
     stats 
   ]);
 
-  // Create a ref to hold the latest completeSession so our timer effect doesn’t depend on it.
+  // Create a ref to hold the latest completeSession so the timer effect doesn’t depend on it.
   const completeSessionRef = useRef(completeSession);
   useEffect(() => {
     completeSessionRef.current = completeSession;
