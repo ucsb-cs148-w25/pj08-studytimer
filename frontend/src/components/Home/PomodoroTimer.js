@@ -47,6 +47,16 @@ const PomodoroTimer = () => {
   // --------------------------------
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
+  // NEW: Force transition flag
+  const [forceTransition, setForceTransition] = useState(false);
+
+  // --------------------------------
+  // BREAK NOTIFICATION STATE
+  // --------------------------------
+  const [showBreakNotification, setShowBreakNotification] = useState(false);
+  const [breakNotificationTriggered, setBreakNotficationTriggered] = useState(false);
+  const breakAudioRef = useRef(new Audio('/sounds/breakNotification.mp3'));
+
   useEffect(() => {
     const handleStorageChange = () => {
       setTheme(localStorage.getItem("theme") || "dark");
@@ -61,24 +71,24 @@ const PomodoroTimer = () => {
   useEffect(() => {
     const storedIsRunning = localStorage.getItem("isRunning");
     const storedTimeLeft = localStorage.getItem("timeLeft");
-    const storedTimerStart = localStorage.getItem("timerStart");
+    const storedEndTime = localStorage.getItem("endTime");
     const storedIsFlow = localStorage.getItem("isFlow");
     const storedMode = localStorage.getItem("mode");
     const storedSessionDuration = localStorage.getItem("currentSessionDuration");
 
-    let time = parseInt(storedTimeLeft, 10);
-    if (isNaN(time)) {
-      time = flowDuration * 60;
-    }
-    if (storedIsRunning === "true" && storedTimerStart) {
-      const timerStartParsed = parseInt(storedTimerStart, 10);
-      if (!isNaN(timerStartParsed)) {
-        const elapsed = Math.floor((Date.now() - timerStartParsed) / 1000);
-        time = time - elapsed;
+    let time = flowDuration * 60;
+    if (storedIsRunning === "true" && storedEndTime) {
+      const endTime = parseInt(storedEndTime, 10);
+      if (!isNaN(endTime)) {
+        time = Math.ceil((endTime - Date.now()) / 1000);
         if (time < 0) time = 0;
         setIsRunning(true);
       }
-    } else {
+    } else if (storedTimeLeft) {
+      const parsedTime = parseInt(storedTimeLeft, 10);
+      if (!isNaN(parsedTime)) {
+        time = parsedTime;
+      }
       setIsRunning(false);
     }
     setTimeLeft(time);
@@ -133,11 +143,39 @@ const PomodoroTimer = () => {
   // SESSION COMPLETE HANDLER (memoized)
   // --------------------------------
   const completeSession = useCallback((skip = false) => {
-    if (isFlow) {
-      // Calculate elapsed time in seconds for the current study session.
-      const elapsedSeconds = currentSessionDuration - timeLeft;
+    // If we're in a focus session, and skip is pressed while forceTransition is true,
+    // then immediately transition to break mode.
+    if (isFlow && skip && forceTransition) {
+      setForceTransition(false);
+      let newTime;
+      if (currentCycle + 1 === cycle) {
+        setIsFlow(false);
+        newTime = longBreakDuration * 60;
+        setCurrentCycle(0);
+        setMode("longBreak");
+        localStorage.setItem("mode", "longBreak");
+        localStorage.setItem("isFlow", "false");
+      } else {
+        setIsFlow(false);
+        newTime = shortBreakDuration * 60;
+        setCurrentCycle(currentCycle + 1);
+        setMode("shortBreak");
+        localStorage.setItem("mode", "shortBreak");
+        localStorage.setItem("isFlow", "false");
+      }
+      setTimeLeft(newTime);
+      setCurrentSessionDuration(newTime);
+      localStorage.setItem("timeLeft", newTime);
+      localStorage.setItem("currentSessionDuration", newTime);
+      setIsRunning(false);
+      localStorage.setItem("isRunning", "false");
+      return;
+    }
+
+    // Otherwise, use the normal completion logic.
+    const elapsedSeconds = currentSessionDuration - timeLeft;
   
-      // Only update stats if they exist (i.e., user is logged in)
+    if (isFlow) {
       if (stats) {
         setStats(prev => ({
           ...prev,
@@ -148,7 +186,6 @@ const PomodoroTimer = () => {
         }));
       }
     } else {
-      // For break sessions, update the break count if stats exists.
       if (stats) {
         setStats(prev => ({
           ...prev,
@@ -160,7 +197,6 @@ const PomodoroTimer = () => {
     if (isFlow) {
       let newTime;
       if (currentCycle + 1 === cycle) {
-        // Completed a full cycle → Long Break
         setIsFlow(false);
         newTime = longBreakDuration * 60;
         setCurrentCycle(0);
@@ -168,7 +204,6 @@ const PomodoroTimer = () => {
         localStorage.setItem("mode", "longBreak");
         localStorage.setItem("isFlow", "false");
       } else {
-        // Otherwise, use a Short Break
         setIsFlow(false);
         newTime = shortBreakDuration * 60;
         setCurrentCycle(currentCycle + 1);
@@ -181,15 +216,15 @@ const PomodoroTimer = () => {
       localStorage.setItem("timeLeft", newTime);
       localStorage.setItem("currentSessionDuration", newTime);
       if (skip && startBreaksAutomatically) {
+        const newEndTime = Date.now() + newTime * 1000;
+        localStorage.setItem("endTime", newEndTime);
         setIsRunning(true);
         localStorage.setItem("isRunning", "true");
-        localStorage.setItem("timerStart", Date.now());
       } else {
         setIsRunning(false);
         localStorage.setItem("isRunning", "false");
       }
     } else {
-      // Finished a Break session → Start a new Flow
       setIsFlow(true);
       const newTime = flowDuration * 60;
       setTimeLeft(newTime);
@@ -199,9 +234,10 @@ const PomodoroTimer = () => {
       setMode("focus");
       localStorage.setItem("mode", "focus");
       if (skip && startFlowsAutomatically) {
+        const newEndTime = Date.now() + newTime * 1000;
+        localStorage.setItem("endTime", newEndTime);
         setIsRunning(true);
         localStorage.setItem("isRunning", "true");
-        localStorage.setItem("timerStart", Date.now());
       } else {
         setIsRunning(false);
         localStorage.setItem("isRunning", "false");
@@ -218,8 +254,10 @@ const PomodoroTimer = () => {
     startFlowsAutomatically,
     currentSessionDuration,
     timeLeft,
-    stats 
+    stats,
+    forceTransition
   ]);
+  
 
   // Create a ref to hold the latest completeSession so the timer effect doesn’t depend on it.
   const completeSessionRef = useRef(completeSession);
@@ -228,32 +266,18 @@ const PomodoroTimer = () => {
   }, [completeSession]);
 
   // --------------------------------
-  // MAIN TIMER EFFECT
+  // MAIN TIMER EFFECT using absolute endTime
   // --------------------------------
   useEffect(() => {
     if (!isRunning) return;
 
-    // Read initial values only once when the timer starts.
-    let storedTimeLeft = localStorage.getItem("timeLeft");
-    let initialTimeLeft = parseInt(storedTimeLeft, 10);
-    if (isNaN(initialTimeLeft)) {
-      initialTimeLeft = flowDuration * 60;
-    }
-
-    let storedTimerStart = localStorage.getItem("timerStart");
-    let timerStart = parseInt(storedTimerStart, 10);
-    if (isNaN(timerStart)) {
-      timerStart = Date.now();
-      localStorage.setItem("timerStart", timerStart);
-    }
-
+    const storedEndTime = parseInt(localStorage.getItem("endTime"), 10);
     const timer = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - timerStart) / 1000);
-      const newTime = initialTimeLeft - elapsed;
+      const newTime = Math.ceil((storedEndTime - Date.now()) / 1000);
       if (newTime <= 0) {
         clearInterval(timer);
         setTimeLeft(0);
-        setTimeout(() => completeSessionRef.current(), 0);
+        completeSessionRef.current();
       } else {
         setTimeLeft(newTime);
         localStorage.setItem("timeLeft", newTime);
@@ -266,7 +290,7 @@ const PomodoroTimer = () => {
   // RESET TIMER WHEN USER SIGNS OUT
   // --------------------------------
   const resetTimerOnAuthChange = useCallback(() => {
-    localStorage.removeItem("timerStart");
+    localStorage.removeItem("endTime");
     localStorage.removeItem("timeLeft");
     localStorage.removeItem("isFlow");
     localStorage.removeItem("mode");
@@ -319,6 +343,26 @@ const PomodoroTimer = () => {
   }, [stats]);
 
   // --------------------------------
+  // FLOATING BREAK NOTIFICATION EFFECT
+  // --------------------------------
+  useEffect(() => {
+    if (!breakNotificationTriggered && isRunning && isFlow && timeLeft <= 30 && timeLeft > 0) {
+      setShowBreakNotification(true);
+      breakAudioRef.current.play();
+      setBreakNotficationTriggered(true);
+      setTimeout(() => setShowBreakNotification(false), 5000);  // hide after 5 seconds
+    }
+  }, [timeLeft, isRunning, isFlow, breakNotificationTriggered]);
+
+  // reset break notification when new focus session starts
+  useEffect(() => {
+    if (mode === "focus") {
+      setBreakNotficationTriggered(false);
+    }
+
+  }, [mode]);
+
+  // --------------------------------
   // FORMAT TIME FOR DISPLAY
   // --------------------------------
   const formatTime = (totalSeconds) => {
@@ -338,7 +382,6 @@ const PomodoroTimer = () => {
     newStartBreaks,
     newStartFlows
   ) => {
-    // Only update if any value changed
     if (
       newFlow === flowDuration &&
       newShort === shortBreakDuration &&
@@ -347,39 +390,40 @@ const PomodoroTimer = () => {
       newStartBreaks === startBreaksAutomatically &&
       newStartFlows === startFlowsAutomatically
     ) {
-      // no changes, close modal
       setIsModalOpen(false);
       return;
     }
     
+    // Update settings for future sessions.
     setFlowDuration(newFlow);
     setShortBreakDuration(newShort);
     setLongBreakDuration(newLong);
     setCycle(newCycle);
     setStartBreaksAutomatically(newStartBreaks);
     setStartFlowsAutomatically(newStartFlows);
-
-    // Reset current cycle count and update timeLeft based on current mode.
     setCurrentCycle(0);
 
-    let newTime;
     if (isFlow) {
-      newTime = newFlow * 60;
-      setMode("focus");
-      localStorage.setItem("mode", "focus");
+      // Update the focus timer to show the new focus duration.
+      const newTime = newFlow * 60;
+      setTimeLeft(newTime);
+      setCurrentSessionDuration(newTime);
+      localStorage.setItem("timeLeft", newTime);
+      localStorage.setItem("currentSessionDuration", newTime);
+      // Set forceTransition to signal that the next skip should transition to break.
+      setForceTransition(true);
     } else {
-      if (mode === "longBreak") {
-        newTime = newLong * 60;
-      } else {
-        newTime = newShort * 60;
-      }
+      // If in break mode, update the timer based on the break duration.
+      let newTime = mode === "longBreak" ? newLong * 60 : newShort * 60;
+      setTimeLeft(newTime);
+      setCurrentSessionDuration(newTime);
+      localStorage.setItem("timeLeft", newTime);
+      localStorage.setItem("currentSessionDuration", newTime);
     }
-    setTimeLeft(newTime);
-    setCurrentSessionDuration(newTime);
-    localStorage.setItem("timeLeft", newTime);
-    localStorage.setItem("currentSessionDuration", newTime);
+    
     setIsRunning(false);
     localStorage.setItem("isRunning", "false");
+    setIsModalOpen(false);
   };
 
   // --------------------------------
@@ -394,6 +438,13 @@ const PomodoroTimer = () => {
   // --------------------------------
   return (
     <div className="pomodoro-timer-container">
+      {/* Floating Notification for break */}
+      {showBreakNotification && (
+        <div className='floating-notification'>
+          Break coming in 30 seconds!
+        </div>
+      )}
+
       {/* Mode Label */}
       <div className="mode-label">
         {mode === "focus" ? "Focus" : mode === "shortBreak" ? "Break" : "Long Break"}
@@ -408,11 +459,17 @@ const PomodoroTimer = () => {
           className="start-button"
           onClick={() => {
             if (!isRunning) {
-              // When starting the timer, record the start time.
-              localStorage.setItem("timerStart", Date.now());
+              // When starting the timer, calculate and store the absolute end time.
+              const newEndTime = Date.now() + timeLeft * 1000;
+              localStorage.setItem("endTime", newEndTime);
               localStorage.setItem("isRunning", "true");
               setIsRunning(true);
             } else {
+              // Pause the timer and update timeLeft based on the remaining time.
+              const storedEndTime = parseInt(localStorage.getItem("endTime"), 10);
+              const newTime = Math.ceil((storedEndTime - Date.now()) / 1000);
+              setTimeLeft(newTime);
+              localStorage.setItem("timeLeft", newTime);
               localStorage.setItem("isRunning", "false");
               setIsRunning(false);
             }
