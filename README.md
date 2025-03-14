@@ -4,12 +4,10 @@ _Wisely manage your time!_
 ## Project Description:
 Our project, _timewise_, is a web app that hopes to help users manage their time wisely and effectively, with a timer! Our app allows users to input their tasks, focus, and schedule(s) to generate an personalized work plan that maximizes work efficiency. Additionally, based on the user's current motivation and difficulty of tasks, adaptive break suggestions will pop up to minimize burnout within our users. 
 
-Feel free to try out our app here! --> https://pj-timewise.netlify.app/
-
 ## Tech Stack
-- Frontend: React and Tailwind CSS
-- Backend: Firebase 
-- APIs: Google Calendar API thru. Google OAuth
+- Frontend: React
+- Backend: Spring Boot 
+- APIs: Google Calendar API through Google OAuth
 
 ## Team Members [Name, GitHub-IDs]:
 - Kevin Lee (kjlee2504)
@@ -25,7 +23,6 @@ _timewise_ is designed to improve productivity by optimizing work and study sess
 
 - Adjustable timer durations tailored to user preferences
 - Calendar-synced task tracking for streamlined scheduling
-- Adaptive work plans based on task difficulty and energy levels
 - Smart break suggestions to enhance focus and prevent burnout
 - Motivational notifications to keep users on track
 
@@ -81,10 +78,10 @@ npm start
 ```
 
 ## Functionality
-For the current existing codebase (of the MVP), you should be able to navigate to all the pages off the app using the navbar! At the moment, you can start a time and set pre-defined breaks (as well as add additional time if you desire more time to study), and fill out a simple to-do list to keep track of your tasks and assignments. Additionally, you can read upon the mission of _timewise_ and what user's will be able to do once the final product is delivered. 
+In the current codebase, users can navigate to all app pages using the navigation bar. On the Home page, they can use a Pomodoro timer to start a focus session and set predefined short or long breaks based on their desired study session length. The Tasks page allows users to create lists to track their tasks and assignments, with items automatically syncing to their Google Calendar, which can be viewed on the Calendar page. Users can access their Profile page to view statistics and achievements from their study sessions, along with task metrics. Additionally, on the Community page, users can connect with friends by adding each other to compare statistics and achievements and view a leaderboard.
 
 ## Known Bugs/Problems
-The biggest bug is that upon refreshing on any page outside of the homepage, will result in a `Page not found` (was just discovered deadline of MVP). Outside of that, many bugs are more due to no existing backend to support many of the features we hope to have by the project's delivery. 
+FIXME!
 
 ## Contributing
 If you'd like to contribute to _timewise_ you can do the following:
@@ -93,3 +90,6 @@ If you'd like to contribute to _timewise_ you can do the following:
 3. Commit your changes: `git commit -am 'Add some feature'`
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request :D, it might be merged into the official repo!
+
+## Deployment 
+Feel free to try out our app here! --> https://pj-timewise.netlify.app/
