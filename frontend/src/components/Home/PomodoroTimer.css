@@ -55,9 +55,11 @@
   .timer-display {
     font-size: 7rem !important;
     margin-bottom: 2rem;
+    display: inline-block;
+    min-width: 5ch;
+    text-align: center;
   }
-  
-  /* Row of buttons: Start/Pause, Skip, Settings */
+
   .timer-controls {
     margin-top: -0.5rem;
     display: flex;
@@ -110,7 +112,6 @@
     margin-bottom: -0.2rem;
   }
   
-  /* Gear button for Settings */
   .settings-button {
     background: transparent;
     border: none;
@@ -120,4 +121,14 @@
   .settings-button img {
     width: 28px;
     height: 28px;
+  }
+
+  .resume-flow-session-button {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    margin-top: 0.35rem;
   }

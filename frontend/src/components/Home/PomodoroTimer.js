@@ -32,20 +32,9 @@ const PomodoroTimer = ({ uid }) => {
   // MODAL STATE
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // FLOW SESSION STATES from context.
-  // Note: we now also extract setSelectedView from the context.
   const { inFocusSession, setInFocusSession, selectedView, setSelectedView } = useFocusSession();
-
-  // New state: if we have detected an ongoing session on refresh.
   const [showResumePrompt, setShowResumePrompt] = useState(false);
 
-  console.log("Selected view:", selectedView);
-  console.log("inFocusSession:", inFocusSession);
-  console.log("Current uid:", uid);
-
-  // --------------------------------
-  // FETCH STATS FROM FIREBASE ON MOUNT
-  // --------------------------------
   useEffect(() => {
     const fetchStats = async () => {
       const auth = getAuth();
@@ -181,7 +170,6 @@ const PomodoroTimer = ({ uid }) => {
       const statsRef = doc(db, `users/${auth.currentUser.uid}`);
       try {
         await setDoc(statsRef, { stats }, { merge: true });
-        console.log("Stats updated on Firebase");
       } catch (error) {
         console.error("Error updating stats on Firebase:", error);
       }
@@ -190,9 +178,6 @@ const PomodoroTimer = ({ uid }) => {
     updateFirebaseStats();
   }, [stats]);
 
-  // --------------------------------
-  // CHECK FOR ORPHANED FOCUS TASKS ON REFRESH (all lists)
-  // --------------------------------
   useEffect(() => {
     if (!inFocusSession && uid) {
       const checkFocusedTasks = async () => {
@@ -216,7 +201,6 @@ const PomodoroTimer = ({ uid }) => {
           // Find the first task that is still marked as focused.
           const focusedTask = allTasks.find(task => task.focusingOn === true);
           if (focusedTask) {
-            // Find the matching list object for the focused task.
             const focusedList = listsData.find(list => list.id === focusedTask.listId);
             if (focusedList) {
               setSelectedView(focusedList);
@@ -231,21 +215,13 @@ const PomodoroTimer = ({ uid }) => {
     }
   }, [inFocusSession, uid, setSelectedView]);
 
-  console.log("The current selectedView is:", selectedView);
 
-
-  // --------------------------------
-  // FORMAT TIME FOR DISPLAY
-  // --------------------------------
   const formatTime = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  // --------------------------------
-  // HANDLE SETTINGS SAVE
-  // --------------------------------
   const handleSettingsSave = (
     newFlow,
     newShort,
@@ -261,7 +237,6 @@ const PomodoroTimer = ({ uid }) => {
     setStartBreaksAutomatically(newStartBreaks);
     setStartFlowsAutomatically(newStartFlows);
 
-    // Reset current cycle count and update timeLeft based on current mode.
     setCurrentCycle(0);
 
     if (isFlow) {
@@ -281,9 +256,6 @@ const PomodoroTimer = ({ uid }) => {
     setIsRunning(false);
   };
 
-  // --------------------------------
-  // HANDLE TIMER TOGGLE & SKIP
-  // --------------------------------
   const handleToggleTimer = () => {
     setIsRunning(prev => !prev);
   };
@@ -292,9 +264,6 @@ const PomodoroTimer = ({ uid }) => {
     completeSession(true);
   };
 
-  // --------------------------------
-  // HANDLE EXIT FOCUS SESSION (manual exit)
-  // --------------------------------
   const handleExitFocusSession = async () => {
     setInFocusSession(false);
     try {
@@ -303,34 +272,26 @@ const PomodoroTimer = ({ uid }) => {
         const q = query(tasksRef, where("focusingOn", "==", true));
         const tasksSnapshot = await getDocs(q);
         const batch = writeBatch(db);
-  
+
         tasksSnapshot.docs.forEach((taskDoc) => {
           const taskRef = doc(db, `users/${uid}/lists/${selectedView.id.toString()}/tasks`, taskDoc.id);
           batch.update(taskRef, { focusingOn: false, currentlyFocusedOn: false });
         });
-  
+
         await batch.commit();
-        console.log("All tasks updated: focus flags cleared.");
       }
     } catch (error) {
       console.error("Error updating tasks on exit:", error);
     }
   };
 
-  // --------------------------------
-  // HANDLE RESUME FLOW SESSION (from refresh prompt)
-  // --------------------------------
   const handleResumeFlowSession = () => {
     setInFocusSession(true);
     setShowResumePrompt(false);
-    // Optionally, you could restore additional session state here.
   };
 
   const modeLabel = mode === "focus" ? "Focus" : mode === "shortBreak" ? "Break" : "Long Break";
 
-  // --------------------------------
-  // RENDER
-  // --------------------------------
   return (
     <div className="pomodoro-timer-container">
       {uid && inFocusSession && (
@@ -340,25 +301,33 @@ const PomodoroTimer = ({ uid }) => {
       <div className="pomodoro-timer-main">
         <div className="mode-label">
           <div className="mode-text">{modeLabel}</div>
-          {uid && inFocusSession && (
-            <div className="flow-session-row">
-              <span className="flow-session-text">Flow Session Active</span>
-              <img
-                src="/exitIcon.svg"
-                alt="Exit Flow Session"
-                className="exit-flow-session-icon"
-                onClick={handleExitFocusSession}
-              />
-            </div>
+          {uid && (
+            inFocusSession ? (
+              <div className="flow-session-row">
+                <span className="flow-session-text">Flow Session Active</span>
+                <img
+                  src="/exitIcon.svg"
+                  alt="Exit Flow Session"
+                  className="exit-flow-session-icon"
+                  onClick={handleExitFocusSession}
+                />
+              </div>
+            ) : (
+              showResumePrompt && (
+                <div className="resume-flow-session-prompt">
+                  <button className={"resume-flow-session-button"} onClick={handleResumeFlowSession}>
+                    Continue Previous Flow Session?
+                  </button>
+                </div>
+              )
+            )
           )}
         </div>
 
-        {/* TIME DISPLAY */}
         <div className="timer-display">
           {formatTime(timeLeft)}
         </div>
 
-        {/* TIMER CONTROLS */}
         <div className="timer-controls">
           <button className="timer-button play-pause-button" onClick={handleToggleTimer}>
             <img
@@ -389,7 +358,6 @@ const PomodoroTimer = ({ uid }) => {
           </button>
         </div>
 
-        {/* SETTINGS MODAL */}
         <SettingsModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -401,15 +369,6 @@ const PomodoroTimer = ({ uid }) => {
           startFlowsAutomatically={startFlowsAutomatically}
           onSave={handleSettingsSave}
         />
-
-        {/* Resume Flow Session prompt (shown if refresh left an orphaned focus) */}
-        {!inFocusSession && showResumePrompt && (
-          <div className="resume-flow-session-prompt">
-            <button onClick={handleResumeFlowSession}>
-              Continue with Flow Session
-            </button>
-          </div>
-        )}
       </div>
 
       {uid && inFocusSession && (
