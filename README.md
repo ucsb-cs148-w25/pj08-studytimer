@@ -77,7 +77,7 @@ npm install
 npm start
 ```
 
-## Functionality
+# Functionality
 In the current codebase, users can navigate to all app pages using the navigation bar. On the Home page, they can use a Pomodoro timer to start a focus session and set predefined short or long breaks based on their desired study session length. The Tasks page allows users to create lists to track their tasks and assignments, with items automatically syncing to their Google Calendar, which can be viewed on the Calendar page. Users can access their Profile page to view statistics and achievements from their study sessions, along with task metrics. Additionally, on the Community page, users can connect with friends by adding each other to compare statistics and achievements and view a leaderboard.
 
 ## Known Bugs/Problems
@@ -91,5 +91,5 @@ If you'd like to contribute to _timewise_ you can do the following:
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request :D, it might be merged into the official repo!
 
-## Deployment 
+# Deployment 
 Feel free to try out our app here! --> https://pj-timewise.netlify.app/
