@@ -94,4 +94,4 @@ If you'd like to contribute to _timewise_ you can do the following:
 # Deployment 
 Feel free to try out our app here! --> https://pj-timewise.netlify.app/
 
-For full deployment instructions please see [link](docs/deployment.md)
+For full deployment instructions please see [link](docs/DEPLOY.md)
