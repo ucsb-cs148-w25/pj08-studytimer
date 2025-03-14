@@ -199,7 +199,7 @@
 .stats__item {
   flex: 1;
   min-width: 100px;
-  background-color: #fff;
+  background-color: var(--profile-card);
   border-radius: 8px;
   padding: 20px;
   text-align: center;
@@ -222,7 +222,7 @@
 
 .stats__item-value {
   font-size: 1.1rem;
-  color: var(--secondary-color);
+  color: var(--profile-middle-text);
   margin: 0;
 }
 
@@ -251,7 +251,7 @@
 }
 
 .achievement-card {
-  background-color: #fff;
+  background-color: var(--profile-card);
   border-radius: 8px;
   padding: var(--padding);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -274,7 +274,7 @@
 
 .achievement-card__description {
   font-size: 1rem;
-  color: var(--secondary-color);
+  color: var(--profile-middle-text);
   margin-bottom: 10px;
 }
 

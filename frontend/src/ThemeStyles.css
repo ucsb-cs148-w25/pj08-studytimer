@@ -26,10 +26,10 @@
     --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
 
     /* wheel related */
-    --in-progress-area: #ffd428;
-    --done-area: #62b074;
-    --hover-in-progress: #ffcf11;
-    --hover-done: #48a05c;
+    --in-progress-area: #3464eb;
+    --done-area: #eb3452;
+    --hover-in-progress: #1f5aad;
+    --hover-done: #ad1f37;
 
     /* task manager (to-do) related */
     --in-progress-button: #ffcf11;
@@ -55,7 +55,9 @@
 
     /* Profile Page */
     --profile-user-photo: #eef7ed;
-    --profile-user-name: #9bc9fa;
+    --profile-user-name: #eef7ed;
+    --profile-card: #cacbcc;
+    --profile-middle-text: #414345;
 }
 
 [data-theme="light"] {
@@ -82,10 +84,10 @@
     --screen-overlay-rgb: 255, 255, 255;  
     --modal-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2); 
 
-    --in-progress-area: #f9b050;  
-    --done-area: #57b85a;  
-    --hover-in-progress: #f3a239;  
-    --hover-done: #388e3c; 
+    --in-progress-area: #81b8f2;  
+    --done-area: #f55b6f;  
+    --hover-in-progress: #618cba;  
+    --hover-done: #b84252; 
 
     --in-progress-button: #f9b050;
     --done-button: #57b85a;  
@@ -106,6 +108,12 @@
     --calendar-day-border: #dadce0;
     --calendar-today-bg: #e8eaed;
     --calendar-today-text: #202124;
+
+    /* Profile Page */
+    --profile-user-photo: #414345;
+    --profile-user-name: #414345;
+    --profile-card: #ffffff;
+    --profile-middle-text: #414345;
 }
 
 [data-theme="forest"] {
@@ -156,6 +164,12 @@
     --calendar-day-border: #d3e8d1;
     --calendar-today-bg: #cce4cc;
     --calendar-today-text: #2d4d3a;
+
+    /* Profile Page */
+    --profile-user-photo: #2d4d3a;
+    --profile-user-name: #2d4d3a;
+    --profile-card: #99cca7;
+    --profile-middle-text: #414345;
 }
 
 body {

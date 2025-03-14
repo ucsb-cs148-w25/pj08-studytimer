@@ -221,11 +221,8 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
       achievementDescriptions[nextAchievementId] || description;
   }
 
-  const backgroundColors = ["#ffffff", "#d1dff6", "#b2cbf2", "#92b6f0"];
-  const cardStyle = { backgroundColor: backgroundColors[unlockedCount] };
-
   return (
-    <div className="achievement-card" style={cardStyle}>
+    <div className="achievement-card" >
       <img
         src={iconToShow}
         alt="Achievement Icon"
