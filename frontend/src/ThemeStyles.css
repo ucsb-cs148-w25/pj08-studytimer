@@ -58,6 +58,7 @@
     --profile-user-name: #eef7ed;
     --profile-card: #cacbcc;
     --profile-middle-text: #414345;
+    --friends-text: #414345;
 }
 
 [data-theme="light"] {
@@ -114,6 +115,7 @@
     --profile-user-name: #414345;
     --profile-card: #ffffff;
     --profile-middle-text: #414345;
+    --friends-text: #414345;
 }
 
 [data-theme="forest"] {
@@ -170,6 +172,8 @@
     --profile-user-name: #2d4d3a;
     --profile-card: #99cca7;
     --profile-middle-text: #414345;
+    --friends-text: #2d4d3a;
+
 }
 
 body {

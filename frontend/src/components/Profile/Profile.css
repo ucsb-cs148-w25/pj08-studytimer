@@ -57,7 +57,7 @@
   margin-bottom: 40px;
 }
 
-/* Inline Major Editing Styling */
+/* Inline Editing Styles (for Profile component) */
 .major-inline {
   margin-top: 40px;
   font-size: 1em;
@@ -71,7 +71,6 @@
   border-radius: 3px;
 }
 
-/* Inline editing for Class Year */
 .class-year-inline {
   margin-top: 20px;
   font-size: 1em;
@@ -85,12 +84,10 @@
   border-radius: 3px;
 }
 
-/* Inline editing for Bio */
 .bio-inline {
   margin-top: 20px;
   font-size: 1em;
   cursor: pointer;
-  
 }
 
 .bio-inline textarea {
@@ -103,9 +100,8 @@
   resize: vertical;
 }
 
-/* Skills/Interests Section styling */
 .skills-section {
-  margin-top: 40px; /* Adjust gap above the section as needed */
+  margin-top: 40px;
 }
 
 .skills-section strong {
@@ -117,7 +113,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-bottom: 10px; /* Add extra bottom margin if needed */
+  margin-bottom: 10px;
 }
 
 /* Chip styling */
@@ -133,12 +129,10 @@
   transition: background-color 0.2s ease;
 }
 
-/* Wrap the text in its own span */
 .chip .chip-text {
   transition: opacity 0.2s ease;
 }
 
-/* The remove icon, initially hidden and centered absolutely */
 .chip .remove-chip {
   position: absolute;
   left: 50%;
@@ -152,7 +146,6 @@
   background-color: gray;
 }
 
-/* On hover, hide the chip text and show the remove icon */
 .chip:hover .chip-text {
   opacity: 0;
 }
@@ -161,13 +154,44 @@
   opacity: 1;
 }
 
-/* Adjust the input margin for adding a new skill */
 .skills-section input {
   margin-top: 10px;
   padding: 5px;
   font-size: 0.9em;
   border: 1px solid #ccc;
   border-radius: 5px;
+}
+
+/* Static Display Styles for FriendProfile (Read-Only) */
+.major-static,
+.class-year-static,
+.bio-static {
+  margin-top: 20px;
+  font-size: 1em;
+}
+
+.major-static strong,
+.class-year-static strong,
+.bio-static strong {
+  font-weight: bold;
+}
+
+.skills-static {
+  margin-top: 20px;
+  font-size: 1em;
+  text-align: left;
+}
+
+.skills-static strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.skills-static .skills-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
 }
 
 /* Middle Panel (Stats & Achievements) */
@@ -226,10 +250,7 @@
   margin: 0;
 }
 
-/* ============ */
-/* ACHIEVEMENTS */
-/* ============ */
-
+/* Achievements */
 .achievements {
   text-align: center;
   margin-bottom: 20px;
@@ -300,13 +321,11 @@
   text-align: center;
 }
 
-
 .metrics-section h1 {
   color: var(--text);
   font-size: 1.3rem;
   font-weight: 400;
 }
-
 
 .metrics-section {
   display: flex;
