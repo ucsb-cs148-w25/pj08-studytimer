@@ -56,7 +56,7 @@ const PomodoroTimer = () => {
   }, []);
 
   // --------------------------------
-  // RESTORE TIMER STATE FROM LOCALSTORAGE ON MOUNT
+  // RESTORE TIMER STATE FROM LOCALSTORAGE ON MOUNT (TIMER PERSISTENCE)
   // --------------------------------
   useEffect(() => {
     const storedIsRunning = localStorage.getItem("isRunning");
