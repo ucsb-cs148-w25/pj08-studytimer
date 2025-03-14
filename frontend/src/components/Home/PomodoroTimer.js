@@ -338,6 +338,20 @@ const PomodoroTimer = () => {
     newStartBreaks,
     newStartFlows
   ) => {
+    // Only update if any value changed
+    if (
+      newFlow === flowDuration &&
+      newShort === shortBreakDuration &&
+      newLong === longBreakDuration &&
+      newCycle === cycle &&
+      newStartBreaks === startBreaksAutomatically &&
+      newStartFlows === startFlowsAutomatically
+    ) {
+      // no changes, close modal
+      setIsModalOpen(false);
+      return;
+    }
+    
     setFlowDuration(newFlow);
     setShortBreakDuration(newShort);
     setLongBreakDuration(newLong);
