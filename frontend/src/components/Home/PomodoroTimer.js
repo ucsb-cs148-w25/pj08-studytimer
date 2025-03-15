@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import SettingsModal from './SettingsModal';
 import './PomodoroTimer.css';
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, collection } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import initializeStats from "../../utils/initializeStats";
 
+// --------------------------------
+// DEFAULT SETTINGS (in minutes)
+// --------------------------------
 const PomodoroTimer = () => {
-  // --------------------------------
-  // DEFAULT SETTINGS (in minutes)
-  // --------------------------------
   const [flowDuration, setFlowDuration] = useState(25); 
   const [shortBreakDuration, setShortBreakDuration] = useState(5);
   const [longBreakDuration, setLongBreakDuration] = useState(30);
-  const [cycle, setCycle] = useState(4); // e.g., after 4 flows, use a long break
+  const [cycle, setCycle] = useState(4); // after 4 flows, use a long break
 
-  // This tracks how many Flow sessions have completed in the current cycle.
+  // Track how many Flow sessions have completed in the current cycle.
   const [currentCycle, setCurrentCycle] = useState(0);
 
   // Toggles
@@ -96,10 +97,13 @@ const PomodoroTimer = () => {
   }, [flowDuration]);
 
   // --------------------------------
-  // FETCH STATS FROM FIREBASE ON MOUNT
+  // INITIALIZE AND FETCH STATS FROM FIREBASE ON MOUNT
   // --------------------------------
   useEffect(() => {
-    const fetchStats = async () => {
+    const initAndFetchStats = async () => {
+      // Initialize stats if they don't exist
+      await initializeStats();
+      
       const auth = getAuth();
       if (!auth.currentUser) {
         console.error("User is not authenticated.");
@@ -112,12 +116,11 @@ const PomodoroTimer = () => {
         if (statsSnap.exists() && statsSnap.data().stats) {
           setStats(statsSnap.data().stats);
         } else {
-          // If stats do not exist, initialize with defaults.
           setStats({
-            totalStudyTime: 0,    // in seconds
+            totalStudyTime: 0,
             totalBreaksTaken: 0,
             studySessions: 0,
-            longestSession: 0,    // in seconds
+            longestSession: 0,
             lastSessionDate: "N/A",
           });
         }
@@ -126,7 +129,7 @@ const PomodoroTimer = () => {
       }
     };
 
-    fetchStats();
+    initAndFetchStats();
   }, []);
 
   // --------------------------------
@@ -319,9 +322,9 @@ const PomodoroTimer = () => {
   }, [stats]);
 
   // --------------------------------
-  // FORMAT TIME FOR DISPLAY
+  // FORMAT TIME FOR DISPLAY (mm:ss)
   // --------------------------------
-  const formatTime = (totalSeconds) => {
+  const formatDisplayTime = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
@@ -338,7 +341,6 @@ const PomodoroTimer = () => {
     newStartBreaks,
     newStartFlows
   ) => {
-    // Only update if any value changed
     if (
       newFlow === flowDuration &&
       newShort === shortBreakDuration &&
@@ -347,7 +349,6 @@ const PomodoroTimer = () => {
       newStartBreaks === startBreaksAutomatically &&
       newStartFlows === startFlowsAutomatically
     ) {
-      // no changes, close modal
       setIsModalOpen(false);
       return;
     }
@@ -359,7 +360,6 @@ const PomodoroTimer = () => {
     setStartBreaksAutomatically(newStartBreaks);
     setStartFlowsAutomatically(newStartFlows);
 
-    // Reset current cycle count and update timeLeft based on current mode.
     setCurrentCycle(0);
 
     let newTime;
@@ -394,21 +394,15 @@ const PomodoroTimer = () => {
   // --------------------------------
   return (
     <div className="pomodoro-timer-container">
-      {/* Mode Label */}
       <div className="mode-label">
         {mode === "focus" ? "Focus" : mode === "shortBreak" ? "Break" : "Long Break"}
       </div>
-
-      {/* TIME DISPLAY */}
-      <div className="timer-display">{formatTime(timeLeft)}</div>
-
-      {/* BUTTONS: START, SKIP, SETTINGS */}
+      <div className="timer-display">{formatDisplayTime(timeLeft)}</div>
       <div className="controls-row">
         <button
           className="start-button"
           onClick={() => {
             if (!isRunning) {
-              // When starting the timer, record the start time.
               localStorage.setItem("timerStart", Date.now());
               localStorage.setItem("isRunning", "true");
               setIsRunning(true);
@@ -420,11 +414,9 @@ const PomodoroTimer = () => {
         >
           {isRunning ? 'Pause' : 'Start'}
         </button>
-
         <button className="skip-button" onClick={handleSkip}>
           Skip
         </button>
-
         <button
           className="gear-button"
           onClick={() => setIsModalOpen(true)}
@@ -433,8 +425,6 @@ const PomodoroTimer = () => {
           <img src="/settingsGear.svg" alt="Settings" className={theme === "dark" ? "gear-icon dark-mode" : "gear-icon"}/>
         </button>
       </div>
-
-      {/* SETTINGS MODAL */}
       <SettingsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
