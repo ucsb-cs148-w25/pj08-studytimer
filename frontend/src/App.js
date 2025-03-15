@@ -17,6 +17,8 @@ import About from './components/About/About';
 import Settings from './components/AppSettings/Settings';
 import PomodoroTimer from './components/Home/PomodoroTimer';
 
+import './App.css';
+
 const App = () => {
   // Keeps the Firestore user document in sync with the latest auth profile.
   useSyncUserProfile();
