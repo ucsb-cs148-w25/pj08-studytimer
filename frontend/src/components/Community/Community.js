@@ -8,6 +8,7 @@ import './Community.css';
 const CommunityPage = () => {
   const [activeTab, setActiveTab] = useState('community');
   const [user, setUser] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     const auth = getAuth();
@@ -17,18 +18,29 @@ const CommunityPage = () => {
     return () => unsubscribe();
   }, []);
 
+  // Helper function to display notifications for 3 seconds.
+  const showNotification = (message, type = 'info') => {
+    setNotification({ message, type });
+    setTimeout(() => {
+      setNotification(null);
+    }, 3000);
+  };
+
   const handleCopy = () => {
     if (user) {
       navigator.clipboard.writeText(user.uid)
-        .then(() => alert('User ID copied to clipboard!'))
-        .catch((err) => console.error('Failed to copy!', err));
+        .then(() => showNotification('User ID copied to clipboard!', 'success'))
+        .catch((err) => {
+          console.error('Failed to copy!', err);
+          showNotification('Failed to copy User ID!', 'error');
+        });
     }
   };
 
   const renderContent = () => {
     switch (activeTab) {
       case 'community':
-        return <FriendsList />;  // Render composite component here
+        return <FriendsList />;
       case 'friendRequests':
         return <FriendRequestsMenu />;
       case 'leaderboards':
@@ -67,6 +79,12 @@ const CommunityPage = () => {
         </div>
       </div>
       <div className="content">{renderContent()}</div>
+
+      {notification && (
+        <div className={`notification ${notification.type}`}>
+          {notification.message}
+        </div>
+      )}
     </div>
   );
 };

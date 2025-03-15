@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { db } from "../../firebase";
 import { doc, setDoc, getDocs, updateDoc, deleteDoc, collection, writeBatch } from "firebase/firestore";
+import { db } from "../../firebase";
+
+import { deleteCalendarEvent } from "../../services/CalendarService"; 
 import { useFocusSession } from "../../focusSessionContext";
 import "./TaskNav.css";
 
@@ -109,31 +111,53 @@ const TaskNav = ({ uid }) => {
     }
     try {
       setLists((prev) => prev.filter((list) => list.id.toString() !== id.toString()));
-      await deleteDoc(doc(db, `users/${uid}/lists`, id.toString()));
-      const batch = writeBatch(db);
-
-      const tasksSnapshot = await getDocs(collection(db, `users/${uid}/lists/${id.toString()}/tasks`));
+      
+      // 1. Fetch tasks in the list to delete their associated Google Calendar events.
+      const tasksRef = collection(db, `users/${uid}/lists/${id}/tasks`);
+      const tasksSnapshot = await getDocs(tasksRef);
+      
+      // 2. Delete Google Calendar events for tasks that have a googleEventId.
+      const deletionPromises = [];
       tasksSnapshot.forEach((taskSnap) => {
-        batch.delete(doc(db, `users/${uid}/lists/${id.toString()}/tasks`, taskSnap.id.toString()));
-        console.log("Task deleted successfully!");
+        const taskData = taskSnap.data();
+        if (taskData.googleEventId) {
+          console.log("Deleting Google Calendar event with ID:", taskData.googleEventId);
+          deletionPromises.push(
+            deleteCalendarEvent(taskData.googleEventId)
+              .then(() => console.log(`Deleted event ${taskData.googleEventId}`))
+              .catch((err) => console.error(`Error deleting event ${taskData.googleEventId}:`, err))
+          );
+        }
       });
-
-      const labelsSnapshot = await getDocs(collection(db, `users/${uid}/lists/${id.toString()}/labels`));
+      await Promise.all(deletionPromises);
+    
+      // 3. Delete the list document.
+      await deleteDoc(doc(db, `users/${uid}/lists`, id.toString()));
+    
+      // 4. Use a batch to delete all tasks and labels from Firestore.
+      const batch = writeBatch(db);
+      tasksSnapshot.forEach((taskSnap) => {
+        batch.delete(doc(db, `users/${uid}/lists/${id}/tasks`, taskSnap.id.toString()));
+        console.log("Task deleted from Firestore:", taskSnap.id);
+      });
+    
+      const labelsSnapshot = await getDocs(collection(db, `users/${uid}/lists/${id}/labels`));
       labelsSnapshot.forEach((labelSnap) => {
-        batch.delete(doc(db, `users/${uid}/lists/${id.toString()}/labels`, labelSnap.id.toString()));
-        console.log("Label deleted successfully!");
+        batch.delete(doc(db, `users/${uid}/lists/${id}/labels`, labelSnap.id.toString()));
+        console.log("Label deleted from Firestore:", labelSnap.id);
       });
-
       await batch.commit();
-      console.log("List deleted and associated tasks and labels successfully!");
-    }
-    catch (error) {
+    
+      // 5. Update local state.
+      console.log("List and associated tasks (and their Google Calendar events) deleted successfully!");
+    } catch (error) {
       console.error("Error deleting list: ", error);
     }
-
+    
+    // Optionally update the deleted items state if needed.
     const listToDelete = lists.find((list) => list.id === id);
     if (listToDelete) {
-      setLists(lists.filter((list) => list.id !== id));
+      setLists((prev) => prev.filter((list) => list.id !== id));
       setDeletedItems((prev) =>
         prev.some((item) => item.id === id && item.type === "list")
           ? prev

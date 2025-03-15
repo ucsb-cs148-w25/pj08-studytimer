@@ -15,6 +15,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -84,7 +85,6 @@ public class CalendarController {
         logger.info("Total events retrieved: {}", allEvents.size());
         List<Map<String, String>> userEvents = new ArrayList<>();
         for (Event event : allEvents) {
-            // Extract start time
             String eventStart = (event.getStart().getDateTime() != null)
                     ? event.getStart().getDateTime().toString()
                     : event.getStart().getDate().toString();
@@ -93,12 +93,10 @@ public class CalendarController {
             eventData.put("title", event.getSummary());
             eventData.put("start", eventStart);
 
-            // Add description if available.
             if (event.getDescription() != null && !event.getDescription().trim().isEmpty()) {
                 eventData.put("description", event.getDescription());
             }
 
-            // Include the "end" property if it exists and is non-empty.
             if (event.getEnd() != null) {
                 String eventEnd = (event.getEnd().getDateTime() != null)
                         ? event.getEnd().getDateTime().toString()
@@ -117,8 +115,8 @@ public class CalendarController {
      * Creates a new event (task) in the user's Google Calendar based on TaskBoard
      * data.
      * Expects the event data in the request body as a TaskEventDTO.
-     * It uses the "deadline" field (in "YYYY-MM-DD" format) to force a start time
-     * of 00:00 and an end time of 01:00.
+     * Uses the "deadline" field (in "YYYY-MM-DD" format) to force a start time of
+     * 00:00 and an end time of 01:00.
      */
     @PostMapping("/tasks")
     public Event createCalendarTask(@RequestHeader("Authorization") String authHeader,
@@ -127,7 +125,6 @@ public class CalendarController {
 
         logger.debug("Received request to create a new calendar task. TaskEventDTO: {}", taskEventDTO);
 
-        // Validate that deadline and task title are provided
         if (taskEventDTO.getDeadline() == null || taskEventDTO.getDeadline().isEmpty()) {
             logger.error("Missing deadline in TaskEventDTO");
             throw new IllegalArgumentException("Missing deadline");
@@ -139,25 +136,23 @@ public class CalendarController {
 
         Calendar service = initializeCalendarService(authHeader);
 
-        // Build a Google Calendar Event using the provided deadline
         Event eventData = new Event();
-        // Use the text property as the event title
         eventData.setSummary(taskEventDTO.getText());
         eventData.setDescription(taskEventDTO.getDescription());
 
-        // Build start and end times based on deadline
+        // Build start and end times with proper timezone offset
         String startDateTimeStr = taskEventDTO.getDeadline() + "T00:00:00-08:00";
         String endDateTimeStr = taskEventDTO.getDeadline() + "T01:00:00-08:00";
         EventDateTime start = new EventDateTime()
-            .setDateTime(new DateTime(startDateTimeStr))
-            .setTimeZone("America/Los_Angeles"); 
+                .setDateTime(new DateTime(startDateTimeStr))
+                .setTimeZone("America/Los_Angeles");
         EventDateTime end = new EventDateTime()
-            .setDateTime(new DateTime(endDateTimeStr))
-            .setTimeZone("America/Los_Angeles");
+                .setDateTime(new DateTime(endDateTimeStr))
+                .setTimeZone("America/Los_Angeles");
         eventData.setStart(start);
         eventData.setEnd(end);
 
-        Event createdEvent = null;
+        Event createdEvent;
         try {
             logger.debug("Inserting event into Google Calendar...");
             createdEvent = service.events().insert("primary", eventData).execute();
@@ -169,7 +164,58 @@ public class CalendarController {
             logger.error("Error occurred while inserting event: {}", ex.getMessage(), ex);
             throw ex;
         }
-
         return createdEvent;
-    }   
+    }
+
+    /**
+     * Deletes an event from the user's Google Calendar.
+     */
+    @DeleteMapping("/tasks/{eventId}")
+    public ResponseEntity<?> deleteCalendarEvent(@RequestHeader("Authorization") String authHeader,
+            @PathVariable String eventId)
+            throws IOException, GeneralSecurityException {
+        Calendar service = initializeCalendarService(authHeader);
+        try {
+            service.events().delete("primary", eventId).execute();
+            logger.info("Event with ID {} deleted successfully.", eventId);
+            return ResponseEntity.ok().build();
+        } catch (GoogleJsonResponseException e) {
+            logger.error("Error deleting calendar event: {}", e.getDetails(), e);
+            return ResponseEntity.status(e.getStatusCode()).body(e.getDetails());
+        }
+    }
+
+    @PutMapping("/tasks/{eventId}")
+    public Event updateCalendarTask(@RequestHeader("Authorization") String authHeader,
+            @PathVariable String eventId,
+            @RequestBody TaskEventDTO taskEventDTO)
+            throws IOException, GeneralSecurityException {
+        // Initialize the Calendar service with the token.
+        Calendar service = initializeCalendarService(authHeader);
+
+        // Retrieve the existing event.
+        Event event = service.events().get("primary", eventId).execute();
+
+        // Update event summary (title) and description.
+        event.setSummary(taskEventDTO.getText());
+        event.setDescription(taskEventDTO.getDescription());
+
+        // Build new start and end times based on the updated deadline.
+        // Adjust timezone and offsets as needed.
+        String newStart = taskEventDTO.getDeadline() + "T00:00:00-08:00";
+        String newEnd = taskEventDTO.getDeadline() + "T01:00:00-08:00";
+        EventDateTime start = new EventDateTime()
+                .setDateTime(new DateTime(newStart))
+                .setTimeZone("America/Los_Angeles");
+        EventDateTime end = new EventDateTime()
+                .setDateTime(new DateTime(newEnd))
+                .setTimeZone("America/Los_Angeles");
+
+        event.setStart(start);
+        event.setEnd(end);
+
+        // Update the event on Google Calendar.
+        Event updatedEvent = service.events().update("primary", eventId, event).execute();
+        return updatedEvent;
+    }
 }

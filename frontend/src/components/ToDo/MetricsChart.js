@@ -4,7 +4,6 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { db, auth } from "../../firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import "./MetricsChart.css";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -58,12 +57,12 @@ const MetricsChart = () => {
           tasks.filter((task) => task.completed === true).length
         ],
         backgroundColor: [
-          getComputedStyle(document.documentElement).getPropertyValue('--in-progress-color').trim(),
-          getComputedStyle(document.documentElement).getPropertyValue('--completed-color').trim()
+          getComputedStyle(document.documentElement).getPropertyValue('--in-progress-area').trim(),
+          getComputedStyle(document.documentElement).getPropertyValue('--done-area').trim()
         ],
         hoverBackgroundColor: [
-          getComputedStyle(document.documentElement).getPropertyValue('--in-progress-hover').trim(),
-          getComputedStyle(document.documentElement).getPropertyValue('--completed-hover').trim()
+          getComputedStyle(document.documentElement).getPropertyValue('--hover-in-progress').trim(),
+          getComputedStyle(document.documentElement).getPropertyValue('--hover-done').trim()
         ]
       }
     ]
@@ -76,7 +75,7 @@ const MetricsChart = () => {
       legend: {
         position: "bottom",  // Move legend below the chart
         labels: {
-          color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim()
+          color: getComputedStyle(document.documentElement).getPropertyValue('--text').trim()
         }
       },
       tooltip: {

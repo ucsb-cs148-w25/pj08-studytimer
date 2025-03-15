@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { doc, setDoc, getDoc, collection, query, where, writeBatch, getDocs } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, writeBatch, getDocs } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useFocusSession } from '../../focusSessionContext';
 import { db } from '../../firebase';
 
@@ -21,7 +21,7 @@ const PomodoroTimer = ({ uid }) => {
 
   // TIMER STATE
   const [timeLeft, setTimeLeft] = useState(flowDuration * 60);
-  const [isFlow, setIsFlow] = useState(true); 
+  const [isFlow, setIsFlow] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState("focus");
   const [currentSessionDuration, setCurrentSessionDuration] = useState(flowDuration * 60);
@@ -35,6 +35,65 @@ const PomodoroTimer = ({ uid }) => {
   const { inFocusSession, setInFocusSession, selectedView, setSelectedView } = useFocusSession();
   const [showResumePrompt, setShowResumePrompt] = useState(false);
 
+  // --------------------------------
+  // BACKGROUND THEME
+  // --------------------------------
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setTheme(localStorage.getItem("theme") || "dark");
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // --------------------------------
+  // RESTORE TIMER STATE FROM LOCALSTORAGE ON MOUNT USING finishTime
+  // --------------------------------
+  useEffect(() => {
+    const storedIsRunning = localStorage.getItem("isRunning");
+    const storedFinishTime = localStorage.getItem("finishTime");
+    const storedIsFlow = localStorage.getItem("isFlow");
+    const storedMode = localStorage.getItem("mode");
+    const storedSessionDuration = localStorage.getItem("currentSessionDuration");
+  
+    let newTime;
+    if (storedIsRunning === "true" && storedFinishTime) {
+      const finishTime = parseInt(storedFinishTime, 10);
+      newTime = Math.floor((finishTime - Date.now()) / 1000);
+      if (newTime < 0) newTime = 0;
+    } else {
+      // Set fallback timer length based on stored mode
+      if (storedMode === "shortBreak") {
+        newTime = shortBreakDuration * 60;
+      } else if (storedMode === "longBreak") {
+        newTime = longBreakDuration * 60;
+      } else {
+        newTime = flowDuration * 60;
+      }
+    }
+    setTimeLeft(newTime);
+  
+    if (storedIsFlow !== null) {
+      setIsFlow(storedIsFlow === "true");
+    }
+    if (storedMode !== null) {
+      setMode(storedMode);
+    }
+    if (storedSessionDuration !== null) {
+      const sessionDur = parseInt(storedSessionDuration, 10);
+      setCurrentSessionDuration(isNaN(sessionDur) ? flowDuration * 60 : sessionDur);
+    }
+    // Resume running if it was running before leaving the page
+    if (storedIsRunning === "true") {
+      setIsRunning(true);
+    }
+  }, [flowDuration, shortBreakDuration, longBreakDuration]);
+
+  // --------------------------------
+  // FETCH STATS FROM FIREBASE ON MOUNT
+  // --------------------------------
   useEffect(() => {
     const fetchStats = async () => {
       const auth = getAuth();
@@ -61,7 +120,6 @@ const PomodoroTimer = ({ uid }) => {
         console.error("Error fetching stats:", error);
       }
     };
-
     fetchStats();
   }, []);
 
@@ -71,56 +129,76 @@ const PomodoroTimer = ({ uid }) => {
   const completeSession = useCallback((skip = false) => {
     if (isFlow) {
       const elapsedSeconds = currentSessionDuration - timeLeft;
-      setStats(prev => ({
-        ...prev,
-        totalStudyTime: prev.totalStudyTime + elapsedSeconds,
-        studySessions: prev.studySessions + 1,
-        longestSession: Math.max(prev.longestSession, elapsedSeconds),
-        lastSessionDate: new Date().toLocaleString(),
-      }));
+      if (stats) {
+        setStats(prev => ({
+          ...prev,
+          totalStudyTime: prev.totalStudyTime + elapsedSeconds,
+          studySessions: prev.studySessions + 1,
+          longestSession: Math.max(prev.longestSession, elapsedSeconds),
+          lastSessionDate: new Date().toLocaleString(),
+        }));
+      }
     } else {
-      setStats(prev => ({
-        ...prev,
-        totalBreaksTaken: prev.totalBreaksTaken + 1,
-      }));
+      if (stats) {
+        setStats(prev => ({
+          ...prev,
+          totalBreaksTaken: prev.totalBreaksTaken + 1,
+        }));
+      }
     }
 
     if (isFlow) {
+      let newTime;
       if (currentCycle + 1 === cycle) {
-        // Full cycle complete → Long Break
+        // End of cycle: move to long break.
         setIsFlow(false);
-        setTimeLeft(longBreakDuration * 60);
-        setCurrentSessionDuration(longBreakDuration * 60);
+        newTime = longBreakDuration * 60;
         setCurrentCycle(0);
         setMode("longBreak");
-        if (skip && startBreaksAutomatically) {
-          setIsRunning(true);
-        } else if (!skip && !startBreaksAutomatically) {
-          setIsRunning(false);
-        }
+        localStorage.setItem("mode", "longBreak");
+        localStorage.setItem("isFlow", "false");
       } else {
-        // Short break case
+        // Otherwise: move to short break.
         setIsFlow(false);
-        setTimeLeft(shortBreakDuration * 60);
-        setCurrentSessionDuration(shortBreakDuration * 60);
+        newTime = shortBreakDuration * 60;
         setCurrentCycle(currentCycle + 1);
         setMode("shortBreak");
-        if (skip && startBreaksAutomatically) {
-          setIsRunning(true);
-        } else if (!skip && !startBreaksAutomatically) {
-          setIsRunning(false);
-        }
+        localStorage.setItem("mode", "shortBreak");
+        localStorage.setItem("isFlow", "false");
+      }
+      setTimeLeft(newTime);
+      setCurrentSessionDuration(newTime);
+      localStorage.setItem("timeLeft", newTime);
+      localStorage.setItem("currentSessionDuration", newTime);
+      // Set finishTime for the new session
+      localStorage.setItem("finishTime", Date.now() + newTime * 1000);
+
+      if (skip && startBreaksAutomatically) {
+        setIsRunning(true);
+        localStorage.setItem("isRunning", "true");
+      } else {
+        setIsRunning(false);
+        localStorage.setItem("isRunning", "false");
       }
     } else {
-      // End of break → Start new Flow
+      // Break finished: move to focus.
       setIsFlow(true);
-      setTimeLeft(flowDuration * 60);
-      setCurrentSessionDuration(flowDuration * 60);
+      const newTime = flowDuration * 60;
+      setTimeLeft(newTime);
+      setCurrentSessionDuration(newTime);
+      localStorage.setItem("timeLeft", newTime);
+      localStorage.setItem("currentSessionDuration", newTime);
       setMode("focus");
+      localStorage.setItem("mode", "focus");
+      // Set finishTime for the new session
+      localStorage.setItem("finishTime", Date.now() + newTime * 1000);
+
       if (skip && startFlowsAutomatically) {
         setIsRunning(true);
-      } else if (!skip && !startFlowsAutomatically) {
+        localStorage.setItem("isRunning", "true");
+      } else {
         setIsRunning(false);
+        localStorage.setItem("isRunning", "false");
       }
     }
   }, [
@@ -133,28 +211,72 @@ const PomodoroTimer = ({ uid }) => {
     startBreaksAutomatically,
     startFlowsAutomatically,
     currentSessionDuration,
-    timeLeft
+    timeLeft,
+    stats 
   ]);
 
+  const completeSessionRef = useRef(completeSession);
+  useEffect(() => {
+    completeSessionRef.current = completeSession;
+  }, [completeSession]);
+
   // --------------------------------
-  // MAIN TIMER EFFECT
+  // MAIN TIMER EFFECT USING finishTime
   // --------------------------------
   useEffect(() => {
     if (!isRunning) return;
-
+  
+    let storedFinishTime = localStorage.getItem("finishTime");
+    let finishTime = parseInt(storedFinishTime, 10);
+    if (isNaN(finishTime)) {
+      finishTime = Date.now() + flowDuration * 60 * 1000;
+      localStorage.setItem("finishTime", finishTime);
+    }
+  
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          completeSession();
-          return 0;
-        }
-        return prev - 1;
-      });
+      // Use Math.ceil to avoid skipping a second due to slight delays
+      const newTime = Math.ceil((finishTime - Date.now()) / 1000);
+      if (newTime <= 0) {
+        clearInterval(timer);
+        setTimeLeft(0);
+        setTimeout(() => completeSessionRef.current(true), 0);
+      } else {
+        setTimeLeft(newTime);
+        localStorage.setItem("timeLeft", newTime);
+      }
     }, 1000);
-
+    
     return () => clearInterval(timer);
-  }, [isRunning, completeSession]);
+  }, [isRunning, flowDuration, shortBreakDuration, longBreakDuration, mode]);
+
+  // --------------------------------
+  // RESET TIMER WHEN USER SIGNS OUT
+  // --------------------------------
+  const resetTimerOnAuthChange = useCallback(() => {
+    localStorage.removeItem("finishTime");
+    localStorage.removeItem("timeLeft");
+    localStorage.removeItem("isFlow");
+    localStorage.removeItem("mode");
+    localStorage.setItem("isRunning", "false");
+
+    setIsRunning(false);
+    setTimeLeft(flowDuration * 60);
+    setIsFlow(true);
+    setMode("focus");
+    setCurrentCycle(0);
+  }, [flowDuration]);
+
+  useEffect(() => {
+    const auth = getAuth();
+    let initialLoad = true;
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!initialLoad) {
+        resetTimerOnAuthChange();
+      }
+      initialLoad = false;
+    });
+    return () => unsubscribe();
+  }, [resetTimerOnAuthChange]);
 
   // --------------------------------
   // UPDATE FIREBASE STATS WHEN LOCAL STATS CHANGE
@@ -174,7 +296,6 @@ const PomodoroTimer = ({ uid }) => {
         console.error("Error updating stats on Firebase:", error);
       }
     };
-
     updateFirebaseStats();
   }, [stats]);
 
@@ -230,36 +351,38 @@ const PomodoroTimer = ({ uid }) => {
     newStartBreaks,
     newStartFlows
   ) => {
+    // Update toggles and cycle (these settings don’t force a timer reset by themselves)
+    setStartBreaksAutomatically(newStartBreaks);
+    setStartFlowsAutomatically(newStartFlows);
+    setCycle(newCycle);
+  
+    // Update timer durations for focus and breaks
     setFlowDuration(newFlow);
     setShortBreakDuration(newShort);
     setLongBreakDuration(newLong);
-    setCycle(newCycle);
-    setStartBreaksAutomatically(newStartBreaks);
-    setStartFlowsAutomatically(newStartFlows);
-
+  
+    // Reset the timer state to the first iteration (focus mode)
+    const newTime = newFlow * 60;
+    setTimeLeft(newTime);
+    setCurrentSessionDuration(newTime);
+    setMode("focus");
     setCurrentCycle(0);
-
-    if (isFlow) {
-      setTimeLeft(newFlow * 60);
-      setCurrentSessionDuration(newFlow * 60);
-      setMode("focus");
-    } else {
-      if (mode === "longBreak") {
-        setTimeLeft(newLong * 60);
-        setCurrentSessionDuration(newLong * 60);
-      } else {
-        setTimeLeft(newShort * 60);
-        setCurrentSessionDuration(newShort * 60);
-      }
-    }
-
-    setIsRunning(false);
+  
+    // Update localStorage accordingly
+    localStorage.setItem("timeLeft", newTime);
+    localStorage.setItem("currentSessionDuration", newTime);
+    localStorage.setItem("mode", "focus");
+    localStorage.setItem("isFlow", "true");
+    localStorage.setItem("isRunning", "false");
+    localStorage.removeItem("finishTime");
+  
+    // Close the settings modal
+    setIsModalOpen(false);
   };
-
-  const handleToggleTimer = () => {
-    setIsRunning(prev => !prev);
-  };
-
+  
+  // --------------------------------
+  // HANDLE SKIP BUTTON
+  // --------------------------------
   const handleSkip = () => {
     completeSession(true);
   };
@@ -329,7 +452,19 @@ const PomodoroTimer = ({ uid }) => {
         </div>
 
         <div className="timer-controls">
-          <button className="timer-button play-pause-button" onClick={handleToggleTimer}>
+          <button className="timer-button play-pause-button"
+            onClick={() => {
+              if (!isRunning) {
+                // Set finishTime when starting the timer
+                localStorage.setItem("finishTime", Date.now() + timeLeft * 1000);
+                localStorage.setItem("isRunning", "true");
+                setIsRunning(true);
+              } else {
+                localStorage.setItem("isRunning", "false");
+                setIsRunning(false);
+              }
+            }}
+          >
             <img
               className="play-pause-icon"
               src={isRunning ? "/pauseTimer.svg" : "/playTimer.svg"}

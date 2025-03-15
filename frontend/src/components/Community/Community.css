@@ -1,5 +1,7 @@
 /* Container for the entire app layout */
 .community-container {
+  color: var(--text);
+  background: var(--secondary-accent-background);
   display: flex;
   height: 100vh;
   font-family: Arial, sans-serif;
@@ -7,10 +9,9 @@
 
 .sidebar {
   flex: 0 0 150px;
-  background-color: #f5f5f5;
+  background: var(--secondary-background);
   padding: 10px;
   box-sizing: border-box;
-  border-right: 1px solid #ddd;
 }
 
 .menu-item {
@@ -24,17 +25,16 @@
 }
 
 .menu-item:hover {
-  background-color: #e0e0e0;
+  background-color: var(--secondary-accent-background);
 }
 
 .menu-item.active {
-  background-color: #d0d0d0;
+  background-color: var(--secondary-accent-background);
   font-weight: bold;
 }
 
 .menu-item.user-id {
   margin-top: 20px;
-  border-top: 1px solid #ddd;
   padding-top: 10px;
   cursor: pointer;
   transition: box-shadow 0.3s ease;
@@ -62,15 +62,13 @@
 .friends-list {
   margin-bottom: 20px;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
 }
 
 .friends-search-input {
   width: 100%;
   padding: 8px;
   margin-bottom: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--text);
   border-radius: 4px;
 }
 
@@ -83,11 +81,13 @@
 .friend-card {
   cursor: pointer;
   width: 120px;
-  border: 1px solid #eee;
+  border: 1px solid var(--text);
   border-radius: 4px;
   padding: 8px;
   text-align: center;
   transition: box-shadow 0.2s ease;
+  background: var(--profile-card);
+  color: var(--friends-text);
 }
 
 .friend-card:hover {
@@ -185,6 +185,8 @@
   border-radius: 4px;
   margin-bottom: 15px;
   gap: 10px;
+  background: var(--profile-card);
+  color: var(--friends-text);
 }
 
 /* The profile icon (avatar) */
@@ -202,11 +204,6 @@
 /* The user's display name */
 .profile-name {
   font-weight: bold;
-}
-
-/* Container for the button or status on the right side */
-.profile-action {
-  /* margin-left: auto; or other styling as needed */
 }
 
 /* The "Send Friend Request" button */
@@ -241,6 +238,8 @@
   padding: 8px;
   border-radius: 4px;
   margin-bottom: 10px;
+  background: var(--profile-card);
+  color: var(--friends-text);
 }
 
 /* Accept / deny buttons */
@@ -285,7 +284,7 @@
   cursor: pointer;
   padding: 6px 12px;
   border-radius: 4px;
-  background-color: #e0e0e0;
+  background-color: var(--secondary-accent-background);
 }
 
 .filter-option.active {
@@ -300,13 +299,13 @@
 
 .leaderboard-table th,
 .leaderboard-table td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--text);
   padding: 8px;
   text-align: left;
 }
 
 .leaderboard-table th {
-  background-color: #f5f5f5;
+  background-color: var(--secondary-accent-background);
   cursor: pointer; /* Indicate that headers are clickable */
 }
 
@@ -321,4 +320,42 @@
   height: 30px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+/* Notifications */
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 25px;
+  border-radius: 5px;
+  color: #fff;
+  opacity: 0;
+  animation: fadeInOut 3s forwards;
+  z-index: 1000;
+}
+
+.notification.success {
+  background-color: #4caf50;
+}
+
+.notification.error {
+  background-color: #f44336;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  10%, 90% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
 }
