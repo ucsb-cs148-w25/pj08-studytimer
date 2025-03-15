@@ -13,6 +13,8 @@ Our project, _timewise_, is a web app that hopes to help users manage their time
 - Spring Boot 
 ### APIs: 
 - Google Calendar API through Google OAuth
+### Database:
+- Firestore
 
 ## Team Members [Name, GitHub-IDs]:
 - Kevin Lee (kjlee2504)
