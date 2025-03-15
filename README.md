@@ -123,7 +123,7 @@ npm start
 In the current codebase, users can navigate to all app pages using the navigation bar. On the Home page, they can use a Pomodoro timer to start a focus session and set predefined short or long breaks based on their desired study session length. The Tasks page allows users to create lists to track their tasks and assignments, with items automatically syncing to their Google Calendar, which can be viewed on the Calendar page. Users can access their Profile page to view statistics and achievements from their study sessions, along with task metrics. Additionally, on the Community page, users can connect with friends by adding each other to compare statistics and achievements and view a leaderboard.
 
 ## Known Bugs/Problems
-FIXME!
+On Safari, clicking the Sign In button initially triggers a "Pop-Up Window Blocked" message. However, clicking the button again allows the sign-in window to open successfully.
 
 ## Contributing
 If you'd like to contribute to _timewise_ you can do the following:
