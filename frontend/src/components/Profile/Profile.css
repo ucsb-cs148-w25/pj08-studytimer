@@ -101,7 +101,7 @@
 }
 
 .skills-section {
-  margin-top: 40px;
+  margin-top: 20px;
 }
 
 .skills-section strong {
@@ -210,6 +210,23 @@
   gap: 5px;
   margin-bottom: 10px;
 }
+
+.profile-note {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+  text-align: center;
+}
+
+.left-panel .profile-note {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.left-panel:hover .profile-note {
+  opacity: 1;
+}
+
 
 /* Middle Panel (Stats & Achievements) */
 .middle-panel {
