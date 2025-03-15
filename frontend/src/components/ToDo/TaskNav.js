@@ -216,42 +216,6 @@ const TaskNav = ({ uid }) => {
           ))}
         </ul>
       </div>
-
-      <div className="nav-section">
-        <div className="nav-section-header" onClick={toggleDeletedExpanded}>
-          <h3>RECENTLY DELETED</h3>
-          <img
-            src="/dropdown.svg"
-            alt="Expand/Collapse"
-            className={`dropdown-icon ${deletedExpanded ? "open" : ""}`}
-          />
-        </div>
-        {deletedExpanded && (
-          <ul>
-            {deletedItems.map((item) => (
-              <li key={item.id} className="deleted-item">
-                {item.type === "board" ? (
-                  <img
-                    src="/taskBoard.svg"
-                    alt="Board Icon"
-                    className="deleted-item-icon"
-                  />
-                ) : (
-                  <img
-                    src="/taskList.svg"
-                    alt="List Icon"
-                    className="deleted-item-icon"
-                  />
-                )}
-                <span>{item.title}</span>
-              </li>
-            ))}
-            {deletedItems.length === 0 && (
-              <li className="no-deleted-items">No deleted items</li>
-            )}
-          </ul>
-        )}
-      </div>
     </div>
   );
 };

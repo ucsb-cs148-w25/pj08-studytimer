@@ -60,7 +60,40 @@
     --profile-card: #cacbcc;
     --profile-middle-text: #414345;
     --friends-text: #414345;
-  
+
+    /* TASK LIST */
+    --tasklist-container-bg: #ffffff; /* was #fff */
+    --tasklist-container-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+    /* Borders & General Grays */
+    --tasklist-buttons-border: #4a4a4a; /* was #4a4a4a */
+    --tasklist-select-bg: #f5f5f5;       /* was #f5f5f5 */
+    --tasklist-select-active: #4a4a4a; /* was #4a4a4a */
+    --select-text: #666;
+    --select-text-active: #f5f5f5;
+
+    --taskitem-bg: #fbfbfb;             /* was #fbfbfb */
+    --taskitem-border: #eee;            /* was #eee */
+    --deadline-background: #eee;
+    --no-date-hover: #ddd;
+    --estimated-time-dropdown: #fff;
+    --hover-bg: #eee;                   /* used for hovers */
+
+    --taskitem-selected-overlay: #9bc9fa; /* was #9bc9fa */
+
+    /* Deadlines & States */
+    --deadline-overdue-bg: #ffe2e2;   /* was #ffe2e2 */
+    --deadline-overdue-border: #ff5c5c; /* was #ff5c5c */
+    --deadline-due-soon-bg: #fcf8dfec;   /* was #fcf8dfec */
+    --deadline-due-soon-color: #baa623;  /* was #baa623 */
+    --deadline-due-soon-border: #cbb948; /* was #cbb948 */
+
+    /* Label Sections */
+    --active-label-bg: #fdfdfd;   /* was #fdfdfd */
+    --active-label-border: #ddd;
+    --label-count: #777;
+    --active-label-header-bg: rgba(74,74,74,0.1);
+    --label-tasks-p: #ccc;
 }
 
 [data-theme="light"] {
@@ -120,6 +153,39 @@
     --profile-middle-text: #414345;
     --friends-text: #414345;
 
+    /* TASK PAGE*/ 
+    --tasklist-container-bg: #ffffff; /* was #fff */
+    --tasklist-container-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+    /* Borders & General Grays */
+    --tasklist-buttons-border: #4a4a4a; /* was #4a4a4a */
+    --tasklist-select-bg: #f5f5f5;       /* was #f5f5f5 */
+    --tasklist-select-active: #4a4a4a; /* was #4a4a4a */
+    --select-text: #666;
+    --select-text-active: #f5f5f5;
+
+    --taskitem-bg: #fbfbfb;             /* was #fbfbfb */
+    --taskitem-border: #eee;            /* was #eee */
+    --deadline-background: #eee;
+    --no-date-hover: #ddd;
+    --estimated-time-dropdown: #fff;
+    --hover-bg: #eee;                   /* used for hovers */
+
+    --taskitem-selected-overlay: #9bc9fa; /* was #9bc9fa */
+
+    /* Deadlines & States */
+    --deadline-overdue-bg: #ffe2e2;   /* was #ffe2e2 */
+    --deadline-overdue-border: #ff5c5c; /* was #ff5c5c */
+    --deadline-due-soon-bg: #fcf8dfec;   /* was #fcf8dfec */
+    --deadline-due-soon-color: #baa623;  /* was #baa623 */
+    --deadline-due-soon-border: #cbb948; /* was #cbb948 */
+
+    /* Label Sections */
+    --active-label-bg: #fdfdfd;   /* was #fdfdfd */
+    --active-label-border: #ddd;
+    --label-count: #777;
+    --active-label-header-bg: rgba(74,74,74,0.1);
+    --label-tasks-p: #ccc;
 }
 
 [data-theme="forest"] {

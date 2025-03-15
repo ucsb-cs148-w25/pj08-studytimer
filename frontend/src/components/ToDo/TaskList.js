@@ -725,7 +725,7 @@ const TaskList = ({ uid }) => {
             className="time-estimate-btn"
             onClick={() => !isSelectMode && setTimeDropdownTaskId(task.id)}
           >
-            {(task.timeValue !== undefined && task.timeValue !== null)
+            {(task.timeValue !== false && task.timeValue !== null)
               ? `${task.timeValue} ${task.timeUnit}`
               : "Provide Estimated Time"}
           </div>

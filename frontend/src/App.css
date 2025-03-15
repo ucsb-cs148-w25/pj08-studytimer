@@ -7,9 +7,11 @@
 /* Global Body Styles */
 body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  background-color: var(--background-color);
+  background-color: var(--secondary-background);
   color: var(--text-color);
   line-height: 1.6;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 /* Page Container: overall layout */
