@@ -1,7 +1,7 @@
 /* TaskPage.css */
 .task-page {
     display: flex;
-    height: 92.5vh; /* Takes up full viewport height */
+    height: 93vh; /* Takes up full viewport height */
     background-color: var(--secondary-background);
   }
   

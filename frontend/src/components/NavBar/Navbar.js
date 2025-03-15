@@ -79,9 +79,9 @@ function Navbar() {
                 <ul>
                   <Link to="/community" onClick={() => setDropdownOpen(false)}>Community</Link>
                 </ul>
-                <ul>
+                {/* <ul>
                   <Link to="/settings" onClick={() => setDropdownOpen(false)}>Settings</Link>
-                </ul>
+                </ul> */}
                 <ul>
                   <button 
                     onClick={() => {

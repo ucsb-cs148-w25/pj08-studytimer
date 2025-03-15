@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./Settings.css";
 
 const SettingsPage = () => {
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -14,11 +14,11 @@ const SettingsPage = () => {
     <div className="settings">
       <h2>Choose Theme</h2>
       <div className="theme-options">
-        <button className="theme-btn" onClick={() => setTheme("dark")}>
-          Dark
-        </button>
         <button className="theme-btn" onClick={() => setTheme("light")}>
           Light
+        </button>
+        <button className="theme-btn" onClick={() => setTheme("dark")}>
+          Dark
         </button>
         <button className="theme-btn" onClick={() => setTheme("forest")}>
           Pistachio

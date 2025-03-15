@@ -1,38 +1,71 @@
 .task-list-container {
-  background-color: #fff;
+  background-color: var(--tasklist-container-bg);
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--tasklist-container-box-shadow);
   width: 100%;
   height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .task-list-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.4rem;
+  position: relative;
+  justify-content: flex-start;
+  margin-bottom: 0rem;
   margin-left: 0.4rem;
 }
 
 .task-list-header h2 {
-  margin-top: 0.4rem;
+  display: inline-block;
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.1rem;
   margin-bottom: 0.7rem;
-  font-size: 1.9rem;
+  font-size: 2rem;
   font-weight: 600;
+}
+
+.task-list-header-controls {
+  right: 0.8rem; 
+  position: absolute;
+  top: 0.8rem; 
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
 }
 
 .toggle-container {
   position: relative;
-  width: 220px;
-  height: 40px;
-  border: 2px solid #888;
-  border-radius: 20px;
+  width: 100%;
+  height: 1.75rem;
+  border: 0.75px solid var(--tasklist-buttons-border);
+  border-radius: 25px;
   overflow: hidden;
-  margin-left: 1rem;
+}
+
+.select-button {
+  border: 0.95px solid var(--tasklist-buttons-border);
+  background-color: var(tasklist-select-bg);
+  border-radius: 25px;
+  width: 4rem;
+  height: 1.75rem;
+  margin-top: -0.45rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--select-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.select-button.active {
+  background-color: var(--tasklist-select-active); 
+  color: var(--select-text-active);
 }
 
 .task-list-content {
@@ -67,8 +100,8 @@
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  background-color: #fbfbfb;
-  border: 1px solid #eee;
+  background-color: var(--taskitem-bg);
+  border: 1px solid var(--taskitem-border);
   border-radius: 6px;
   padding: 0.5rem;
   margin-top: 0.5rem;
@@ -94,9 +127,25 @@
   opacity: 0.5;
 }
 
+.task-item.task-selected {
+  position: relative;
+  background-color: transparent;
+}
+
+.task-item.task-selected::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--taskitem-selected-overlay);
+  opacity: 0.2;
+  pointer-events: none;
+  border-radius: 6px;
+}
+
+.select-icon,
 .checkbox-icon {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   margin-left: 2px;
   margin-right: -5px;
   cursor: pointer;
@@ -112,10 +161,10 @@
 .deadline-btn {
   display: inline-flex;
   align-items: center;
-  background-color: #eee;
+  background-color: var(--deadline-background);
   border-radius: 12px;
   padding: 0.2rem 0.6rem;
-  color: #333;
+  color: var(--select-text);
   font-size: 0.8rem;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -127,7 +176,7 @@
   gap: 0.4rem;
 }
 .deadline-edit-container input[type="date"] {
-  border: 1px solid #ccc;
+  border: 1px solid var(--select-text);
   border-radius: 5px;
   padding: 0.2rem;
   font-size: 0.7rem;
@@ -136,42 +185,43 @@
 .deadline-close-btn {
   font-size: 0.7rem;
   padding: 0.2rem 0.5rem;
-  background-color: #eee;
+  background-color: var(--deadline-background);
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  color: var(--select-text);
 }
 
 .deadline-btn.overdue {
-  color: rgb(255, 69, 69);
-  background-color: #ffe2e2;
-  border: 1.5px solid #ff5c5c;
+  color: var(--deadline-overdue-border);
+  background-color: var(--deadline-overdue-bg);
+  border: 1px solid var(--deadline-overdue-border);
 }
 .deadline-btn.due-today {
-  color: rgb(255, 69, 69);
-  background-color: #ffe2e2;
+  color: var(--deadline-overdue-border);
+  background-color:  var(--deadline-overdue-bg);
 }
 .deadline-btn.due-soon {
-  background-color: #fcf8dfec;
-  color: #baa623;
-  border: 1.5px solid #cbb948;
+  color: var(--deadline-due-soon-border);
+  background-color: var(--deadline-due-soon-bg);
+  border: 1px solid var(--deadline-due-soon-border);
 }
 
 .deadline-btn:hover {
-  background-color: #ddd;
+  background-color: var(--no-date-hover);
 }
 
 .time-estimate-btn {
   cursor: pointer;
   font-size: 0.8rem;
-  background-color: #eee;
-  color: #333;
+  background-color: var(--deadline-background);
+  color: var(--select-text);
   border-radius: 12px;
   padding: 0.2rem 0.6rem;
   transition: background-color 0.2s;
 }
 .time-estimate-btn:hover {
-  background-color: #ddd;
+  background-color: var(--hover-bg);
 }
 
 .time-estimate-dropdown {
@@ -181,29 +231,26 @@
 }
 .time-estimate-dropdown input[type="number"] {
   width: 60px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--select-text);
   border-radius: 5px;
   padding: 0.2rem;
   font-size: 0.7rem;
 }
 .time-estimate-dropdown select {
-  border: 1px solid #ccc;
+  border: 1px solid var(--select-text);
   border-radius: 5px;
   padding: 0.2rem;
   font-size: 0.7rem;
-  background-color: #fff;
+  background-color: var(--estimated-time-dropdown);
 }
 .time-estimate-dropdown button {
   font-size: 0.7rem;
   padding: 0.2rem 0.5rem;
-  background-color: #eee;
+  background-color: var(--deadline-background);
   border: none;
   border-radius: 5px;
   cursor: pointer;
-}
-
-.time-estimate-btn:hover {
-  background-color: #ddd;
+  color: var(--select-text);
 }
 
 .task-delete-btn {
@@ -222,15 +269,16 @@
 }
 
 .general-section {
-  margin-bottom: 1rem;
+  margin-top: -0.1rem;
+  margin-bottom: 0.8rem;
 }
 
 .label-section {
   margin-bottom: 1rem;
 }
 .label-section.active-label-section {
-  background-color: #fdfdfd;
-  border: 1px solid #ddd;
+  background-color: var(--active-label-bg);
+  border: 1px solid var(--active-label-border);
   border-radius: 10px;
   padding: 0.5rem;
 }
@@ -245,6 +293,7 @@
 .label-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   padding: 0.5rem;
   margin-bottom: 0rem;
@@ -252,12 +301,16 @@
   transition: background-color 0.3s;
 }
 .label-header h3 {
+  text-align: left;
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.175rem;
+  font-weight: 650;
 }
 .label-count {
+  display: flex;
+  align-items: left;
   font-size: 0.8rem;
-  color: #777;
+  color: var(--label-count);
 }
 
 .label-header input[type="text"] {
@@ -289,7 +342,7 @@
 }
 
 .label-header.active-label {
-  background-color: rgba(74,74,74,0.1);
+  background-color: var(--active-label-header-bg);
   border-radius: 4px;
 }
 
@@ -298,16 +351,18 @@
 }
 
 .label-tasks p {
+  position: center;
   font-size: 0.9rem;
-  color: #ccc;
+  color: var(--label-tasks-p);
   margin-top: 3px;
   margin-bottom: 0;
 }
 
 .no-tasks {
-  margin-left: 0.6rem;
+  position: center;
+  margin-left: 28.5rem;
   font-size: 0.9rem;
-  color: #999;
+  color: var(--label-count);
 }
 
 .label-options-icon {
@@ -324,8 +379,6 @@
   position: absolute;
   top: 24px;
   right: 0;
-  background: #fff;
-  border: 1px solid #ccc;
   border-radius: 4px;
   min-width: 100px;
   z-index: 999;
@@ -335,9 +388,7 @@
   font-size: 0.85rem;
   cursor: pointer;
 }
-.label-options-item:hover {
-  background-color: #eee;
-}
+
 .label-options-item.delete-item {
   display: flex;
   align-items: center;
