@@ -8,8 +8,6 @@ import "./TaskNav.css";
 
 const TaskNav = ({ uid }) => {
   const [lists, setLists] = useState([]);
-  const [deletedItems, setDeletedItems] = useState([]); 
-  const [deletedExpanded, setDeletedExpanded] = useState(true);
   const [activeListId, setActiveListId] = useState(null);
   const { setSelectedView } = useFocusSession();
 
@@ -158,16 +156,7 @@ const TaskNav = ({ uid }) => {
     const listToDelete = lists.find((list) => list.id === id);
     if (listToDelete) {
       setLists((prev) => prev.filter((list) => list.id !== id));
-      setDeletedItems((prev) =>
-        prev.some((item) => item.id === id && item.type === "list")
-          ? prev
-          : [...prev, { ...listToDelete, type: "list" }]
-      );
     }
-  };
-
-  const toggleDeletedExpanded = () => {
-    setDeletedExpanded((prev) => !prev);
   };
 
   return (

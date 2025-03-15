@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { doc, setDoc, getDoc, collection, query, where, writeBatch, getDocs } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useFocusSession } from '../../focusSessionContext';
+import initializeStats from "../../utils/initializeStats";
 import { db } from '../../firebase';
 
 import FocusSessionQueue from './FocusSessionQueue';
@@ -79,10 +80,13 @@ const PomodoroTimer = ({ uid }) => {
   }, [flowDuration, shortBreakDuration, longBreakDuration]);
 
   // --------------------------------
-  // FETCH STATS FROM FIREBASE ON MOUNT
+  // INITIALIZE AND FETCH STATS FROM FIREBASE ON MOUNT
   // --------------------------------
   useEffect(() => {
-    const fetchStats = async () => {
+    const initAndFetchStats = async () => {
+      // Initialize stats if they don't exist
+      await initializeStats();
+      
       const auth = getAuth();
       if (!auth.currentUser) {
         console.error("User is not authenticated.");
@@ -107,7 +111,7 @@ const PomodoroTimer = ({ uid }) => {
         console.error("Error fetching stats:", error);
       }
     };
-    fetchStats();
+    initAndFetchStats();
   }, []);
 
   // --------------------------------
@@ -474,7 +478,7 @@ const PomodoroTimer = ({ uid }) => {
           >
             <img
               className="settings-icon"
-              src="/settingsGear.svg"
+              src="/closedOptions.svg"
               alt="Settings"
             />
           </button>

@@ -222,7 +222,7 @@ function AchievementCard({ groupIds, achievements, description, badgeIcons }) {
   }
 
   return (
-    <div className="achievement-card" >
+    <div className="achievement-card">
       <img
         src={iconToShow}
         alt="Achievement Icon"
@@ -469,17 +469,19 @@ function Profile() {
         <InlineEditableMajor major={major} onMajorChange={handleMajorChange} />
         <InlineEditableClassYear classYear={classYear} onClassYearChange={handleClassYearChange} />
         <InlineEditableBio bio={bio} onBioChange={handleBioChange} />
+        {/* Note for editing fields */}
+        <div className="profile-note">
+          Note: Double click on the fields to edit them.
+        </div>
         <SkillsSection skills={skills} onSkillsChange={handleSkillsChange} />
       </div>
 
       {/* Middle Panel: Stats & Achievements */}
       <div className="middle-panel">
         <div className="stats-section">
-          {/* Stats Box */}
           <div className="stats">
             <h2 className="stats__title">Stats</h2>
             <div className="stats__container">
-              {/* Total Study Time */}
               <div className="stats__item">
                 <div className="stats__icon">
                   <img
@@ -494,7 +496,6 @@ function Profile() {
                 </p>
               </div>
 
-              {/* Study Sessions */}
               <div className="stats__item">
                 <div className="stats__icon">
                   <img
@@ -507,7 +508,6 @@ function Profile() {
                 <p className="stats__item-value">{userStats.studySessions}</p>
               </div>
 
-              {/* Breaks Taken */}
               <div className="stats__item">
                 <div className="stats__icon">
                   <img
@@ -520,7 +520,6 @@ function Profile() {
                 <p className="stats__item-value">{userStats.totalBreaksTaken}</p>
               </div>
 
-              {/* Longest Study Session */}
               <div className="stats__item">
                 <div className="stats__icon">
                   <img
@@ -535,7 +534,6 @@ function Profile() {
                 </p>
               </div>
 
-              {/* Last Study Session */}
               <div className="stats__item">
                 <div className="stats__icon">
                   <img
@@ -553,10 +551,8 @@ function Profile() {
               </div>
             </div>
           </div>
-          
         </div>
         <div className="achievements-section">
-          {/* Achievements Cards Section */}
           <div className="achievements">
             <h2 className="achievement__title">Achievements</h2>
             <div className="achievement-cards-container">
@@ -578,8 +574,8 @@ function Profile() {
       <div className="right-panel">
         <div className="metrics-section">
           <h1>Metrics</h1>
-            <TaskCalendarChart />
-            <MetricsChart />
+          <TaskCalendarChart />
+          <MetricsChart />
         </div>
       </div>
     </div>

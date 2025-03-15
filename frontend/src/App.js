@@ -8,7 +8,7 @@ import { TimerProvider } from './TimerContext';
 
 import Navbar from './components/NavBar/Navbar';
 import Profile from './components/Profile/Profile';
-import useSyncUserProfile from './components/Profile/useSyncUserProfile';
+import useSyncUserProfile from './utils/useSyncUserProfile';
 import Community from './components/Community/Community';
 import FriendProfile from './components/Profile/FriendProfile';
 import CalendarPage from './components/Calendar/CalendarPage';
@@ -23,7 +23,7 @@ const App = () => {
   // Keeps the Firestore user document in sync with the latest auth profile.
   useSyncUserProfile();
 
-  const [theme] = useState(localStorage.getItem("theme") || "dark");
+  const [theme] = useState(localStorage.getItem("theme") || "light");
   const [user, setUser] = useState(null);
   const auth = getAuth();
 
@@ -50,7 +50,7 @@ const App = () => {
               <div>
                 <Navbar />
               </div>
-              <div className="app-container" data-theme="dark">
+              <div className="app-container" data-theme="light">
                 <Routes>
                   <Route path="/" element={ <PomodoroTimer uid={user ? user.uid : null} />} />
                   <Route

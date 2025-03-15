@@ -18,13 +18,14 @@
   
   /* Mode label (e.g. "Focus", "Short Break", "Long Break") */
   .mode-label {
-    margin-bottom: 0.35rem !important;
+    margin-bottom: 0rem !important;
     color: var(--text);
     text-align: center; /* Adjust if you want it centered in its own column */
   }
   
   .mode-text {
     font-size: 2rem;
+    margin-bottom: -0.5rem;
     text-align: center;
   }
   
@@ -35,7 +36,6 @@
     font-size: 1rem;         /* slightly smaller than main label */
     margin-top: 0.25rem;     /* small spacing below the main label */
     color: var(--text);
-    gap: 0.5rem;
   }
   
   .exit-flow-session-icon {
@@ -44,7 +44,7 @@
     cursor: pointer;
     opacity: 0.5;
     margin-top: 0.2rem;
-    margin-left: -0.3rem;
+    margin-left: 0.2rem;
     transition: opacity 0.3s ease;
   }
   
@@ -54,7 +54,8 @@
   
   .timer-display {
     font-size: 7rem !important;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+    margin-top: -0.35rem;
     display: inline-block;
     min-width: 5ch;
     text-align: center;
@@ -62,13 +63,14 @@
 
   .timer-controls {
     margin-top: -0.5rem;
+    margin-left: 1.35rem;
     display: flex;
     align-items: center;
     gap: 0.8rem;
   }
   
   .start-button {
-    background-color: var(--accent-background);
+    background-color: #000;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 999px;
@@ -85,7 +87,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--accent-background);
+    background-color: #666;
     border-radius: 1rem;
   }
   
@@ -97,7 +99,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--accent-background);
+    background-color: #666;
     border-radius: 1rem;
   }
   
@@ -119,8 +121,10 @@
   }
   
   .settings-button img {
-    width: 28px;
-    height: 28px;
+    margin-left: -0.4rem;
+    rotate: 90deg;
+    width: 24px;
+    height: 24px;
   }
 
   .resume-flow-session-button {
@@ -132,14 +136,3 @@
     padding: 0;
     margin-top: 0.35rem;
   }
-
-
-.gear-button-img {
-    width: 28px;
-    height: 28px;
-    transition: filter 0.3s ease-in-out;
-}
-
-.dark-mode {
-    filter: invert(1);
-}

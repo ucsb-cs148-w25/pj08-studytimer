@@ -217,7 +217,7 @@ function FriendProfile() {
           <strong>Skills/Interests:</strong>
           <div className="skills-chips">
             {skills.map((skill, index) => (
-              <div key={index} className="chip">
+              <div key={index} className="chip read-only">
                 <span className="chip-text">{skill}</span>
               </div>
             ))}
