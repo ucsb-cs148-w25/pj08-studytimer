@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import SettingsModal from './SettingsModal';
 import './PomodoroTimer.css';
-import { getFirestore, doc, setDoc, getDoc, collection } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc} from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import initializeStats from "../../utils/initializeStats";
 
