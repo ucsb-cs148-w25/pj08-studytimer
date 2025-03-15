@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import SettingsModal from './SettingsModal';
 import './PomodoroTimer.css';
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc} from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import initializeStats from "../../utils/initializeStats";
 
+// --------------------------------
+// DEFAULT SETTINGS (in minutes)
+// --------------------------------
 const PomodoroTimer = () => {
-  // --------------------------------
-  // DEFAULT SETTINGS (in minutes)
-  // --------------------------------
-  const [flowDuration, setFlowDuration] = useState(25);
+  const [flowDuration, setFlowDuration] = useState(25); 
   const [shortBreakDuration, setShortBreakDuration] = useState(5);
   const [longBreakDuration, setLongBreakDuration] = useState(30);
   const [cycle, setCycle] = useState(4); // after 4 flows, use a long break
 
-  // This tracks how many Flow sessions have completed in the current cycle.
+  // Track how many Flow sessions have completed in the current cycle.
   const [currentCycle, setCurrentCycle] = useState(0);
 
   // Toggles (update without forcing a timer reset)
@@ -98,10 +99,13 @@ const PomodoroTimer = () => {
   }, [flowDuration, shortBreakDuration, longBreakDuration]);
 
   // --------------------------------
-  // FETCH STATS FROM FIREBASE ON MOUNT
+  // INITIALIZE AND FETCH STATS FROM FIREBASE ON MOUNT
   // --------------------------------
   useEffect(() => {
-    const fetchStats = async () => {
+    const initAndFetchStats = async () => {
+      // Initialize stats if they don't exist
+      await initializeStats();
+      
       const auth = getAuth();
       if (!auth.currentUser) {
         console.error("User is not authenticated.");
@@ -126,7 +130,7 @@ const PomodoroTimer = () => {
         console.error("Error fetching stats:", error);
       }
     };
-    fetchStats();
+    initAndFetchStats();
   }, []);
 
   // --------------------------------
@@ -308,7 +312,7 @@ const PomodoroTimer = () => {
   }, [stats]);
 
   // --------------------------------
-  // FORMAT TIME FOR DISPLAY
+  // FORMAT TIME FOR DISPLAY (mm:ss)
   // --------------------------------
   const formatTime = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);

@@ -4,7 +4,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 import Navbar from './components/NavBar/Navbar';
 import Profile from './components/Profile/Profile';
-import useSyncUserProfile from './components/Profile/useSyncUserProfile';
+import useSyncUserProfile from './utils/useSyncUserProfile';
 import Community from './components/Community/Community';
 import FriendProfile from './components/Profile/FriendProfile';
 import CalendarPage from './components/Calendar/CalendarPage';
