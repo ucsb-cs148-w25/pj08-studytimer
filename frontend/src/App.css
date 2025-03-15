@@ -23,7 +23,7 @@ body {
 /* Navbar Styles */
 /* Adjust these styles as needed if your Navbar is fixed */
 .navbar, .NavBar {
-  width: 98%;
+  width: 100%;
   background-color: var(--primary-color);
   color: var(--text-color);
   position: fixed;
