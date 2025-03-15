@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { getFirestore, doc, setDoc, getDoc, collection, query, where, writeBatch, getDocs } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, query, where, writeBatch, getDocs } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useFocusSession } from '../../focusSessionContext';
 import { db } from '../../firebase';
@@ -34,19 +34,6 @@ const PomodoroTimer = ({ uid }) => {
 
   const { inFocusSession, setInFocusSession, selectedView, setSelectedView } = useFocusSession();
   const [showResumePrompt, setShowResumePrompt] = useState(false);
-
-  // --------------------------------
-  // BACKGROUND THEME
-  // --------------------------------
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setTheme(localStorage.getItem("theme") || "dark");
-    };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
 
   // --------------------------------
   // RESTORE TIMER STATE FROM LOCALSTORAGE ON MOUNT USING finishTime
