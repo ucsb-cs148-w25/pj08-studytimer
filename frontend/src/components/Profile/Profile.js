@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, onSnapshot } from "firebase/firestore";
 import unlockAchievement from "../../utils/unlockAchievement";
+import initializeAchievements from "../../utils/initializeAchievements";
 import MetricsChart from "../ToDo/MetricsChart.js";
 import TaskCalendarChart from "../ToDo/TaskCalendarChart.js";
 import "./Profile.css";
@@ -117,7 +118,6 @@ function InlineEditableBio({ bio, onBioChange }) {
     <div className="bio-inline">
       <strong>Bio:</strong>{" "}
       {editing ? (
-        // Using textarea for multiline bio editing
         <textarea
           value={value}
           onChange={handleChange}
@@ -275,6 +275,9 @@ function Profile() {
         setUserName(user.displayName || "User");
         setUserPhoto(user.photoURL || "/default-profile.png");
         setUserId(user.uid);
+
+        // Initialize achievements document for the user if needed
+        await initializeAchievements();
 
         // Reference to the user's Firestore document
         const userDocRef = doc(db, "users", user.uid);
@@ -469,7 +472,7 @@ function Profile() {
         <InlineEditableMajor major={major} onMajorChange={handleMajorChange} />
         <InlineEditableClassYear classYear={classYear} onClassYearChange={handleClassYearChange} />
         <InlineEditableBio bio={bio} onBioChange={handleBioChange} />
-        {/* Note for editing fields */}
+        {/* Note for editing fields; appears on hover per CSS */}
         <div className="profile-note">
           Note: Double click on the fields to edit them.
         </div>
