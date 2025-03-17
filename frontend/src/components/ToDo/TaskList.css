@@ -360,7 +360,7 @@
 
 .no-tasks {
   position: center;
-  margin-left: 28.5rem;
+  margin-left: 41.5%;
   font-size: 0.9rem;
   color: var(--label-count);
 }
@@ -382,11 +382,16 @@
   border-radius: 4px;
   min-width: 100px;
   z-index: 999;
+  background-color: #ffffff;
+  border: 1.25px solid #dedede;
 }
 .label-options-item {
   padding: 0.5rem;
   font-size: 0.85rem;
   cursor: pointer;
+}
+.label-options-item:hover {
+  background-color: #f0f0f0;
 }
 
 .label-options-item.delete-item {

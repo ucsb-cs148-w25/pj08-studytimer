@@ -68,7 +68,7 @@ html, body {
   padding: 10px 15px;
   font-family: 'Google Sans', Roboto, Arial, sans-serif;
   font-size: 16px;
-  border-top: 1px solid var(--calendar-header-border);
+  border-top: 2.5px solid var(--calendar-header-border);
   border-bottom: 1px solid var(--calendar-header-border);
   position: relative;
   width: 100%;
@@ -123,6 +123,7 @@ html, body {
 
 .fc .fc-event {
   color: var(--calendar-day-text);
+  margin-top: -0.4rem;
 }
 
 .fc-popover .fc-popover-header {
