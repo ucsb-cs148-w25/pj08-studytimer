@@ -1,4 +1,4 @@
-# Documented below are our team members' individual AI coding experiments.
+# Documented below are our team members' Contributions to the project
 ## Kevin:
 **Roles:** original code owner, deployment person, backup strum master, retro 3 leader
 
